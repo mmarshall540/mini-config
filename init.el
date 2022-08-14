@@ -179,11 +179,16 @@
 ;; Melpa that aren't otherwise available.
 (mini-set package-archive-priorities '(("gnu" . 2) ("nongnu" . 1)))
 
+;; Make sure package-archives have been downloaded at least once.
+(unless
+    (file-exists-p
+     (expand-file-name
+      "elpa/archives/gnu/archive-contents"
+      user-emacs-directory))
+  (package-refresh-contents))
+
 
 ;;; Install any selected but not-yet-installed packages.
-
-(unless package-quickstart-file
-  (package-refresh-contents))
 
 (package-install-selected-packages)
 
