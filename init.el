@@ -166,7 +166,12 @@
 (mini-set package-selected-packages
   '( ace-isearch avy consult consult-eglot corfu eglot eldoc embark lin magit
      marginalia minimap modus-themes orderless org-modern project pulsar
-     treemacs vertico vundo xref yasnippet ))
+     treemacs vertico xref yasnippet ))
+
+;; Add packages that require Emacs 28 if we have that.
+(when (version< "28" emacs-version)
+  (append package-selected-packages
+	  '(vundo)))
 
 ;; Add Melpa and Nongnu repos.
 (mini-set package-archives
