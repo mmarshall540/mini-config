@@ -182,6 +182,9 @@
 
 ;;; Install any selected but not-yet-installed packages.
 
+(unless package-quickstart-file
+  (package-refresh-contents))
+
 (package-install-selected-packages)
 
 
