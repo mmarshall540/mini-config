@@ -2006,17 +2006,17 @@ Optional argument ARG is the same as for `mark-word'." t))
 
 
 ;;; Tmm
+;; built-in
 
-
-;;; Global-map
-(mini-defk "<f10>"	'tmm-menubar)
-
-;;; Isearch-mode-map
-(mini-defk "<f10>"     'isearch-tmm-menubar  isearch-mode-map)
-;; (mini-defk ?\M-m 'mini-isearch-bor-exit isearch-mode-map)
-
-;;; Minibuffer-mode-map
-(mini-defk "<f10>"     'keyboard-escape-quit minibuffer-mode-map)
+(mini-bltin tmm
+   ;; Global-map
+  (mini-defk "<f10>"	'tmm-menubar)
+  ;; Isearch-mode-map
+  (mini-eval isearch
+    (mini-defk "<f10>"     'isearch-tmm-menubar  isearch-mode-map))
+  ;; Minibuffer-mode-map
+  (mini-eval minibuffer
+    (mini-defk "<f10>"     'keyboard-escape-quit minibuffer-mode-map)))
 
 
 ;;; Transpose-frame
