@@ -2014,9 +2014,9 @@ Optional argument ARG is the same as for `mark-word'." t))
   ;; Isearch-mode-map
   (mini-eval isearch
     (mini-defk "<f10>"     'isearch-tmm-menubar  isearch-mode-map))
-  ;; Minibuffer-mode-map
+  ;; Minibuffer-local-map
   (mini-eval minibuffer
-    (mini-defk "<f10>"     'keyboard-escape-quit minibuffer-mode-map)))
+    (mini-defk "<f10>"     'keyboard-escape-quit minibuffer-local-map)))
 
 
 ;;; Transpose-frame
