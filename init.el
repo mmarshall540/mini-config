@@ -165,13 +165,13 @@
 ;; will be ignored, unless you erase that variable's customization.
 (mini-set package-selected-packages
   '( ace-isearch avy consult consult-eglot corfu eglot eldoc embark lin magit
-     marginalia minimap modus-themes orderless org-modern project pulsar
-     treemacs vertico xref yasnippet ))
+     marginalia minimap orderless org-modern project pulsar treemacs vertico
+     xref yasnippet ))
 
 ;; Add packages that require Emacs 28 if we have that.
 (when (version< "28" emacs-version)
   (append package-selected-packages
-	  '(vundo)))
+	  '(vundo modus-themes)))
 
 ;; Add Melpa and Nongnu repos.
 (mini-set package-archives
