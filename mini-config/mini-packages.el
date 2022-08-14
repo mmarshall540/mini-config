@@ -1212,13 +1212,13 @@ ORIG and ARGS as arguments."
       ;; Fix wrapping of lines in minibuffer with marginalia and
       ;; icomplete-vertical-mode / fido-vertical-mode.
       (add-hook 'icomplete-minibuffer-setup-hook
-		(lambda () (setq truncate-lines t)))))
+		(lambda () (setq truncate-lines t)))
 
-    ;; Make the completion list appear immediately.
-    (mini-set icomplete-show-matches-on-no-input t)
+      ;; Make the completion list appear immediately.
+      (mini-set icomplete-show-matches-on-no-input t)
 
-    ;; Avoid annoying *Completions* buffer pop-up.
-    (mini-defk "TAB" 'icomplete-force-complete minibuffer-local-completion-map))
+      ;; Avoid annoying *Completions* buffer pop-up.
+      (mini-defk "TAB" 'icomplete-force-complete minibuffer-local-completion-map))))
 
 
 ;;; Imenu
