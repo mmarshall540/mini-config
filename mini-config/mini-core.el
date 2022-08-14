@@ -312,6 +312,7 @@ on the home-row, even if the layout is Programmer Dvorak." nil)
 (defun mini-addmenu (mapstr itemlist &optional path before)
   "MAPSTR ITEMLIST PATH BEFORE."
   (declare (indent 1))
+  (require 'easymenu)
   (dolist (item itemlist)
     (easy-menu-add-item
      (intern (if (symbolp mapstr)
