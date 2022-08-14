@@ -1205,15 +1205,17 @@ ORIG and ARGS as arguments."
 	      (package-installed-p 'ivy)
 	      (package-installed-p 'helm)
 	      (package-installed-p 'mct))
-    (add-hook 'after-init-hook 'fido-vertical-mode)
+
+    (unless (version< emacs-version "28")
+      (add-hook 'after-init-hook 'fido-vertical-mode)
+
+      ;; Fix wrapping of lines in minibuffer with marginalia and
+      ;; icomplete-vertical-mode / fido-vertical-mode.
+      (add-hook 'icomplete-minibuffer-setup-hook
+		(lambda () (setq truncate-lines t)))))
 
     ;; Make the completion list appear immediately.
     (mini-set icomplete-show-matches-on-no-input t)
-
-    ;; Fix wrapping of lines in minibuffer with marginalia and
-    ;; icomplete-vertical-mode / fido-vertical-mode.
-    (add-hook 'icomplete-minibuffer-setup-hook
-              (lambda () (setq truncate-lines t)))
 
     ;; Avoid annoying *Completions* buffer pop-up.
     (mini-defk "TAB" 'icomplete-force-complete minibuffer-local-completion-map)))
@@ -1854,7 +1856,7 @@ ORIG and ARGS as arguments."
 
 ;;; Repeat
 ;; built-in
-
+ 
 (mini-bltin repeat
   (when (version< "28" emacs-version)
     (add-hook 'after-init-hook 'repeat-mode)))
