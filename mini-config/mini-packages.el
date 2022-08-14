@@ -1952,14 +1952,15 @@ has passed, otherwise show the channel buffer." t)
 
 (mini-bltin startup
   ;; Insert startup time at bottom of splash screen.
-  (advice-add
-   'fancy-startup-tail
-   :after
-   (lambda (&optional concise)
-     (ignore concise)
-     (fancy-splash-insert
-      :face 'variable-pitch
-      (emacs-init-time "\n\nEmacs started in %.2f seconds.")))))
+  (unless (version< emacs-version "28")
+    (advice-add
+     'fancy-startup-tail
+     :after
+     (lambda (&optional concise)
+       (ignore concise)
+       (fancy-splash-insert
+	:face 'variable-pitch
+	(emacs-init-time "\n\nEmacs started in %.2f seconds."))))))
 
 
 ;;; Su
