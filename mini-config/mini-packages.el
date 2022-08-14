@@ -1856,7 +1856,8 @@ ORIG and ARGS as arguments."
 ;; built-in
 
 (mini-bltin repeat
-  (add-hook 'after-init-hook 'repeat-mode))
+  (when (version< "28" emacs-version)
+    (add-hook 'after-init-hook 'repeat-mode)))
 
 
 ;;; Restart-emacs
