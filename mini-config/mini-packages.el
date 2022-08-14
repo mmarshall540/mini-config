@@ -1218,7 +1218,7 @@ ORIG and ARGS as arguments."
     (mini-set icomplete-show-matches-on-no-input t)
 
     ;; Avoid annoying *Completions* buffer pop-up.
-    (mini-defk "TAB" 'icomplete-force-complete minibuffer-local-completion-map)))
+    (mini-defk "TAB" 'icomplete-force-complete minibuffer-local-completion-map))
 
 
 ;;; Imenu
