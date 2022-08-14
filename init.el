@@ -164,14 +164,13 @@
 ;; effect the first time you load this config.  From that point on, it
 ;; will be ignored, unless you erase that variable's customization.
 (mini-set package-selected-packages
-  '( ace-isearch avy consult consult-eglot corfu eglot eldoc embark lin magit
-     marginalia minimap orderless org-modern project pulsar treemacs vertico
-     xref yasnippet ))
-
-;; Add packages that require Emacs 28 if we have that.
-(when (version< "28" emacs-version)
-  (append package-selected-packages
-	  '(vundo modus-themes)))
+  (append
+   '( ace-isearch avy consult consult-eglot corfu eglot eldoc embark lin magit
+      marginalia minimap orderless org-modern project pulsar treemacs vertico
+      xref yasnippet )
+   ;; Add packages that require Emacs 28 if we have that.
+   (when (version< "28" emacs-version)
+     '(modus-themes vundo))))
 
 ;; Add Melpa and Nongnu repos.
 (mini-set package-archives
