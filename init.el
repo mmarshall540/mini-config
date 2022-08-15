@@ -28,8 +28,9 @@
 ;;
 ;; * Provide an advanced environment for developing in Python.  (This
 ;;   is provided by the `eglot' package.  You must install one of the
-;;   Python language servers onto your system to take advantage of
-;;   it.  It supports pylsp, pyls, pyright out of the box.)
+;;   Python language servers onto your system to take advantage of it.
+;;   You can use jedi-language-server, pylsp, pyls, or pyright without
+;;   additional configuration.
 
 ;; Structure:
 ;;
