@@ -2013,14 +2013,63 @@ Optional argument ARG is the same as for `mark-word'." t))
 ;; built-in
 
 (mini-bltin tmm
-   ;; Global-map
-  (mini-defk "<f10>"	'tmm-menubar)
+  ;; A more aesthetically pleasing shortcut indicator.
+  (mini-set tmm-mid-prompt " → ")
+  ;; Global-map
+  (mini-defk "<f10>"   'tmm-menubar)
   ;; Isearch-mode-map
   (mini-eval isearch
-    (mini-defk "<f10>"     'isearch-tmm-menubar  isearch-mode-map))
+    (mini-defk "<f10>" 'isearch-tmm-menubar  isearch-mode-map))
   ;; Minibuffer-local-map
   (mini-eval minibuffer
-    (mini-defk "<f10>"     'keyboard-escape-quit minibuffer-local-map)))
+    (mini-defk "<f10>" 'keyboard-escape-quit minibuffer-local-map))
+  ;; Make shortcuts in the tmm-menubar more consistent.
+  (defvar tmm-short-cuts)
+  (defvar tmm-next-shortcut-digit)
+  (defvar tmm-shortcut-style)
+  (defvar tmm-shortcut-words)
+  (defvar tmm-mid-prompt)
+  (defun mini-tmm-add-one-shortcut (elt)
+  "A modified version of `tmm-add-one-shortcut' from tmm.el.
+
+Takes the same argument ELT, but the order of events is altered
+so that shortcut keys don't change depending on whether menu
+items higher up in the menu have become inactive."
+  (let* ((str (car elt))
+	 (paren (if (version< "28" emacs-version)
+		    (string-search "(" str)
+		  (string-match "(" str)))
+	 (pos 0) (word 0) char)
+    (catch 'done                             ; ??? is this slow?
+      (while (and (or (not tmm-shortcut-words)   ; no limit on words
+                      (< word tmm-shortcut-words)) ; try n words
+		  (setq pos (string-match "\\w+" str pos)) ; get next word
+		  (not (and paren (> pos paren)))) ; don't go past "(binding.."
+	(if (or (= pos 0)
+		(/= (aref str (1- pos)) ?.)) ; avoid file extensions
+	    (dolist (shortcut-style ; try upcase and downcase variants
+		     (if (listp tmm-shortcut-style) ; convert to list
+			 tmm-shortcut-style
+		       (list tmm-shortcut-style)))
+              (setq char (funcall shortcut-style (aref str pos)))
+              (if (not (memq char tmm-short-cuts)) (throw 'done char))))
+	(setq word (1+ word))
+	(setq pos (match-end 0)))
+      (while (<= tmm-next-shortcut-digit ?9) ; no letter shortcut, pick a digit
+	(setq char tmm-next-shortcut-digit)
+	(setq tmm-next-shortcut-digit (1+ tmm-next-shortcut-digit))
+	(if (not (memq char tmm-short-cuts)) (throw 'done char)))
+      (setq char nil))
+    (if char (setq tmm-short-cuts (cons char tmm-short-cuts)))
+    (if (eq (cddr elt) 'ignore)
+	(cons (concat " " (make-string (length tmm-mid-prompt) ?\-)
+                      (car elt))
+              (cdr elt))
+      (cons (concat (if char (concat (char-to-string char) tmm-mid-prompt)
+                      (make-string (1+ (length tmm-mid-prompt)) ?\s))
+		    str)
+	    (cdr elt)))))
+  (advice-add 'tmm-add-one-shortcut :override 'mini-tmm-add-one-shortcut))
 
 
 ;;; Transpose-frame
