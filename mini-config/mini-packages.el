@@ -591,7 +591,7 @@
   (mini-set corfu-auto t)
   (mini-set corfu-auto-delay 0.4)
   (mini-set corfu-auto-prefix 4)
-  (run-at-time 1 nil
+  (run-at-time 2 nil
 	       (lambda () (add-hook 'window-state-change-hook 'corfu-mode))))
 
 
@@ -640,7 +640,8 @@
 ;;; Dashboard
 
 (mini-pkgif dashboard
-  ;; (mini-defk ?e 'dashboard-return dashboard-mode-map) ;; make `e' work as in 'dired, 'ibuffer, etc.
+  ;; make `e' work as in 'dired, 'ibuffer, etc.
+  ;; (mini-defk ?e 'dashboard-return dashboard-mode-map)
   ;; (mini-defk ?p 'dashboard-previous-line dashboard-mode-map)
   ;; (mini-defk ?n 'dashboard-next-line dashboard-mode-map)
   (mini-set dashboard-agenda-prefix-format "%s ")
@@ -792,7 +793,7 @@
 ;; built-in
 
 (mini-bltin elec-pair
-  (run-at-time 1 nil
+  (run-at-time 2 nil
 	       (lambda ()
 		 (add-hook 'window-state-change-hook 'electric-pair-mode))))
 
@@ -1474,8 +1475,7 @@ ORIG and ARGS as arguments."
 
 (mini-pkgif minimap
   (mini-defk "<f9>" 'minimap-mode)
-  (mini-set minimap-window-location 'right)
-  (mini-set minimap-mode nil))
+  (mini-set minimap-window-location 'right))
 
 
 ;;; Misc
@@ -1851,15 +1851,15 @@ ORIG and ARGS as arguments."
 ;; built-in
 
 (mini-bltin recentf
-  (mini-set recentf-mode t))
+  (run-at-time 1.5 nil 'recentf-mode))
 
 
 ;;; Repeat
 ;; built-in
- 
+
 (mini-bltin repeat
   (when (version< "28" emacs-version)
-    (add-hook 'after-init-hook 'repeat-mode)))
+    (run-at-time 2 nil 'repeat-mode)))
 
 
 ;;; Restart-emacs
@@ -1932,7 +1932,9 @@ ORIG and ARGS as arguments."
 ;; built-in
 
 (mini-bltin smtpmail
-  (mini-set send-mail-function 'smtpmail-send-it)
+
+  (mini-eval smtpmail
+    (mini-set send-mail-function 'smtpmail-send-it))
   (mini-set smtpmail-stream-type 'ssl))
 
 
@@ -1990,6 +1992,32 @@ Optional argument ARG is the same as for `mark-word'." t))
   (mini-set tab-bar-close-button-show nil))
 
 
+;;; Tempel
+
+(mini-pkgif tempel
+  (mini-defk "M-+" 'tempel-complete) ;; Alternative tempel-expand
+  (mini-defk "M-*" 'tempel-insert)
+  ;; Setup completion at point
+  (defun tempel-setup-capf ()
+    ;; Add the Tempel Capf to `completion-at-point-functions'.
+    ;; `tempel-expand' only triggers on exact matches. Alternatively use
+    ;; `tempel-complete' if you want to see all matches, but then you
+    ;; should also configure `tempel-trigger-prefix', such that Tempel
+    ;; does not trigger too often when you don't expect it. NOTE: We add
+    ;; `tempel-expand' *before* the main programming mode Capf, such
+    ;; that it will be tried first.
+    (setq-local completion-at-point-functions
+                (cons 'tempel-expand
+                      completion-at-point-functions)))
+  (add-hook 'prog-mode-hook 'tempel-setup-capf)
+  (add-hook 'text-mode-hook 'tempel-setup-capf)
+  ;; Optionally make the Tempel templates available to Abbrev,
+  ;; either locally or globally. `expand-abbrev' is bound to C-x '.
+  ;; (add-hook 'prog-mode-hook #'tempel-abbrev-mode)
+  ;; (global-tempel-abbrev-mode)
+  )
+
+
 ;;; Term
 ;; built-in
 
@@ -2006,7 +2034,7 @@ Optional argument ARG is the same as for `mark-word'." t))
 (mini-bltin time
   (mini-set display-time-default-load-average nil)
   (mini-set display-time-format "%l:%M%#p ")
-  (mini-set display-time-mode t))
+  (add-hook 'after-init-hook 'display-time-mode))
 
 
 ;;; Tmm
@@ -2113,10 +2141,9 @@ items higher up in the menu have become inactive."
 
 (mini-pkgif vertico
   (add-hook 'after-init-hook 'vertico-mode)
-  (defvar vertico-indexed-mode)
-  (mini-set vertico-indexed-mode t)
   (mini-set vertico-cycle t)
   (declare-function vertico-indexed-mode "vertico-indexed")
+  (defvar vertico-indexed-mode)
   (defun mini-tmm-with-vertico ()
     "A wrapper around `tmm-menubar' to ensure all items are shown."
     (interactive)
@@ -2137,6 +2164,7 @@ items higher up in the menu have become inactive."
   (mini-defk [f10] 'mini-tmm-with-vertico)
 
   (mini-eval vertico
+    (vertico-indexed-mode)
     (defvar vertico-map)
     ;; Use C-s and C-r to navigate between results (esp. for consult-line)
     (mini-defk "C-s" 'vertico-next     vertico-map)
@@ -2246,8 +2274,7 @@ items higher up in the menu have become inactive."
 
 (mini-bltin which-func
   (add-hook 'prog-mode-hook 'which-function-mode)
-  (add-hook 'org-mode-hook 'which-function-mode)
-  (mini-set which-function-mode nil))
+  (add-hook 'org-mode-hook 'which-function-mode))
 
 
 ;;; Which-key
