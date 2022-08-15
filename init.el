@@ -139,7 +139,7 @@
 ;; Set the default theme depending on what is available.
 (setq custom-enabled-themes
       (if (version< emacs-version "28")
-	  '(leuven-dark)
+	  '(wombat)
 	'(modus-vivendi)))
 
 ;; Designate the file to which Easy Customization (e.g. "M-x
