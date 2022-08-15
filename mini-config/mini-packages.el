@@ -287,7 +287,7 @@
 ;; built-in
 
 (mini-bltin autoinsert
-  (add-hook 'find-file-hook 'auto-insert-mode))
+  (add-hook 'after-init-hook 'auto-insert-mode))
 
 
 ;;; Autorevert
