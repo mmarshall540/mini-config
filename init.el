@@ -205,7 +205,7 @@
 
 ;;; Load the handcrafted settings file, if it exists.
 
-(load (expand-file-name "my-settings" user-emacs-directory) t)
+(load (expand-file-name "my-settings" user-emacs-directory) 'noerror)
 
 (provide 'init)
 ;;; init.el ends here
