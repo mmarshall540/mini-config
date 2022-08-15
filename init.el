@@ -206,9 +206,10 @@
 
 ;;; Install any selected but not-yet-installed packages.
 
-(if  (version< "28" emacs-version)
-    (package-install-selected-packages 'noconfirm)
-  (package-install-selected-packages))
+(let ((find-file-hook (remq 'auto-insert find-file-hook)))
+  (if (version< "28" emacs-version)
+      (package-install-selected-packages 'noconfirm)
+    (package-install-selected-packages)))
 
 
 ;;; Configure installed and built-in packages.
