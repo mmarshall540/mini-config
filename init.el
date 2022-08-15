@@ -133,6 +133,15 @@
 
 ;;; "Easy Customization"
 
+;; Allow all themes.
+(setq custom-safe-themes t)
+
+;; Set the default theme depending on what is available.
+(setq custom-enabled-themes
+      (if (version< emacs-version "28")
+	  '(leuven-dark)
+	'(modus-vivendi)))
+
 ;; Designate the file to which Easy Customization (e.g. "M-x
 ;; customize-variable RET menu-bar-mode RET") will save settings.
 (setq custom-file (expand-file-name "custom.el" user-emacs-directory))
