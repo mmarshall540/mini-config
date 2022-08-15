@@ -134,17 +134,20 @@
 ;;; "Easy Customization"
 
 ;; Allow all themes.
-(setq custom-safe-themes t)
+(customize-set-variable 'custom-safe-themes t)
 
 ;; Set the default theme depending on what is available.
-(setq custom-enabled-themes
-      (if (version< emacs-version "28")
-	  '(wombat)
-	'(modus-vivendi)))
+(customize-set-variable
+ 'custom-enabled-themes
+ (if (version< emacs-version "28")
+     '(wombat)
+   '(modus-vivendi)))
 
 ;; Designate the file to which Easy Customization (e.g. "M-x
 ;; customize-variable RET menu-bar-mode RET") will save settings.
-(setq custom-file (expand-file-name "custom.el" user-emacs-directory))
+(customize-set-variable
+ 'custom-file
+ (expand-file-name "custom.el" user-emacs-directory))
 
 ;; Load the Easy Customization settings file if it exists.
 (load custom-file 'noerror)
@@ -203,7 +206,7 @@
 
 ;;; Install any selected but not-yet-installed packages.
 
-(package-install-selected-packages)
+(package-install-selected-packages 'noconfirm)
 
 
 ;;; Configure installed and built-in packages.
