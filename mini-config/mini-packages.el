@@ -2151,20 +2151,11 @@ items higher up in the menu have become inactive."
   (add-hook 'after-init-hook 'vertico-mode)
   (mini-set vertico-cycle t)
   (declare-function vertico-indexed-mode "vertico-indexed")
-  (defvar vertico-indexed-mode)
   (defun mini-tmm-with-vertico ()
     "A wrapper around `tmm-menubar' to ensure all items are shown."
     (interactive)
     (let ((vertico-count 40)
-	  (vertico-count-format nil)
-	  (vindexstatus vertico-indexed-mode))
-      (when vindexstatus
-	;; Turn off vertico-indexed-mode...
-	(vertico-indexed-mode 0)
-	;; But turn it back on after this finishes.  (Turning it on
-	;; after the call to `tmm-menubar' usually won't work, because
-	;; if you quit from the menu, the command aborts.)
-	(run-with-timer 0 nil 'vertico-indexed-mode))
+	  (vertico-count-format nil))
       (ignore vertico-count
 	      vertico-count-format)
       (call-interactively 'tmm-menubar)))
@@ -2172,7 +2163,6 @@ items higher up in the menu have become inactive."
   (mini-defk [f10] 'mini-tmm-with-vertico)
 
   (mini-eval vertico
-    (vertico-indexed-mode)
     (defvar vertico-map)
     ;; Use C-s and C-r to navigate between results (esp. for consult-line)
     (mini-defk "C-s" 'vertico-next     vertico-map)
