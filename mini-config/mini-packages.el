@@ -2105,7 +2105,23 @@ items higher up in the menu have become inactive."
                       (make-string (1+ (length tmm-mid-prompt)) ?\s))
 		    str)
 	    (cdr elt)))))
-  (advice-add 'tmm-add-one-shortcut :override 'mini-tmm-add-one-shortcut))
+
+  (advice-add 'tmm-add-one-shortcut :override 'mini-tmm-add-one-shortcut)
+
+  ;; Update parenthetical in the `tmm-menubar' minibuffer prompt.
+  (defun mini-tmm-change-prompt-advice (func p &rest r)
+    "Function to temporarily add as advice to `completing-read'.
+
+This allows the `tmm-menubar' prompt to be changed.
+
+Calls FUNC with a modified prompt argument P and passes along any
+other arguments R."
+    (let ((prompt (replace-regexp-in-string
+		   "Menu bar (up/down to change, PgUp to menu): "
+		   "Menu bar:" p)))
+      (apply func prompt r)))
+
+  (advice-add 'completing-read-default :around 'mini-tmm-change-prompt-advice))
 
 
 ;;; Transpose-frame
@@ -2150,7 +2166,6 @@ items higher up in the menu have become inactive."
 (mini-pkgif vertico
   (add-hook 'after-init-hook 'vertico-mode)
   (mini-set vertico-cycle t)
-  (declare-function vertico-indexed-mode "vertico-indexed")
   (defun mini-tmm-with-vertico ()
     "A wrapper around `tmm-menubar' to ensure all items are shown."
     (interactive)
@@ -2186,7 +2201,7 @@ items higher up in the menu have become inactive."
 
 ;;; Vertigo
 
-;; Not to be confused with the "Vertico".
+;; Not to be confused with the "Vertico" package.
 
 (mini-pkgif vertigo
   (mini-set vertigo-home-row (if (eq mini-keyboard-layout 'programmer-dvorak)
