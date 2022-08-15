@@ -178,8 +178,8 @@
 (mini-set package-selected-packages
   (append
    '( ace-isearch avy consult consult-eglot corfu eglot eldoc embark lin magit
-      marginalia minimap orderless org-modern project pulsar tempel treemacs
-      vertico xref )
+      marginalia minimap orderless org-modern project pulsar tempel vertico
+      xref )
    ;; Add packages that require Emacs 28 if we have that.
    (when (version< "28" emacs-version)
      '(modus-themes vundo))))
@@ -206,6 +206,7 @@
 
 ;;; Install any selected but not-yet-installed packages.
 
+;; Prevent `auto-insert' prompt when custom.el is created.
 (let ((find-file-hook (remq 'auto-insert find-file-hook)))
   (if (version< "28" emacs-version)
       (package-install-selected-packages 'noconfirm)
