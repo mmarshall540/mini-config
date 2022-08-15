@@ -206,7 +206,9 @@
 
 ;;; Install any selected but not-yet-installed packages.
 
-(package-install-selected-packages 'noconfirm)
+(if  (version< "28" emacs-version)
+    (package-install-selected-packages 'noconfirm)
+  (package-install-selected-packages))
 
 
 ;;; Configure installed and built-in packages.
