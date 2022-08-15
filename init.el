@@ -178,9 +178,9 @@
 ;; will be ignored, unless you erase that variable's customization.
 (mini-set package-selected-packages
   (append
-   '( ace-isearch avy consult consult-eglot corfu eglot eldoc embark lin magit
-      marginalia minimap orderless org-modern project pulsar tempel vertico
-      xref )
+   '( ace-isearch avy consult consult-eglot corfu eglot eglot-java eldoc embark
+      lin magit marginalia minimap orderless org-modern project pulsar tempel
+      vertico xref )
    ;; Add packages that require Emacs 28 if we have that.
    (when (version< "28" emacs-version)
      '(modus-themes vundo))))

@@ -770,6 +770,14 @@
       '("jedi-language-server" "pylsp" "pyls" ("pyright-langserver" "--stdio"))))))
 
 
+;;; Eglot-java
+
+(mini-pkgif eglot-java
+  (run-at-time
+   1.5 nil
+   'eglot-java-init))
+
+
 ;; Ehelp
 ;; built-in
 
