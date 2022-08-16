@@ -10,6 +10,10 @@
 ;; * Have reasonable default settings and a reasonable set of default
 ;;   packages to start from.
 ;;
+;; * Included packages have minimal dependencies.  (Minimizes
+;;   complexity.  However, configurations are included for many other
+;;   packages, even though those not installed by default.)
+;;
 ;; * Provide Numerous intuitive and useful macros.
 ;;
 ;; * Changes to keybindings (when set using the included macros
@@ -179,7 +183,7 @@
 (mini-set package-selected-packages
   (append
    '( ace-isearch avy consult consult-eglot corfu eglot eglot-java eldoc embark
-      lin magit marginalia minimap orderless org-modern project pulsar tempel
+      lin marginalia minimap orderless org-modern project pulsar tempel
       vertico xref )
    ;; Add packages that require Emacs 28 if we have that.
    (when (version< "28" emacs-version)
