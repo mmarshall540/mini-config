@@ -348,26 +348,11 @@
   ;; (mini-defk ?s             'avy-next              goto-map)
 
   ;; Recommended bindings from https://github.com/abo-abo/avy
+
+  ;; FIXME This conflicts with the binding for
+  ;; `org-cycle-agenda-files' in org-mode buffers.
   (mini-defk "C-'" 'avy-goto-char)
-  (mini-defk "C-\"" 'avy-goto-char-2)
-  ;; But the above conflicts with `org-cycle-agenda-files' in org-mode buffers.
-  ;; So...
-  (defvar org-mode-map)
-  (mini-eval org
-    (mini-defk "C-'" nil org-mode-map))
-
-  (mini-set avy-dispatch-alist ;; Must not conflict with keys in avy-keys
-    '((?x . avy-action-kill-move) ;; Move point to item and kill it.
-      (?X . avy-action-kill-stay) ;; (default ?X) Kill item but leave point at current location.
-      (?p . avy-action-teleport) ;; (default ?t, alternative is ?p which is mnemonic for Pull or telePort) Kill item and yank it to point.
-      (?m . avy-action-mark) ;; Mark item and activate region (mark at beginning and point at end).
-      (?c . avy-action-copy) ;; (default ?n) Copy item to kill-ring.
-      (?y . avy-action-yank) ;; Copy and yank item to point.
-      (?Y . avy-action-yank-line) ;; (default ?Y) Copy item up to end-of-its-line and yank to present point.
-      (?$ . avy-action-ispell) ;; (default ?i, alt: $ because that key is used for `ispell-word') Run spell check on item.
-      (?z . avy-action-zap-to-char)))
-
-  (mini-set avy-keys '(?a ?o ?e ?u ?i ?d ?h ?t ?n ?s)))
+  (mini-defk "C-\"" 'avy-goto-char-2))
 
 
 ;;; Calfw
