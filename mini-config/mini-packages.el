@@ -1454,6 +1454,7 @@ ORIG and ARGS as arguments."
 ;;; Marginalia
 
 (mini-pkgif marginalia
+  ;; If neither Helm nor Ivy are installed.
   (unless (seq-filter 'package-installed-p '(helm ivy))
     (add-hook 'emacs-startup-hook 'marginalia-mode)
     (if (package-installed-p 'selectrum)
@@ -1461,9 +1462,7 @@ ORIG and ARGS as arguments."
 	  (defvar selectrum-minibuffer-map)
 	  (mini-defk "M-m" 'marginalia-cycle selectrum-minibuffer-map))
       (mini-defk "M-m" 'marginalia-cycle minibuffer-local-map))
-    (add-hook 'minibuffer-setup-hook 'marginalia-mode)
-    (mini-eval marginalia
-      (mini-defk "M-m" 'marginalia-cycle minibuffer-local-map))))
+    (add-hook 'minibuffer-setup-hook 'marginalia-mode)))
 
 
 ;;; Markdown-mode
