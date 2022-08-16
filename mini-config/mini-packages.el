@@ -1930,7 +1930,6 @@ ORIG and ARGS as arguments."
   (mini-defk "M-c"	'capitalize-dwim)
   (mini-defk "M-l"	'downcase-dwim)
   (mini-defk "C-d"      'delete-forward-char) ;; replacement for 'delete-char, deletes region if active.
-  (mini-defk ?k 'kill-current-buffer ctl-x-map)
   (add-hook 'org-mode-hook 'visual-line-mode)
   (add-hook 'emacs-startup-hook 'turn-on-auto-fill))
 
@@ -2050,8 +2049,14 @@ Optional argument ARG is the same as for `mark-word'." t))
 (mini-bltin tmm
   ;; A more aesthetically pleasing shortcut indicator.
   (mini-set tmm-mid-prompt " → ")
-  ;; Global-map
-  (mini-defk "<f10>"   'tmm-menubar)
+  ;; Wait until after vertico-mode would have started, if it is in
+  ;; use, and only make this binding if it is not.  Otherwise, we use
+  ;; our wrapper function that works with vertico.
+  (add-hook 'after-init-hook
+	    (lambda () (run-at-time
+		   1 nil
+		   (lambda () (unless vertico-mode
+			   (mini-defk "<f10>"   'tmm-menubar))))))
   ;; Isearch-mode-map
   (mini-eval isearch
     (mini-defk "<f10>" 'isearch-tmm-menubar  isearch-mode-map))
@@ -2065,7 +2070,7 @@ Optional argument ARG is the same as for `mark-word'." t))
   (defvar tmm-shortcut-words)
   (defvar tmm-mid-prompt)
   (defun mini-tmm-add-one-shortcut (elt)
-  "A modified version of `tmm-add-one-shortcut' from tmm.el.
+    "A modified version of `tmm-add-one-shortcut' from tmm.el.
 
 Takes the same argument ELT, but the order of events is altered
 so that shortcut keys don't change depending on whether menu
@@ -2250,7 +2255,8 @@ other arguments R."
 ;; built-in
 
 (mini-bltin view
-  (mini-defk ?v 'view-mode mode-specific-map)
+  (unless (package-installed-p 'vundo)
+    (mini-defk ?v 'view-mode mode-specific-map))
   (mini-addmenu "options"
     '(["View-Mode" view-mode])
     '("View Enhancements*")))
