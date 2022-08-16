@@ -173,6 +173,8 @@
 ;; These settings only apply if they weren't already set by the custom
 ;; file that was loaded above.
 
+(mini-set package-quickstart t)
+
 ;; Default list of external packages to install.
 ;;
 ;; Whenever any packages get installed or deleted, Emacs updates the
