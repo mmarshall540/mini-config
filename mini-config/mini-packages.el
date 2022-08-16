@@ -253,6 +253,8 @@
       (all-the-icons-install-fonts t))
     (require 'all-the-icons)
     (mini-ensure all-the-icons-completion
+      (require 'package)
+      (declare-function package-installed-p nil)
       (declare-function all-the-icons-completion-mode nil)
       (if (package-installed-p 'marginalia)
 	  (add-hook 'marginalia-mode-hook 'all-the-icons-completion-marginalia-setup)
@@ -1782,6 +1784,7 @@ ORIG and ARGS as arguments."
 
 (mini-bltin pixel-scroll
   (when (version< "29" emacs-version)
+    (declare-function pixel-scroll-precision-mode nil)
     (pixel-scroll-precision-mode)))
 
 
