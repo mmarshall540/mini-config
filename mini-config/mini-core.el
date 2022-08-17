@@ -802,13 +802,13 @@ FORMS will not be executed."
   (declare (indent 1))
   (unless (listp pkgs)
     (setq pkgs (list `,pkgs)))
-  `(unless
-       (or (cl-intersection (quote ,pkgs)
-			    mini-excluded-packages)
-	   (seq-remove
-	    'package-installed-p
-	    (quote ,pkgs)))
-     (progn ,@forms)))
+  (unless
+      (or (cl-intersection `,pkgs
+			   mini-excluded-packages)
+	  (seq-remove
+	   'package-installed-p
+	   `,pkgs))
+    `(progn ,@forms)))
 
 (defmacro mini-ensure (pkgs &rest forms)
   "Ensure that PKGS are installed.
@@ -822,15 +822,15 @@ FORMS will not be executed."
   (declare (indent 1))
   (unless (listp pkgs)
     (setq pkgs (list `,pkgs)))
-  `(unless ; any excluded packages?
-       (cl-intersection (quote ,pkgs)
-			mini-excluded-packages)
-     ;; Install any missing packages.
-     (dolist (pkg (seq-remove
-		   'package-installed-p
-		   (quote ,pkgs)))
-       (package-install pkg))
-     (progn ,@forms)))
+  (unless ; any excluded packages?
+      (cl-intersection `,pkgs
+		       mini-excluded-packages)
+    ;; Install any missing packages.
+    (dolist (pkg (seq-remove
+		  'package-installed-p
+		  `,pkgs))
+      (package-install pkg))
+    `(progn ,@forms)))
 
 (defmacro mini-bltin (pkgs &rest forms)
   "Check if any of the built-in PKGS are in excluded.
@@ -841,10 +841,10 @@ FORMS will not be executed."
   (declare (indent 1))
   (unless (listp pkgs)
     (setq pkgs (list `,pkgs)))
-  `(unless
-       (cl-intersection (quote ,pkgs)
-			mini-excluded-packages)
-     (progn ,@forms)))
+  (unless
+      (cl-intersection `,pkgs
+		       mini-excluded-packages)
+    `(progn ,@forms)))
 
 (defun mini-nil-if-in-scratch ()
   "Check if ‘current-buffer’ is ‘*scratch*’.
