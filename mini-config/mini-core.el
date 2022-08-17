@@ -816,9 +816,6 @@ If already installed, or they can be successfully installed, then
 execute FORMS.  However, if any of the packages is included in the
 `mini-excluded-packages' list, no PKGS will not be installed, and the
 FORMS will not be executed."
-  ;; (list 'unless (list 'or (list 'package-installed-p (list 'quote pkg))
-  ;; 		      (list 'memq (list 'quote pkg) 'mini-excluded-packages))
-  ;; 	(list 'package-install (list 'quote pkg)))
   (declare (indent 1))
   (unless (listp pkgs)
     (setq pkgs (list `,pkgs)))
