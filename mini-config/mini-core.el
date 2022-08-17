@@ -804,10 +804,10 @@ FORMS will not be executed."
     (setq pkgs (list `,pkgs)))
   (unless
       (or (cl-intersection `,pkgs
-			   mini-excluded-packages)
+			   mini-excluded-packages) ; ignored packages?
 	  (seq-remove
 	   'package-installed-p
-	   `,pkgs))
+	   `,pkgs)) ; any packages not installed yet?
     `(progn ,@forms)))
 
 (defmacro mini-ensure (pkgs &rest forms)
@@ -823,11 +823,12 @@ FORMS will not be executed."
       (cl-intersection `,pkgs
 		       mini-excluded-packages)
     ;; Install any missing packages.
-    (dolist (pkg (seq-remove
-		  'package-installed-p
-		  `,pkgs))
-      (package-install pkg))
-    `(progn ,@forms)))
+    `(progn
+       (dolist (pkg (seq-remove
+		     'package-installed-p
+		     (quote ,pkgs)))
+	 (package-install pkg))
+       ,@forms)))
 
 (defmacro mini-bltin (pkgs &rest forms)
   "Check if any of the built-in PKGS are in excluded.
