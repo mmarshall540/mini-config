@@ -50,9 +50,10 @@
 ;;; Ace-isearch
 
 (mini-pkgif ace-isearch
-  (mini-set ace-isearch-function 'avy-goto-char)
-  (mini-set ace-isearch-2-function 'avy-goto-char-2)
-  (mini-set ace-isearch-jump-based-on-one-char nil)
+  (mini-eval ace-isearch
+    (mini-set ace-isearch-function 'avy-goto-char)
+    (mini-set ace-isearch-2-function 'avy-goto-char-2)
+    (mini-set ace-isearch-jump-based-on-one-char nil))
   (declare-function global-ace-isearch-mode nil)
   (global-ace-isearch-mode))
 
@@ -658,6 +659,13 @@
   (run-at-time 3 nil 'delete-selection-mode))
 
 
+;;; Denote
+
+(mini-pkgif denote
+  (add-hook 'find-file-hook 'denote-link-buttonize-buffer)
+  (add-hook 'dired-mode-hook 'denote-dired-mode))
+
+
 ;;; Dired
 ;; built-in
 
@@ -1239,27 +1247,19 @@ ORIG and ARGS as arguments."
 ;;built-in
 
 (mini-bltin isearch
-  ;; Allow exiting isearch with the binding for `capitalize-word'.
-  ;; Other than yanking and completion commands, this is the only
-  ;; default binding in isearch-mode-map that conflicts with an
-  ;; editing command.  `isearch-toggle-case-fold-search' (the
-  ;; command bound to it by default) already has a duplicate
-  ;; binding at "M-s c".
-  (mini-defk "M-c" nil isearch-mode-map)
   (mini-set isearch-allow-motion t)
   (mini-set isearch-allow-scroll t)
   (mini-set isearch-lazy-count t)
 
   (mini-eval isearch
-    (mini-defk "M-m" 'mini-isearch-bor-exit isearch-mode-map))
-  (dolist (kb '(([up]    . isearch-ring-retreat)
-                ([down]  . isearch-ring-advance)
-                ([left]  . isearch-repeat-backward)
-                ([right] . isearch-repeat-forward)))
-    (mini-defk (car kb) (cdr kb) isearch-mode-map))
-  (dolist (kb '(([left]  . isearch-reverse-exit-minibuffer)
-                ([right] . isearch-forward-exit-minibuffer)))
-    (mini-defk (car kb) (cdr kb) minibuffer-local-isearch-map)))
+    (dolist (kb '(([up]    . isearch-ring-retreat)
+                  ([down]  . isearch-ring-advance)
+                  ([left]  . isearch-repeat-backward)
+                  ([right] . isearch-repeat-forward)))
+      (mini-defk (car kb) (cdr kb) isearch-mode-map))
+    (dolist (kb '(([left]  . isearch-reverse-exit-minibuffer)
+                  ([right] . isearch-forward-exit-minibuffer)))
+      (mini-defk (car kb) (cdr kb) minibuffer-local-isearch-map))))
 
 
 ;;; Jit-lock
@@ -1591,8 +1591,6 @@ ORIG and ARGS as arguments."
   (mini-defk "C-a" 'mwim-beginning)
   (mini-defk "C-e" 'mwim-end))
 
-;; I'll use C-e more, because that finger is stronger.  I don't want
-;; to press C-a very much because my pinky gets sore easily.
 ;; Configure the movements by customizing the variables
 ;; `mwim-beginning-position-functions' and
 ;; `mwim-end-position-functions'.
