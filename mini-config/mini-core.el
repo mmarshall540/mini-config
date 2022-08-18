@@ -28,6 +28,7 @@
 ;;; Code:
 
 (require 'cl-seq)
+(require 'package)
 
 ;; Customizable variables
 
@@ -803,12 +804,17 @@ FORMS will not be executed."
   (unless (listp pkgs)
     (setq pkgs (list `,pkgs)))
   (unless
-      (or (cl-intersection `,pkgs
-			   mini-excluded-packages) ; ignored packages?
-	  (seq-remove
-	   'package-installed-p
-	   `,pkgs)) ; any packages not installed yet?
-    `(progn ,@forms)))
+       (or (cl-intersection `,pkgs
+			    mini-excluded-packages) ; ignored packages?
+
+	   ;; (seq-remove
+	   ;;  'package-installed-p
+	   ;;  ,pkgs))
+
+	   ;; any packages not installed yet?
+	   (seq-difference `,pkgs package-selected-packages))
+
+     `(progn ,@forms)))
 
 (defmacro mini-ensure (pkgs &rest forms)
   "Ensure that PKGS are installed.
@@ -824,10 +830,20 @@ FORMS will not be executed."
 		       mini-excluded-packages)
     ;; Install any missing packages.
     `(progn
-       (dolist (pkg (seq-remove
-		     'package-installed-p
-		     (quote ,pkgs)))
-	 (package-install pkg))
+
+       ;; (dolist
+       ;; 	   (pkg (seq-remove
+       ;; 		 'package-installed-p
+       ;; 		 (quote ,pkgs)))
+       ;; 	 (package-install pkg))
+
+       (setq package-selected-packages
+	     (append
+	      (seq-difference
+	       (quote ,pkgs)
+	       package-selected-packages)
+	      package-selected-packages))
+
        ,@forms)))
 
 (defmacro mini-bltin (pkgs &rest forms)
