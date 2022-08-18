@@ -81,7 +81,16 @@ This allows them to be viewed with the command
   :group 'mini)
 
 (defcustom mini-transpose-bindings t
-  "Create a prefix for accessing transpose commands."
+  "Create a prefix for accessing transpose commands.
+This includes commands that built-in to Emacs but are not bound
+by default."
+  :type 'boolean
+  :group 'mini)
+
+(defcustom mini-kill-bindings t
+  "Create a prefix for accessing kill commands.
+This includes commands that built-in to Emacs but are not bound
+by default."
   :type 'boolean
   :group 'mini)
 
@@ -1209,7 +1218,7 @@ Otherwise, call `isearch-repeat-backward' and then
 ;; (mini-defk "v"      'view-mode                mode-specific-map)
 
 (when mini-transpose-bindings
-  (defvar mini-transpose-prefix-map)
+  (defvar mini-transpose-prefix-map (make-sparse-keymap))
   (define-prefix-command 'mini-transpose-prefix-command 'mini-transpose-prefix-map)
   (dolist (kb '((?c . transpose-chars)
 		(?l . transpose-lines)
@@ -1220,6 +1229,29 @@ Otherwise, call `isearch-repeat-backward' and then
 		(?p . transpose-paragraphs)))
     (mini-defk (car kb) (cdr kb) mini-transpose-prefix-map))
   (mini-defk "t"      'mini-transpose-prefix-command mode-specific-map))
+
+
+(when mini-kill-bindings
+  (defvar mini-kill-prefix-map (make-sparse-keymap))
+  (define-prefix-command 'mini-kill-prefix-command 'mini-kill-prefix-map)
+  (dolist (kb '((?K . kill-whole-line)
+		(?s . kill-sexp)
+		(?w . kill-word)
+		(?m . kill-region)
+		(?c . kill-comment)
+		(?e . kill-sentence)
+		(?E . backward-kill-sentence)
+		(?p . kill-paragraph)
+		(?P . backward-kill-paragraph)
+		(?r . kill-rectangle)
+		(?v . kill-visual-line)
+		(?o . kill-matching-lines)
+		(?u . kill-backward-up-list)
+		(?z . zap-to-char)
+		(?Z . zap-up-to-char)))
+    (mini-defk (car kb) (cdr kb) mini-kill-prefix-map))
+  (mini-defk "k"      'mini-kill-prefix-command mode-specific-map))
+
 
 
 (provide 'mini-core)
