@@ -25,7 +25,6 @@
 ;;; Code:
 
 (require 'mini-core)
-(require 'package)
 
 
 ;;; Abbrev
@@ -255,9 +254,8 @@
     (require 'all-the-icons)
     (mini-ensure all-the-icons-completion
       (require 'package)
-      (declare-function package-installed-p nil)
       (declare-function all-the-icons-completion-mode nil)
-      (if (package-installed-p 'marginalia)
+      (if (memq 'marginalia package-selected-packages)
 	  (add-hook 'marginalia-mode-hook 'all-the-icons-completion-marginalia-setup)
 	(dolist (pkg '(vertico mct selectrum ivy helm))
 	  (with-eval-after-load pkg 'all-the-icons-completion-mode))))
@@ -437,8 +435,7 @@
   ;; `completion--in-region' function.
   (defvar vertico-mode)
   (declare-function consult-completion-in-region "consult")
-  (unless (or (package-installed-p 'company)
-	      (package-installed-p 'corfu))
+  (unless (cl-intersection '(company corfu) package-selected-packages)
     (mini-set completion-in-region-function
       (lambda (&rest args)
 	(apply (if vertico-mode
@@ -949,7 +946,7 @@ https://karthinks.com/software/avy-can-do-anything/."
 ;; built-in
 
 (mini-bltin flymake
-  (unless (package-installed-p 'flycheck)
+  (unless (memq 'flycheck package-selected-packages)
     (add-hook 'prog-mode-hook 'flymake-mode)
     (mini-eval flymake
       (defvar flymake-mode-map) ;; get rid of compiler warning
@@ -1204,11 +1201,9 @@ ORIG and ARGS as arguments."
 ;; built-in
 
 (mini-bltin icomplete
-  (unless (or (package-installed-p 'vertico)
-	      (package-installed-p 'selectrum)
-	      (package-installed-p 'ivy)
-	      (package-installed-p 'helm)
-	      (package-installed-p 'mct))
+  (unless (cl-intersection
+	   '(vertico selectrum ivy helm mct)
+	   package-selected-packages)
 
     (unless (version< emacs-version "28")
       (add-hook 'after-init-hook 'fido-vertical-mode)
@@ -1222,14 +1217,15 @@ ORIG and ARGS as arguments."
       (mini-set icomplete-show-matches-on-no-input t)
 
       ;; Avoid annoying *Completions* buffer pop-up.
-      (mini-defk "TAB" 'icomplete-force-complete minibuffer-local-completion-map))))
+      (mini-defk "TAB" 'icomplete-force-complete
+		 minibuffer-local-completion-map))))
 
 
 ;;; Imenu
 ;; built-in
 
 (mini-bltin imenu
-  (unless (package-installed-p 'consult)
+  (unless (memq 'consult package-selected-packages)
     (mini-defk "M-i" 'imenu))
   (when mini-add-imenu-package-headings
     ;; Include page headings in Imenu.  A page heading is defined as a
@@ -1398,7 +1394,7 @@ ORIG and ARGS as arguments."
 ;;; Lsp-java
 
 (mini-pkgif lsp-java
-  (when (package-installed-p 'lsp-mode)
+  (when (memq 'lsp-mode package-selected-packages)
     (mini-set lsp-java-configuration-runtimes
       '[(:name "OpenJDK-1.8"
 	       :path "/usr/lib/jvm/java-1.8.0-openjdk-1.8.0.332.b09-1.fc36.x86_64/jre/")
@@ -1448,9 +1444,9 @@ ORIG and ARGS as arguments."
 
 (mini-pkgif marginalia
   ;; If neither Helm nor Ivy are installed.
-  (unless (seq-filter 'package-installed-p '(helm ivy))
+  (unless (cl-intersection '(helm ivy) package-selected-packages)
     (add-hook 'emacs-startup-hook 'marginalia-mode)
-    (if (package-installed-p 'selectrum)
+    (if (memq 'selectrum package-selected-packages)
 	(mini-eval selectrum
 	  (defvar selectrum-minibuffer-map)
 	  (mini-defk "M-m" 'marginalia-cycle selectrum-minibuffer-map))
@@ -2247,7 +2243,7 @@ other arguments R."
 ;; built-in
 
 (mini-bltin view
-  (unless (package-installed-p 'vundo)
+  (unless (memq 'vundo package-selected-packages)
     (mini-defk ?v 'view-mode mode-specific-map))
   (mini-addmenu "options"
     '(["View-Mode" view-mode])
