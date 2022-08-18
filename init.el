@@ -162,7 +162,7 @@
 
 ;; Set a theme if one hasn't been set already.
 (unless custom-enabled-themes
-  (customize-set-variable custom-enabled-themes
+  (customize-set-variable 'custom-enabled-themes
 			  (if (version< emacs-version "28")
 			      '(misterioso)
 			    '(modus-vivendi))))
