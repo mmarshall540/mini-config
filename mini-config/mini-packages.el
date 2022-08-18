@@ -25,6 +25,7 @@
 ;;; Code:
 
 (require 'mini-core)
+(require 'package)
 
 
 ;;; Abbrev
@@ -2046,7 +2047,7 @@ Optional argument ARG is the same as for `mark-word'." t))
   (add-hook 'after-init-hook
 	    (lambda () (run-at-time
 		   1 nil
-		   (lambda () (unless vertico-mode
+		   (lambda () (unless (memq 'vertico package-selected-packages)
 			   (mini-defk "<f10>"   'tmm-menubar))))))
   ;; Isearch-mode-map
   (mini-eval isearch
