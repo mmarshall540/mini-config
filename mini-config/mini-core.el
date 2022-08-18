@@ -846,12 +846,10 @@ FORMS will not be executed."
        ;; 		 (quote ,pkgs)))
        ;; 	 (package-install pkg))
 
-       (setq package-selected-packages
-	     (append
-	      (seq-difference
-	       (quote ,pkgs)
-	       package-selected-packages)
-	      package-selected-packages))
+       (dolist (pkg (seq-difference
+		     (quote ,pkgs)
+		     package-selected-packages))
+	 (package-install pkg))
 
        ,@forms)))
 
