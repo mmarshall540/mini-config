@@ -312,7 +312,7 @@
       (avy-goto-word-0-below . avy-order-closest)
       (avy-isearch	     . avy-order-closest)
       (avy-goto-line-above   . avy-order-closest)))
-  (mini-defk ?\C-,          'avy-goto-char-in-line)
+  ;; (mini-defk ?\C-,          'avy-goto-char-in-line)
   (mini-defk ?\M-p          'avy-goto-word-0-above)
   (autoload 'avy-goto-word-0-above "avy")
   (mini-defk ?\M-n          'avy-goto-word-0-below)
@@ -351,8 +351,8 @@
 
   ;; FIXME This conflicts with the binding for
   ;; `org-cycle-agenda-files' in org-mode buffers.
-  (mini-defk "C-'" 'avy-goto-char)
-  (mini-defk "C-\"" 'avy-goto-char-2))
+  (mini-defk "C-:" 'avy-goto-char)
+  (mini-defk "C-'" 'avy-goto-char-2))
 
 
 ;;; Calfw
