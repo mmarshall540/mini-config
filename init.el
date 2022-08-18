@@ -199,6 +199,27 @@
      '(modus-themes vundo))))
 
 
+;; Add Melpa and Nongnu repos.
+(mini-set package-archives
+  '(("gnu"	. "https://elpa.gnu.org/packages/")
+    ("nongnu"	. "https://elpa.nongnu.org/nongnu/")
+    ("melpa"	. "https://melpa.org/packages/")))
+
+;; Give preference to packages from Gnu and Nongnu Elpa, since they
+;; might be curated more carefully.  But still allow packages from
+;; Melpa that aren't otherwise available.
+(mini-set package-archive-priorities '(("gnu" . 2) ("nongnu" . 1)))
+
+
+;; Make sure package-archives have been downloaded at least once.
+(unless
+    (file-exists-p
+     (expand-file-name
+      "elpa/archives/gnu/archive-contents"
+      user-emacs-directory))
+  (package-refresh-contents))
+
+
 ;;; Install selected but not-yet-installed packages.
 
 ;; Prevent `auto-insert' prompt when custom.el is created.
@@ -217,27 +238,6 @@
 ;;; Load the handcrafted settings file, if it exists.
 
 (load (expand-file-name "my-settings" user-emacs-directory) 'noerror)
-
-
-
-;; Add Melpa and Nongnu repos.
-(mini-set package-archives
-  '(("gnu"	. "https://elpa.gnu.org/packages/")
-    ("nongnu"	. "https://elpa.nongnu.org/nongnu/")
-    ("melpa"	. "https://melpa.org/packages/")))
-
-;; Give preference to packages from Gnu and Nongnu Elpa, since they
-;; might be curated more carefully.  But still allow packages from
-;; Melpa that aren't otherwise available.
-(mini-set package-archive-priorities '(("gnu" . 2) ("nongnu" . 1)))
-
-;; Make sure package-archives have been downloaded at least once.
-(unless
-    (file-exists-p
-     (expand-file-name
-      "elpa/archives/gnu/archive-contents"
-      user-emacs-directory))
-  (package-refresh-contents))
 
 
 (provide 'init)
