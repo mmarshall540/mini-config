@@ -152,12 +152,6 @@
 ;; Allow all themes.
 (setq custom-safe-themes t)
 
-;; Set the default theme depending on what is available.
-(setq custom-enabled-themes
- (if (version< emacs-version "28")
-     '(wombat)
-   '(modus-vivendi)))
-
 ;; Designate the file to which Easy Customization (e.g. "M-x
 ;; customize-variable RET menu-bar-mode RET") will save settings.
 (setq custom-file
@@ -166,8 +160,14 @@
 ;; Load the Easy Customization settings file if it exists.
 (load custom-file 'noerror)
 
-
+;; Set a theme if one hasn't been set already.
+(unless custom-enabled-themes
+  (setq custom-enabled-themes
+	(if (version< emacs-version "28")
+	    '(misterioso)
+	  '(modus-vivendi))))
 
+
 ;;; Load the core configuration.
 
 ;; This is where functions, macros and customizable options are
