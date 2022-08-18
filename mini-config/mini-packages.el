@@ -288,7 +288,13 @@
 ;; built-in
 
 (mini-bltin autoinsert
-  (add-hook 'after-init-hook 'auto-insert-mode))
+  (defvar auto-insert-alist)
+  (add-hook 'after-init-hook 'auto-insert-mode)
+  (mini-eval autoinsert
+    ;; Don't try to auto-insert when the custom-file is created.
+    (add-to-list
+     'auto-insert-alist
+     '("custom.el" . (ignore)))))
 
 
 ;;; Autorevert
