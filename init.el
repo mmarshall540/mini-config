@@ -229,6 +229,28 @@
     (package-install-selected-packages)))
 
 
+;;; Suppress *Compile-Log* window at startup.
+
+(defun mini-compile-log-suppress (buffer ignore)
+  "Delete the window showing the given BUFFER.
+The second argument is required by `compilation-finish-functions'
+but this function will IGNORE it."
+  (ignore ignore)
+  (let ((window (get-buffer-window buffer t)))
+    (when window (delete-window window))))
+
+(add-hook 'compilation-finish-functions
+          'mini-compile-log-suppress)
+
+;; Remove the hook after start-up, because we probably will want to
+;; see compile logs then.
+(add-hook 'after-init-hook
+	  (lambda ()
+	    (run-at-time 5 nil
+			 (lambda () (remove-hook 'compilation-finish-functions
+					    'mini-compile-log-suppress)))))
+
+
 ;;; Configure selected and built-in packages.
 
 (require 'mini-packages
