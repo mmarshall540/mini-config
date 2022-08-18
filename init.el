@@ -162,10 +162,10 @@
 
 ;; Set a theme if one hasn't been set already.
 (unless custom-enabled-themes
-  (setq custom-enabled-themes
-	(if (version< emacs-version "28")
-	    '(misterioso)
-	  '(modus-vivendi))))
+  (customize-set-variable custom-enabled-themes
+			  (if (version< emacs-version "28")
+			      '(misterioso)
+			    '(modus-vivendi))))
 
 
 ;;; Load the core configuration.
