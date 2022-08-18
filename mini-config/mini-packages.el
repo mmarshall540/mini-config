@@ -54,8 +54,7 @@
     (mini-set ace-isearch-function 'avy-goto-char)
     (mini-set ace-isearch-2-function 'avy-goto-char-2)
     (mini-set ace-isearch-jump-based-on-one-char nil))
-  (declare-function global-ace-isearch-mode nil)
-  (global-ace-isearch-mode))
+  (run-at-time 2 nil 'global-ace-isearch-mode))
 
 
 ;;; Ace-link
@@ -1305,6 +1304,12 @@ ORIG and ARGS as arguments."
       occur-mode-hook
       org-agenda-mode-hook
       tabulated-list-mode-hook)))
+
+
+;;; Kbd-mode
+
+(mini-pkgif kbd-mode
+  (add-to-list 'auto-mode-alist '("\\.kbd\\'" . kbd-mode)))
 
 
 ;;; Link-hint
