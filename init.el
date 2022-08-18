@@ -136,22 +136,31 @@
           (lambda () (setq gc-cons-threshold mini-gct-placeholder)))
 
 
+ ;;; Package initialization
+
+(defvar package-quickstart t)
+
+;; Initializing package.el after the gc-cons-threshould has been
+;; raised shaves about .1 seconds off the load time.
+(unless (and (boundp 'package--initialized)
+	     package--initialized)
+  (package-initialize))
+
+
 ;;; "Easy Customization"
 
 ;; Allow all themes.
-(customize-set-variable 'custom-safe-themes t)
+(setq custom-safe-themes t)
 
 ;; Set the default theme depending on what is available.
-(customize-set-variable
- 'custom-enabled-themes
+(setq custom-enabled-themes
  (if (version< emacs-version "28")
      '(wombat)
    '(modus-vivendi)))
 
 ;; Designate the file to which Easy Customization (e.g. "M-x
 ;; customize-variable RET menu-bar-mode RET") will save settings.
-(customize-set-variable
- 'custom-file
+(setq custom-file
  (expand-file-name "custom.el" user-emacs-directory))
 
 ;; Load the Easy Customization settings file if it exists.
@@ -173,8 +182,6 @@
 ;; These settings only apply if they weren't already set by the custom
 ;; file that was loaded above.
 
-(mini-set package-quickstart t)
-
 ;; Default list of external packages to install.
 ;;
 ;; Whenever any packages get installed or deleted, Emacs updates the
@@ -190,6 +197,19 @@
    ;; Add packages that require Emacs 28 if we have that.
    (when (version< "28" emacs-version)
      '(modus-themes vundo))))
+
+
+;;; Configure selected and built-in packages.
+
+(require 'mini-packages
+	 (expand-file-name "mini-config/mini-packages" user-emacs-directory))
+
+
+;;; Load the handcrafted settings file, if it exists.
+
+(load (expand-file-name "my-settings" user-emacs-directory) 'noerror)
+
+
 
 ;; Add Melpa and Nongnu repos.
 (mini-set package-archives
@@ -218,17 +238,6 @@
   (if (version< "28" emacs-version)
       (package-install-selected-packages 'noconfirm)
     (package-install-selected-packages)))
-
-
-;;; Configure installed and built-in packages.
-
-(require 'mini-packages
-	 (expand-file-name "mini-config/mini-packages" user-emacs-directory))
-
-
-;;; Load the handcrafted settings file, if it exists.
-
-(load (expand-file-name "my-settings" user-emacs-directory) 'noerror)
 
 (provide 'init)
 ;;; init.el ends here
