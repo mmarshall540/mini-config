@@ -199,6 +199,15 @@
      '(modus-themes vundo))))
 
 
+;;; Install selected but not-yet-installed packages.
+
+;; Prevent `auto-insert' prompt when custom.el is created.
+(let ((find-file-hook (remq 'auto-insert find-file-hook)))
+  (if (version< "28" emacs-version)
+      (package-install-selected-packages 'noconfirm)
+    (package-install-selected-packages)))
+
+
 ;;; Configure selected and built-in packages.
 
 (require 'mini-packages
@@ -230,14 +239,6 @@
       user-emacs-directory))
   (package-refresh-contents))
 
-
-;;; Install any selected but not-yet-installed packages.
-
-;; Prevent `auto-insert' prompt when custom.el is created.
-(let ((find-file-hook (remq 'auto-insert find-file-hook)))
-  (if (version< "28" emacs-version)
-      (package-install-selected-packages 'noconfirm)
-    (package-install-selected-packages)))
 
 (provide 'init)
 ;;; init.el ends here
