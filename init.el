@@ -157,8 +157,10 @@
 (setq custom-file
  (expand-file-name "custom.el" user-emacs-directory))
 
-;; Load the Easy Customization settings file if it exists.
-(load custom-file 'noerror)
+;; Load the Easy Customization settings file if it exists.  Also
+;; suppress compilation on first run (when there's no custom.el file.)
+(unless (load custom-file 'noerror)
+  (setq no-byte-compile t))
 
 ;; Set a theme if one hasn't been set already.
 (unless custom-enabled-themes
@@ -218,18 +220,6 @@
       "elpa/archives/gnu/archive-contents"
       user-emacs-directory))
   (package-refresh-contents))
-
-
-;;; Suppress *Compile-Log* window at startup.
-
-(defun mini-compile-log-suppress ()
-  "Delete the *Compile-Log* window."
-  (let ((window (get-buffer-window byte-compile-log-buffer t)))
-    (when window (delete-window window))))
-
-(advice-add 'package-install-selected-packages
-	    :after
-	    'mini-compile-log-suppress)
 
 
 ;;; Install selected but not-yet-installed packages.
