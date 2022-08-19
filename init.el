@@ -157,10 +157,8 @@
 (setq custom-file
  (expand-file-name "custom.el" user-emacs-directory))
 
-;; Load the Easy Customization settings file if it exists.  Also
-;; suppress compilation on first run (when there's no custom.el file.)
-(unless (load custom-file 'noerror)
-  (setq no-byte-compile t))
+;; Load the Easy Customization settings file if it exists.
+(load custom-file 'noerror)
 
 ;; Set a theme if one hasn't been set already.
 (unless custom-enabled-themes
@@ -225,7 +223,8 @@
 ;;; Install selected but not-yet-installed packages.
 
 ;; Prevent `auto-insert' prompt when custom.el is created.
-(let ((find-file-hook (remq 'auto-insert find-file-hook)))
+(let ((find-file-hook (remq 'auto-insert find-file-hook))
+      (no-byte-compile t))
   (if (version< "28" emacs-version)
       (package-install-selected-packages 'noconfirm)
     (package-install-selected-packages)))
@@ -241,6 +240,16 @@
 
 (load (expand-file-name "my-settings" user-emacs-directory) 'noerror)
 
+;
+;; Compile things that haven't been or that have been updated.
+(run-with-idle-timer
+ 3 nil
+ (lambda ()
+   (byte-recompile-directory package-user-dir 0)
+   (byte-recompile-file
+    (expand-file-name "mini-config/mini-core" user-emacs-directory))
+   (byte-recompile-file
+    (expand-file-name "mini-config/mini-packages" user-emacs-directory))))
 
 (provide 'init)
 ;;; init.el ends here
