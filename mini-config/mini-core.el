@@ -419,6 +419,13 @@ the keys are bound to the specified MAP or `key-translation-map'."
        (unless (member newrow kmapelt)
 	 (push newrow (cdr kmapelt))))))
 
+(defun mini-org-help-link (symname)
+  "Generate an org-help-link for SYMNAME.
+It can be either a \='variable or \='callable"
+  (if (member symname '(nil ""))
+      symname
+    (format "[[help:%s][%s]]" symname symname)))
+
 (defun mini-show-defk-list ()
   "Pretty-print the custom keybindings created using `mini-defk'.
 along with the command that was previously bound to the same
@@ -461,6 +468,8 @@ key, if there was one."
       (org-table-align)
       (view-mode 1)
       (goto-char 0)
+      (defvar org-mode-map)
+      (use-local-map (copy-keymap org-mode-map))
       (local-set-key [?q] 'kill-current-buffer))))
 
 
@@ -689,52 +698,52 @@ This used by `mini-simk' to construct function symbols."
           (number-sequence 33 126))
   "Nearly comprehensive list of modifiable keys.")
 
-;; (defvar mini-lowercase-letters (number-sequence 97 122)
-;;   "List of lowercase letters.")
+(defvar mini-lowercase-letters (number-sequence 97 122)
+  "List of lowercase letters.")
 
-;; (defvar mini-uppercase-letters (number-sequence 65 90)
-;;   "List of uppercase letters.")
+(defvar mini-uppercase-letters (number-sequence 65 90)
+  "List of uppercase letters.")
 
-;; (defvar mini-letters (append mini-uppercase-letters mini-lowercase-letters)
-;;   "List of both uppercase and lowercase letters.")
+(defvar mini-letters (append mini-uppercase-letters mini-lowercase-letters)
+  "List of both uppercase and lowercase letters.")
 
-;; (defun mini-convenient-prefix (prefix keylist simkeys &optional hitkey)
-;;   "Make it easier to enter sequences that involve several modifier keys.
+(defun mini-convenient-prefix (prefix keylist simkeys &optional hitkey)
+  "Make it easier to enter sequences that involve several modifier keys.
 
-;; PREFIX is the prefix key under which we will bind a convenience
-;; key.
+PREFIX is the prefix key under which we will bind a convenience
+key.
 
-;; KEYLIST is a list of base keys, each of which, when pressed after
-;; the HITKEY, will have SIMKEYS added as modifiers and/or
-;; additional prefixes.
+KEYLIST is a list of base keys, each of which, when pressed after
+the HITKEY, will have SIMKEYS added as modifiers and/or
+additional prefixes.
 
-;; SIMKEYS must be a list of symbols and/or integers, representing
-;; keys and modifiers which will modify the keys in KEYLIST when
-;; HITKEY is used."
-;;   ;; (dolist (key keylist)
-;;   ;;   `(mini-simkey (if ,hitkey
-;;   ;;                  (vector ,prefix ,hitkey ,key)
-;;   ;;                (vector ,prefix ,key))
-;;   ;;              (vector ,prefix (event-convert-list ,(append simkeys (list key)))))))
-;;   (dolist (key keylist)
-;;     (mini-defk (if hitkey
-;;                    (vector prefix hitkey key)
-;;                  (vector prefix key))
-;;                (mini-simk (vector prefix (event-convert-list (append simkeys (list key))))))))
+SIMKEYS must be a list of symbols and/or integers, representing
+keys and modifiers which will modify the keys in KEYLIST when
+HITKEY is used."
+  ;; (dolist (key keylist)
+  ;;   `(mini-simkey (if ,hitkey
+  ;;                  (vector ,prefix ,hitkey ,key)
+  ;;                (vector ,prefix ,key))
+  ;;              (vector ,prefix (event-convert-list ,(append simkeys (list key)))))))
+  (dolist (key keylist)
+    (mini-defk (if hitkey
+                   (vector prefix hitkey key)
+                 (vector prefix key))
+               (mini-simk (vector prefix (event-convert-list (append simkeys (list key))))))))
 
 ;; ;; Set up "C-c [a-zA-Z]" to simulate "C-c C-[a-zA-Z]".  (But leave out
 ;; ;; "g", since we'll use it to simulate Control with *any* character
 ;; ;; under "C-c", including non-letter characters.)
-;; (when mini-C-c+letter-as-C-c+C-letter
-;;   (mini-convenient-prefix ?\C-c (remq ?g mini-letters) '(control)))
+(when mini-C-c+letter-as-C-c+C-letter
+  (mini-convenient-prefix ?\C-c (remq ?g mini-letters) '(control)))
 
 ;; ;; Set up "C-c g KEY" to simulate entering "C-c C-KEY".
-;; (when mini-C-c+g+char-as-C-c+C-char
-;;   (mini-convenient-prefix ?\C-c mini-modifiable-keys '(control) ?g))
+(when mini-C-c+g+char-as-C-c+C-char
+  (mini-convenient-prefix ?\C-c mini-modifiable-keys '(control) ?g))
 
 ;; ;; Set up "C-x g KEY" to simulate entering "C-x C-KEY".
-;; (when mini-C-x+g+char-as-C-x+C-char
-;;   (mini-convenient-prefix ?\C-x mini-modifiable-keys '(control) ?g))
+(when mini-C-x+g+char-as-C-x+C-char
+  (mini-convenient-prefix ?\C-x mini-modifiable-keys '(control) ?g))
 
 ;; ;; Swapping Ctrl with Meta
 
@@ -881,14 +890,6 @@ makes whatever buffer is being killed the ‘current-buffer’."
           nil)
       buf)))
 
-(defun mini-org-help-link (symname)
-  "SYMNAME.
-TYPE can be either \='variable or \='callable"
-  (if (member symname '(nil ""))
-      symname
-    (format "[[help:%s][%s]]" symname symname)))
-
-
 ;; Enter numeric arguments using the homerow.
 (defun mini-digit-arg ()
   "Call `digit-argument' using homerow keys to set the numbers.
@@ -902,9 +903,10 @@ the bindings to `universal-argument-map'.  Use
          (last-command-event (plist-get mini-digits e)))
     (call-interactively 'digit-argument)))
 
-;; Bind the above to keys in `universal-argument-map'.
-(dolist (key (number-sequence 0 9))
-  (mini-defk (nth (* key 2) mini-digits) 'mini-digit-arg universal-argument-map))
+;; ;; Bind the above to keys in `universal-argument-map'.
+;; (dolist (key (number-sequence 0 9))
+;;   (mini-defk (nth (* key 2) mini-digits) 'mini-digit-arg universal-argument-map))
+
 ;; (dolist (key (number-sequence 0 9))
 ;;   (mini-defk (nth (* key 2) mini-digits) nil universal-argument-map))
 
@@ -1014,6 +1016,13 @@ Otherwise, call `isearch-repeat-backward' and then
   (interactive)
   (when (< isearch-other-end (point))
     (goto-char isearch-other-end))
+  (call-interactively 'isearch-exit))
+
+(defun mini-isearch-eor-exit ()
+  "Ensure point is at end of isearch result and exit."
+  (interactive)
+  (when (>= isearch-other-end (point))
+    (goto-char (+ (point) (length isearch-string))))
   (call-interactively 'isearch-exit))
 
 
