@@ -1,4 +1,4 @@
-;;; mini-packages.el --- shorter configurations  -*- lexical-binding: t; -*-
+;;; mini-packages.el --- shorter configurations  -*- lexical-binding: t; outline-regexp: ";;;;* [^	]" -*-
 
 ;; Copyright (C) 2022  Martin Marshall
 
@@ -20,7 +20,7 @@
 
 ;;; Commentary:
 
-;; Configuration is divided organized by the relevant packages.
+;; Configuration is organized by the relevant packages.
 
 ;;; Code:
 
@@ -579,7 +579,6 @@
 ;;; Corfu
 
 (mini-pkgif corfu
-  (mini-set corfu-auto t)
   (mini-set corfu-auto-delay 0.4)
   (mini-set corfu-auto-prefix 4)
   (run-at-time 2 nil
@@ -800,21 +799,20 @@
 
 (mini-bltin elec-pair
   (run-at-time 2 nil
-	       (lambda ()
-		 (add-hook 'window-state-change-hook 'electric-pair-mode))))
+	       'electric-pair-mode))
 
 
 ;;; Electric
 ;; built-in
 
-(mini-bltin electric
-  (add-hook 'text-mode-hook 'electric-quote-local-mode)
-  ;; (mini-eval org
-  ;;   (add-hook 'org-mode-hook 'mini-electric-quote-inhibit-add))
-  )
+;; (mini-bltin electric
+;;   (add-hook 'text-mode-hook 'electric-quote-local-mode)
+;;   ;; (mini-eval org
+;;   ;;   (add-hook 'org-mode-hook 'mini-electric-quote-inhibit-add))
+;;   )
 
 
-;;; Elpy, Exec-path-from-shell, and Py-autopep8
+;;; Elpy
 
 (mini-pkgif elpy
   ;; Inherit shell settings properly.  (Elpy needs this.)
@@ -960,6 +958,12 @@ https://karthinks.com/software/avy-can-do-anything/."
       (mini-defk [?\M-g ?\M-n] 'flymake-goto-next-error flymake-mode-map)
       (mini-defk [?\M-g ?p]    'flymake-goto-prev-error flymake-mode-map)
       (mini-defk [?\M-g ?\M-p] 'flymake-goto-prev-error flymake-mode-map))))
+
+
+;;; Focus
+
+(mini-pkgif focus
+  )
 
 
 ;;; Frame
@@ -1203,7 +1207,7 @@ ORIG and ARGS as arguments."
   (mini-defk [remap list-buffers] 'ibuffer))
 
 
-;;; Icomplete / Fido-vertical
+;;; Icomplete
 ;; built-in
 
 (mini-bltin icomplete
@@ -1257,7 +1261,9 @@ ORIG and ARGS as arguments."
     (dolist (kb '(([up]    . isearch-ring-retreat)
                   ([down]  . isearch-ring-advance)
                   ([left]  . isearch-repeat-backward)
-                  ([right] . isearch-repeat-forward)))
+                  ([right] . isearch-repeat-forward)
+		  ("C-p"   . isearch-repeat-backward)
+		  ("C-n"   . isearch-repeat-forward)))
       (mini-defk (car kb) (cdr kb) isearch-mode-map))
     (dolist (kb '(([left]  . isearch-reverse-exit-minibuffer)
                   ([right] . isearch-forward-exit-minibuffer)))
@@ -1345,7 +1351,15 @@ ORIG and ARGS as arguments."
    ;; Delete paired punctuation.  How can this be made to work within
    ;; comments?  Parentheses are highlighted, but using this command
    ;; results in a message about unbalanced parentheses.
-  (mini-defk "d" 'delete-pair mode-specific-map))
+  (mini-defk "d" 'delete-pair mode-specific-map)
+  ;;
+  ;; insert-pair-alist default value is:
+  ;; '((?\( ?\)) (?\[ ?\]) (?\{ ?\}) (?\< ?\>) (?\" ?\") (?\' ?\') (?\` ?\'))
+  ;;
+  ;; Because lisp.el doesn't have a provide statement, the easiest way
+  ;; to add pairs to `insert-pair-alist' is to just define the whole
+  ;; list, rather than using `add-to-list'.
+  )
 
 
 ;;; Logos
@@ -1556,7 +1570,7 @@ ORIG and ARGS as arguments."
   (mini-addmenu "tools"
     '(["Mu4e: Email client" mu4e])
     '("Other Apps*" "Communication"))
-  (mini-set mu4e-get-mail-command "mbsync -c ~/.config/mbsync/mbsyncrc -a")
+  ;; (mini-set mu4e-get-mail-command "mbsync -c ~/.config/mbsync/mbsyncrc gmail")
   (mini-set mu4e-headers-unread-mark    '("u" . "📩 "))
   (mini-set mu4e-headers-draft-mark     '("D" . "🚧 "))
   (mini-set mu4e-headers-flagged-mark   '("F" . "🚩 "))
@@ -1567,7 +1581,7 @@ ORIG and ARGS as arguments."
   (mini-set mu4e-headers-trashed-mark   '("T" . "🗑️"))
   (mini-set mu4e-headers-attach-mark    '("a" . "📎 "))
   (mini-set mu4e-headers-encrypted-mark '("x" . "🔑 "))
-  (mini-set mu4e-headers-signed-mark    '("s" . "🖊 "))) ;; This may need to be customized.
+  (mini-set mu4e-headers-signed-mark    '("s" . "⚖ "))) ;; This may need to be customized.
 
 
 ;;; Mu4e-alert
@@ -1647,7 +1661,8 @@ ORIG and ARGS as arguments."
   ;; To get latest version of org, use mini-ensure instead.
   ;; needed for export to pdf: wrapfig.sty ulem.sty capt-of.sty
   ;; :system-deps ("/usr/share/texlive/texmf-dist/tex/generic/ulem/ulem.sty"      ;; texlive-capt-of
-  ;;               "/usr/share/texlive/texmf-dist/tex/latex/capt-of/capt-of.sty") ;; texlive-ulem
+  ;;               "/usr/share/texlive/texmf-dist/tex/latex/capt-of/capt-of.sty"  ;; texlive-ulem
+  ;;               "/usr/share/texlive/texmf-dist/tex/latex/wrapfig/wrapfig.sty)" ;; texlive-wrapfig
   (mini-defk ?a 'org-agenda     mode-specific-map)
   (mini-defk ?c 'org-capture    mode-specific-map)
   (mini-defk ?l 'org-store-link mode-specific-map)
@@ -1730,6 +1745,13 @@ ORIG and ARGS as arguments."
   (mini-set org-modern-hide-stars nil))
 
 
+;;; Outline
+;; built-in
+
+(mini-bltin outline
+  (add-hook 'emacs-lisp-mode-hook 'outline-minor-mode))
+
+
 ;;; Paragraphs
 ;; built-in
 
@@ -1808,6 +1830,7 @@ ORIG and ARGS as arguments."
 	    (lambda ()
 	      (setq-local whitespace-line-column nil)
 	      (setq-local fill-column 79)
+	      (require 'whitespace)
 	      (setq-local whitespace-style
 		'(face trailing lines-tail empty indentation::tab big-indent
 		       space-after-tab::tab space-before-tab::tab))
@@ -1858,9 +1881,16 @@ ORIG and ARGS as arguments."
 ;;; Repeat
 ;; built-in
 
+;; Enable repeat-mode, but don't echo the message about how many
+;; commands it's enabled for, since it's distracting and quickly
+;; becomes no-longer accurate.
 (mini-bltin repeat
   (when (version< "28" emacs-version)
-    (run-at-time 2 nil 'repeat-mode)))
+    (run-at-time
+     2 nil
+     (lambda ()
+       (let ((inhibit-message t))
+	 (repeat-mode))))))
 
 
 ;;; Restart-emacs
@@ -2418,12 +2448,13 @@ in lines and characters respectively."
 
 
 ;;; Whitespace
+;; built-in
 
-(mini-bltin whitespace
-  (mini-set show-trailing-whitespace t)
-  (mini-set whitespace-style
-    '(face trailing lines-tail empty indentation::tab big-indent
-	   space-after-tab::tab space-before-tab::tab)))
+;; (mini-bltin whitespace
+;;   (mini-set show-trailing-whitespace t)
+;;   (mini-set whitespace-style
+;;     '(face trailing lines-tail empty indentation::tab big-indent
+;; 	   space-after-tab::tab space-before-tab::tab)))
 
 
 ;;; Windmove
