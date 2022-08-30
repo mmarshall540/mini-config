@@ -191,8 +191,8 @@
 ;; will be ignored, unless you erase that variable's customization.
 (mini-set package-selected-packages
   (append
-   '( ace-isearch avy consult consult-eglot corfu eglot eglot-java eldoc embark
-      lin marginalia minimap orderless org-modern project pulsar tempel
+   '( avy consult consult-eglot corfu ef-themes eglot eldoc embark
+      lin marginalia minimap orderless project pulsar tempel
       vertico xref )
    ;; Add packages that require Emacs 28 if we have that.
    (when (version< "28" emacs-version)
@@ -240,16 +240,7 @@
 
 (load (expand-file-name "my-settings" user-emacs-directory) 'noerror)
 
-;
-;; Compile things that haven't been or that have been updated.
-(run-with-idle-timer
- 3 nil
- (lambda ()
-   (byte-recompile-directory package-user-dir 0)
-   (byte-recompile-file
-    (expand-file-name "mini-config/mini-core" user-emacs-directory))
-   (byte-recompile-file
-    (expand-file-name "mini-config/mini-packages" user-emacs-directory))))
+
 
 (provide 'init)
 ;;; init.el ends here
