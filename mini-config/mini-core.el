@@ -82,14 +82,21 @@ This allows them to be viewed with the command
 
 (defcustom mini-transpose-bindings t
   "Create a prefix for accessing transpose commands.
-This includes commands that built-in to Emacs but are not bound
+This includes commands that are built-in to Emacs but are not bound
 by default."
   :type 'boolean
   :group 'mini)
 
 (defcustom mini-kill-bindings t
   "Create a prefix for accessing kill commands.
-This includes commands that built-in to Emacs but are not bound
+This includes commands that are built-in to Emacs but are not bound
+by default."
+  :type 'boolean
+  :group 'mini)
+
+(defcustom mini-mark-bindings t
+  "Create a prefix for accessing mark commands.
+This includes commands that are built-in to Emacs but are not bound
 by default."
   :type 'boolean
   :group 'mini)
@@ -659,7 +666,7 @@ This used by `mini-simk' to construct function symbols."
       (setq skeydescrip (funcall rstringf (car spair) (cadr spair) skeydescrip)))))
 
 (defun mini-simk (simkey)
-  "Create and return a function that simulates pressing SIMKEY."
+  "Create and return a command that simulates pressing SIMKEY."
   (let* ((normalsimkey (mini-kbd simkey))
 	 (funcsym (intern
                    (concat "mini-do-" (mini-skeyname (key-description normalsimkey))))))
@@ -677,6 +684,70 @@ This used by `mini-simk' to construct function symbols."
 	    (setq unread-command-events
 		  (mapcar (lambda (x) (cons t x)) (listify-key-sequence ,normalsimkey)))))
     funcsym))
+
+(defun mini-make-setter (sym val)
+  "Create and return a command to set SYM to VAL.
+
+The main use of this is for adding a named function to a normal
+hook without having to separately define the function."
+  (let ((funcsym (intern
+                  (concat "mini-set-" (symbol-name sym) (format "-%s" val)))))
+    (fset funcsym
+	  `(lambda ()
+	     ,(format "Set %s to %s.
+
+This function was returned by `mini-make-setter'." sym val)
+	     (setq ,sym ,val)))
+    funcsym))
+
+(defun mini-make-caller (funcsym &rest args)
+  "Create and return a command to call FUNCSYM with ARGS.
+
+The main use of this is for adding a named function to a normal
+hook without having to separately define the function."
+  (let* ((plural (> (length args) 1))
+	 (funcsymmod
+	  (intern
+           (concat "mini-call-"
+		   (symbol-name funcsym)
+		   "-with-arg"
+		   (when plural "s"))))
+	 (funcsymroot funcsymmod)
+	 (index 2))
+    ;; If funcsym already has a function value, we don't want to
+    ;; overwrite that.  So we need to try different symbols until we
+    ;; find an unused one.
+    (while (fboundp funcsymmod)
+      (setq funcsymmod
+	    (intern
+             (concat (symbol-name funcsymroot) (format "-%s" index))))
+      (setq index (1+ index)))
+    ;; Define our new function.
+    (fset funcsymmod
+	  `(lambda ()
+	     ,(eval
+	       (append
+		(list 'concat)
+		(list
+		 (format
+		  "Does:
+\(apply \\='%s \\='%s)"
+		  funcsym
+		  (mapcar
+		   (lambda (x)
+		     (concat
+		      (when (stringp x) (string ?\"))
+		      (format "%s" x)
+		      (when (stringp x) (string ?\"))))
+		   args)))
+		(list "
+
+This function was returned by `mini-make-caller'.")))
+	     (apply (quote ,funcsym) (quote ,args))))
+    ;; Return the newly function-bound symbol.
+    funcsymmod))
+
+(mini-make-caller 'concat 'display-time-string "The time is...")
 
 ;; Equivalents to other universal keybindings that work in most
 ;; applications including Emacs...
@@ -837,9 +908,9 @@ FORMS will not be executed."
 (defmacro mini-ensure (pkgs &rest forms)
   "Ensure that PKGS are installed.
 If already installed, or they can be successfully installed, then
-execute FORMS.  However, if any of the packages is included in the
-`mini-excluded-packages' list, no PKGS will not be installed, and the
-FORMS will not be executed."
+execute FORMS.  However, if any of the packages is included in
+the `mini-excluded-packages' list, no PKGS will be installed, and
+the FORMS will not be executed."
   (declare (indent 1))
   (unless (listp pkgs)
     (setq pkgs (list `,pkgs)))
@@ -1046,7 +1117,9 @@ Otherwise, call `isearch-repeat-backward' and then
 			       `(dired (format "%s"
 					       ,(expand-file-name dir))))
 			      dirmenu)))))))
-    ["Autorevert-Mode" auto-revert-mode]))
+    ["Autorevert-Mode" auto-revert-mode]
+    ,(when (version< "29" emacs-version)
+      ["Restart Emacs" restart-emacs])))
 
 ;; Edit menu
 (mini-addmenu "edit"
@@ -1084,7 +1157,8 @@ Otherwise, call `isearch-repeat-backward' and then
      ["View-Mode" view-mode])
     ("Editing Enhancements"
      ["Abbrev-Mode" abbrev-mode])
-    ["Eldoc-Mode" eldoc-mode]))
+    ["Eldoc-Mode" eldoc-mode]
+    ["Winner Mode (undo window arrangements)" winner-mode]))
 
 ;; Buffers menu
 (mini-addmenu 'global-buffers-menu-map
@@ -1210,10 +1284,10 @@ Otherwise, call `isearch-repeat-backward' and then
   ;; Fix `ibuffer' C-t binding
 
 ;;; Mode-specific-map *** C-c ***
-(when mini-keep-defk-list
-  (mini-defk "b"      'mini-show-defk-list      mode-specific-map))  ;; View user bindings + priors.
-(when mini-bind-init-file
-  (mini-defk "i"      'mini-find-init-file      mode-specific-map))
+;; (when mini-keep-defk-list
+;;   (mini-defk "b"      'mini-show-defk-list      mode-specific-map))  ;; View user bindings + priors.
+;; (when mini-bind-init-file
+;;   (mini-defk "i"      'mini-find-init-file      mode-specific-map))
 ;; (mini-defk "w q"    'delete-window            mode-specific-map)  ;; Some easier to reach
 ;; (mini-defk "w k"    'delete-other-windows     mode-specific-map)  ;;   window commands...
 ;; (mini-defk "w h"    'split-window-below       mode-specific-map)
@@ -1235,7 +1309,8 @@ Otherwise, call `isearch-repeat-backward' and then
 		(?e . transpose-sentences)
 		(?p . transpose-paragraphs)))
     (mini-defk (car kb) (cdr kb) mini-transpose-prefix-map))
-  (mini-defk "t"      'mini-transpose-prefix-command mode-specific-map))
+  ;; (mini-defk "t"      'mini-transpose-prefix-command mode-specific-map)
+  )
 
 
 (when mini-kill-bindings
@@ -1257,9 +1332,29 @@ Otherwise, call `isearch-repeat-backward' and then
 		(?z . zap-to-char)
 		(?Z . zap-up-to-char)))
     (mini-defk (car kb) (cdr kb) mini-kill-prefix-map))
-  (mini-defk "k"      'mini-kill-prefix-command mode-specific-map))
+  ;; (mini-defk "k"      'mini-kill-prefix-command mode-specific-map)
+  )
 
-
+(when mini-mark-bindings
+  (defvar mini-mark-prefix-map (make-sparse-keymap))
+  (define-prefix-command 'mini-mark-prefix-command 'mini-mark-prefix-map)
+  (dolist (kb '((?s . mark-sexp)
+              (?, . mark-beginning-of-buffer)
+              (?. . mark-end-of-buffer)
+              (?  . consult-mark)
+              (?e . mark-end-of-sentence)
+              (?w . mark-word)
+              (?W . subword-mark)
+              (?d . mark-defun)
+              (?p . mark-page)
+              (?h . mark-paragraph)
+              (?b . mark-whole-buffer)
+              (?m . set-mark-command)
+              (?M . pop-to-mark-command)
+              (?g . pop-to-global-mark)
+              (?x . exchange-point-and-mark)
+              (?r . rectangle-mark-mode)))
+  (mini-defk (car kb) (cdr kb) mini-mark-prefix-map)))
 
 (provide 'mini-core)
 ;;; mini-core.el ends here

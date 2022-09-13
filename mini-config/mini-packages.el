@@ -710,9 +710,7 @@ https://karthinks.com/software/avy-can-do-anything/."
   ;; Silverblue or Kinoite.
   (add-to-list 'exec-path "~/.local/bin")
   (when (version< "29" emacs-version)
-    (mini-defk "x"      'restart-emacs            mode-specific-map)
-    (mini-addmenu "file"
-      '(["Restart Emacs" restart-emacs]))))
+    (mini-defk "x" 'restart-emacs mode-specific-map)))
 
 
 ;;; Flymake
@@ -1383,7 +1381,7 @@ Use in `isearch-mode-end-hook'."
 ;; :system-deps ("mu" "mbsync") ;; packages are "maildir-utils" and "isync"
 (mini-addmenu "tools"
   '(["Mu4e: Email client" mu4e])
-  '("Other Apps*" "Communication"))
+  '("Other Apps" "Communication"))
 ;; (mini-set mu4e-get-mail-command "mbsync -c ~/.config/mbsync/mbsyncrc gmail")
 (autoload 'mu4e "mu4e" "Mu4e" 'interactive)
 (mini-eval mu4e
@@ -1575,7 +1573,7 @@ Use in `isearch-mode-end-hook'."
 
 (mini-pkgif pulsar
   (mini-addmenu "options"
-    '(["Pulsar* (cursor pulse on big moves)" pulsar-mode]))
+    '(["Pulsar (cursor pulse on big moves)" pulsar-mode]))
   (add-hook 'after-init-hook 'pulsar-global-mode)
   (mini-set pulsar-face 'pulsar-generic)
   (mini-set pulsar-iterations 20)
@@ -1918,17 +1916,14 @@ other arguments R."
 
 (mini-bltin view
   (unless (memq 'vundo package-selected-packages)
-    (mini-defk ?v 'view-mode mode-specific-map))
-  (mini-addmenu "options"
-    '(["View-Mode" view-mode])
-    '("View Enhancements*")))
+    (mini-defk ?v 'view-mode mode-specific-map)))
 
 
 ;;; Vundo
 
 (mini-pkgif vundo
   (mini-addmenu "tools"
-    '(["Visualize Undos*" vundo])))
+    '(["Visualize Undos" vundo])))
 
 
 ;;; Warnings
@@ -1950,7 +1945,7 @@ other arguments R."
 
 (mini-pkgif which-key
   (mini-addmenu "options"
-    '(["Which-Key* (pop-up keybindings)" which-key-mode])
+    '(["Which-Key (pop-up keybindings)" which-key-mode])
     '("Show/Hide"))
   (add-hook 'window-setup-hook
             'which-key-setup-side-window-right-bottom)
@@ -2110,9 +2105,7 @@ in lines and characters respectively."
   ;; This automatically binds "C-c <left>" to `winner-undo' and
   ;; "C-c <right>" to `winner-redo'.  To prevent that, you can set
   ;; `winner-dont-bind-my-keys' to a non-nil value beforehand.
-  (add-hook 'window-setup-hook 'winner-mode)
-  (mini-addmenu "options"
-    '(["Winner Mode (undo window arrangements)" winner-mode])))
+  (add-hook 'window-setup-hook 'winner-mode))
 
 
 ;;; Window
