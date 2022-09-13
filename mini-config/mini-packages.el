@@ -56,241 +56,11 @@
   (mini-set abbrev-expand-function 'mini-abbrev-expand-function))
 
 
-;;; Ace-isearch
-
-(mini-pkgif ace-isearch
-  (mini-eval ace-isearch
-    (mini-set ace-isearch-function 'avy-goto-char)
-    (mini-set ace-isearch-2-function 'avy-goto-char-2)
-    (mini-set ace-isearch-jump-based-on-one-char nil))
-  (run-at-time 2 nil 'global-ace-isearch-mode))
-
-
-;;; Ace-link
-
-(mini-pkgif ace-link
-  ;; This is most useful for non-tabular modes, in which links are
-  ;; interspersed within paragraphs or other non-symmetrical
-  ;; constructs.
-  (dolist (hook '(Info-mode-hook
-                  help-mode-hook
-                  package-menu-mode-hook
-                  geiser-doc-mode-hook
-                  elbank-report-mode-hook
-                  elbank-overview-mode-hook
-                  slime-trace-dialog-mode-hook
-                  helpful-mode-hook
-                  Man-mode-hook
-                  woman-mode-hook
-                  eww-mode-hook
-                  w3m-mode-hook
-                  compilation-mode-hook
-                  grep-mode-hook
-                  compilation-shell-minor-mode-hook
-                  gnus-article-mode-hook
-                  gnus-summary-mode-hook
-                  mu4e-view-mode-hook
-                  notmuch-show-mode-hook
-                  erc-mode-hook
-                  elfeed-show-mode-hook
-                  term-mode-hook
-                  vterm-mode-hook
-                  eshell-mode-hook
-                  telega-chat-mode-hook
-                  org-mode-hook
-                  org-agenda-mode-hook
-                  Custom-mode-hook
-                  sldb-mode-hook
-                  slime-xref-mode-hook
-                  slime-inspector-mode-hook
-                  indium-inspector-mode-hook
-                  indium-debugger-frames-mode-hook
-                  magit-commit-mode-hook
-                  cider-inspector-mode-hook))
-    (add-hook hook 'ace-link-setup-default))
-  ;; Ace-link with Org
-  (mini-eval org
-    (defvar org-mode-map)
-    (mini-defk [?\M-g ?o] 'ace-link-org org-mode-map)
-    (mini-defk [?\M-g ?\C-o] 'ace-link-org org-mode-map))
-  ;; (defvar org-speed-commands))
-  ;; The default org-speed-command bound to "o" is
-  ;; `org-open-at-point'.  But speed-commands can only be used
-  ;; when point is at the start of a heading.  So that means it's
-  ;; only doing the same thing that TAB would do at that spot.
-  ;; Better to replace it with `ace-link-org'.
-  ;;(setcdr (assoc "o" org-speed-commands) 'ace-link-org))
-  ;;
-  ;; Ace-link with Avy
-  (mini-eval avy
-    (defvar avy-styles-alist)
-    (add-to-list 'avy-styles-alist
-		 '(mini-ace-link-dashboard . post)))
-  ;; Ace-link with Dashboard
-  (mini-set dashboard-footer-messages '("Press 'o' or 'v' to select an item."))
-  (mini-eval dashboard
-    (require 'ace-link)
-    (defvar dashboard-mode-map)
-    (mini-defk [home] 'mini-ace-link-dashboard dashboard-mode-map)
-    (mini-defk ?o 'mini-ace-link-dashboard dashboard-mode-map)
-    (mini-defk ?v 'mini-ace-link-dashboard dashboard-mode-map)
-    (mini-defk ?\C-o 'mini-ace-link-dashboard dashboard-mode-map)
-    (mini-defk ?\s-v 'mini-ace-link-dashboard dashboard-mode-map)
-    (defun mini-ace-link--dashboard-collect (offset)
-      (let ((end (window-end))
-            points)
-	(save-excursion
-	  (goto-char (window-start))
-	  (declare-function widget-forward nil)
-	  (when (ignore-errors (widget-forward 1) t)
-            (push (- (point) offset) points)
-            (widget-forward 1)
-            (while (and (< (point) end)
-			(> (point) (car points)))
-              (push (- (point) offset) points)
-              (widget-forward 1))
-            (nreverse points)))))
-    (defun mini-ace-link--dashboard-action (pt offset)
-      (when (numberp pt)
-	(goto-char (+ pt offset))
-	(declare-function dashboard-return nil)
-	(dashboard-return)))
-    (defun mini-ace-link-dashboard ()
-      "Open a visible link in a `dashboard' buffer."
-      (interactive)
-      (let ((offset 1)) ;; set offset to 1, -1 or -2.
-	(defvar mini-ace-link-dashboard)
-	(declare-function mini-ace-link--dashboard-collect nil)
-	(declare-function mini-ace-link-dashboard nil)
-	(declare-function avy-with nil)
-	(let ((pt (avy-with mini-ace-link-dashboard
-                    (defvar avy-style)
-		    (declare-function avy-process nil)
-                    (declare-function avy--style-fn nil)
-                    (declare-function mini-ace-link--dashboard-action nil)
-                    (avy-process
-                     (mini-ace-link--dashboard-collect offset)
-                     (avy--style-fn avy-style)))))
-	  (mini-ace-link--dashboard-action pt offset))))))
-
-
-;;; Ace-window
-
-(mini-pkgif ace-window
-  ;; TODO Add a warning about not using the same modifiers for
-  ;; `mini-aw-defk' as any of the keys listed in `aw-keys' or
-  ;; `aw-dispatch-alist'.  This includes Shift when used with
-  ;; letters!  (But it doesn't include shift when used with
-  ;; symbols or punctuation) See end of block...
-  ;; (defvar mini-aw-defk (vector mini-prefix-key ?w)) ;; This way, we can analyze the key later.  See end of  block...
-  (mini-defk "w a" 'ace-window mode-specific-map)
-  (mini-defk ?\s-w 'mini-ace-window-always-dispatch)
-  ;; (mini-defk ?w 'mini-ace-window-always-dispatch mini-prefix-key-map)
-  (mini-set aw-keys (append (mini-keyvector (number-sequence 27 34)) nil))
-  (mini-set aw-dispatch-alist
-    ;; TODO These are for Dvorak.  Need to write a function as
-    ;; described in the 'avy config block and use it here too.
-    '((?k aw-delete-window "Delete Window")  ;; prefer to always delete current window.
-      (?s aw-swap-window "Swap Windows")
-      (?y aw-move-window "Move Window")
-      (?c aw-copy-window "Copy Window")
-      (?b aw-switch-buffer-in-window "Select Buffer")
-      (?l aw-flip-window "Last window")
-      (?B aw-switch-buffer-other-window "Switch Buffer Other Window")
-      (?q aw-split-window-fair "Split Fair Window")
-      (?w aw-split-window-vert "Split Vert Window")
-      (?v aw-split-window-horz "Split Horz Window")
-      (?m delete-other-windows "Delete Other Windows") ;; prefer to always leave current window remaining.
-      (?x aw-transpose-frame "Transpose Frame") ;; depends on `transpose-frame' package.
-      (?? aw-show-dispatch-help))
-    "List of actions for `aw-dispatch-default'.")
-  ;; (defun mini-ace-window-always-dispatch (arg)
-  ;;   "Call `ace-window' and dispatch, regardless of settings."
-  ;;   (interactive "p")
-  ;;   (require 'ace-window)
-  ;;   (let ((aw-dispatch-always t))
-  ;;     (ignore aw-dispatch-always)
-  ;;     (ace-window arg)))
-  (mini-set aw-dispatch-always t)
-  (mini-set aw-dispatch-when-more-than 2)
-  (mini-set aw-fair-aspect-ratio 3)
-  (mini-set aw-minibuffer-flag t)
-  ;; (mini-set aw-translate-char-function
-  ;;   ;; Make `ace-window' work even if you don't release the
-  ;;   ;; modifier key(s) after invoking it.
-  ;;   ;;
-  ;;   ;; (This means we can't use any keys in `aw-keys' or
-  ;;   ;; `aw-dispatch-alist' that have the same modifiers as
-  ;;   ;; `mini-aw-defk', since they'd always get translated to their
-  ;;   ;; base character.  But it is hard to think of a situation
-  ;;   ;; where one would want to do that.  Even using a shifted
-  ;;   ;; letter in `aw-keys' or `aw-dispatch-alist', you would not
-  ;;   ;; also set `mini-aw-defk' to any letters modified *only* by
-  ;;   ;; Shift, because that goes in the global-map where it's
-  ;;   ;; needed for `self-insert-command'.  So this could only be
-  ;;   ;; an issue with say `C-S-o'/`C-O' as `mini-aw-defk' and
-  ;;   ;; something like `C-S-k'/`C-K' in one of the key lists.  But
-  ;;   ;; there are enough unmodified keys available for the key
-  ;;   ;; lists that you're not likely to use any more than the
-  ;;   ;; Shift modifier in either of them.)
-  ;;   (lambda (event)
-  ;;     (if (and (event-modifiers event)
-  ;;              (equal (event-modifiers mini-aw-defk) (event-modifiers event))
-  ;;              ;; Exempt C-g from this, so
-  ;;              ;; you can still cancel the
-  ;;              ;; command.
-  ;;              (not (eq event 7)))
-  ;; 	  (event-basic-type event)
-  ;; 	event)))
-  )
-
-
 ;;; Align
 ;; built-in
 
 (mini-bltin align
     (mini-set align-to-tab-stop nil))
-
-
-;;; All-the-icons
-
-(mini-pkgif all-the-icons
-  (when (display-graphic-p)
-    (declare-function all-the-icons-install-fonts nil)
-    (unless (file-exists-p
-             "~/.local/share/fonts/all-the-icons.ttf")
-      (all-the-icons-install-fonts t))
-    (require 'all-the-icons)
-    (mini-ensure all-the-icons-completion
-      (require 'package)
-      (declare-function all-the-icons-completion-mode nil)
-      (if (memq 'marginalia package-selected-packages)
-	  (add-hook 'marginalia-mode-hook 'all-the-icons-completion-marginalia-setup)
-	(dolist (pkg '(vertico mct selectrum ivy helm))
-	  (with-eval-after-load pkg 'all-the-icons-completion-mode))))
-    (mini-ensure all-the-icons-dired
-      (add-hook 'dired-mode-hook 'all-the-icons-dired-mode))
-    (mini-ensure all-the-icons-ibuffer
-      (add-hook 'ibuffer-mode-hook 'all-the-icons-ibuffer-mode))))
-
-
-;;; Anaconda-mode
-
-(mini-pkgif anaconda-mode
-  (add-hook 'python-mode-hook 'anaconda-mode)
-  (add-hook 'python-mode-hook 'anaconda-eldoc-mode)
-  (mini-eval anaconda-mode
-    (require 'pyvenv)))
-
-
-;;; Auctex
-
-(mini-pkgif auctex
-  (mini-set TeX-auto-save t)
-  (mini-set TeX-parse-self t)
-  (defvar TeX-macro-global)
-  (mini-eval auctex
-    (add-to-list 'TeX-macro-global "~/.config/tex/")))
 
 
 ;;; Autoinsert
@@ -369,15 +139,6 @@
   (mini-defk "C-'" 'avy-goto-char-2))
 
 
-;;; Calfw
-
-(mini-pkgif calfw
-  (autoload 'cfw:open-calendar-buffer "calfw")
-  (mini-addmenu "tools"
-    '(["CalFW (full-size calendar)" cfw:open-calendar-buffer])
-    '("Other Apps*" "Organizing")))
-
-
 ;;; Cape
 
 (mini-pkgif cape
@@ -426,20 +187,6 @@
   (mini-eval checkdoc
     (defun checkdoc-sentencespace-region-engine (begin end)
       (ignore begin end))))
-
-
-;;; Company
-
-(mini-pkgif company
-  (add-hook 'after-init-hook 'global-company-mode))
-
-
-;;; Company-anaconda
-
-(mini-pkgif company-anaconda
-  (mini-eval company
-    (defvar company-backends)
-    (add-to-list 'company-backends 'company-anaconda)))
 
 
 ;;; Consult
@@ -637,33 +384,6 @@
     '(["Darkroom-Mode" darkroom-mode])))
 
 
-;;; Dashboard
-
-(mini-pkgif dashboard
-  ;; make `e' work as in 'dired, 'ibuffer, etc.
-  ;; (mini-defk ?e 'dashboard-return dashboard-mode-map)
-  ;; (mini-defk ?p 'dashboard-previous-line dashboard-mode-map)
-  ;; (mini-defk ?n 'dashboard-next-line dashboard-mode-map)
-  (mini-set dashboard-agenda-prefix-format "%s ")
-  (mini-set dashboard-center-content t)
-  (mini-set dashboard-item-shortcuts nil)
-  (mini-set dashboard-set-file-icons t)
-  (mini-set dashboard-set-heading-icons t)
-  (mini-set dashboard-startup-banner 'logo)
-  (mini-set dashboard-week-agenda nil)
-  (mini-set dashboard-items '((agenda . 10) (bookmarks . 10) (recents . 10)))
-  (declare-function dashboard-setup-startup-hook nil)
-  (dashboard-setup-startup-hook)
-  (mini-eval dashboard
-    (add-hook 'dashboard-mode-hook (lambda () (setq-local cursor-type nil)))
-    ;; Modus themes change the color setting for the widget-items
-    ;; face which dashboard-items-face relies on.  But widget-items
-    ;; normally inherits straight from the bold face.  So problem is
-    ;; solved by having dashboard-items inherit from the bold face.
-    (when (memq (car custom-enabled-themes) '(modus-operandi modus-vivendi))
-      (face-spec-set 'dashboard-items-face '((t (:inherit bold)))))))
-
-
 ;;; Delsel
 ;; built-in
 
@@ -706,14 +426,6 @@
     (require 'dired-aux)))
 
 
-;;; Dired-subtree
-
-(mini-pkgif dired-subtree
-  (mini-eval dired
-    (defvar dired-mode-map)
-    (mini-defk ?\t 'dired-subtree-toggle dired-mode-map)))
-
-
 ;;; Dired-x
 ;; built-in
 
@@ -728,43 +440,6 @@
 (mini-bltin display-line-numbers
   ;; Show line-numbers in programming modes.
   (add-hook 'prog-mode-hook 'display-line-numbers-mode))
-
-
-;;; Docker
-
-(mini-pkgif docker
-  ;; Not compatible with podman yet.  (It was as of version 1.3.0,
-  ;; but there were unanticipated complications, and it was
-  ;; removed in version 1.4.0.  Hopefully someone will solve those
-  ;; problems eventually?)
-  (mini-defk "k" 'docker))
-
-
-;;; Docker-tramp
-
-(mini-pkgif docker-tramp
-  (mini-set docker-tramp-docker-executable "podman"))
-
-
-;;; Doom-modeline
-
-(mini-pkgif doom-modeline
-  (declare-function doom-modeline-mode nil)
-  (doom-modeline-mode 1))
-
-
-;;; Doom-themes
-
-(mini-pkgif doom-themes
-  nil) ;; placeholder
-
-
-;;; Dumb-jump
-
-(mini-pkgif dumb-jump
-  (add-hook 'xref-backend-functions 'dumb-jump-xref-activate)
-  (mini-set xref-show-definitions-function
-    'xref-show-definitions-completing-read))
 
 
 ;;; Eglot
@@ -833,31 +508,6 @@
 ;;   )
 
 
-;;; Elpy
-
-(mini-pkgif elpy
-  ;; Inherit shell settings properly.  (Elpy needs this.)
-  (mini-ensure exec-path-from-shell)
-  (add-hook 'python-mode-hook 'elpy-enable)
-  (mini-pkgif py-autopep8
-    (add-hook 'elpy-mode-hook 'py-autopep8-mode))
-  (add-hook 'elpy-mode-hook 'subword-mode)
-  (mini-set elpy-modules
-    '(elpy-module-company
-      elpy-module-eldoc
-      elpy-module-pyvenv
-      elpy-module-highlight-indentation
-      elpy-module-yasnippet
-      elpy-module-django
-      elpy-module-sane-defaults))
-
-  (mini-pkgif exec-path-from-shell
-    (when (or (memq window-system '(mac ns x))
-	      (daemonp))
-      (declare-function exec-path-from-shell-initialize nil)
-      (exec-path-from-shell-initialize))))
-
-
 ;;; Embark
 
 (mini-pkgif embark
@@ -915,14 +565,6 @@ https://karthinks.com/software/avy-can-do-anything/."
       (setf (alist-get ?\; avy-dispatch-alist) 'avy-action-embark-dwim))))
 
 
-;;; Expand-region
-
-(mini-pkgif expand-region
-  (autoload 'er/mark-text-sentence "expand-region")
-  (mini-defk ?\C-= 'er/expand-region nil "expand-region")
-  (mini-defk ?\M-h 'er/mark-text-sentence ctl-x-map "mark-sentence"))
-
-
 ;;; Executable
 ;; built-in
 
@@ -955,16 +597,6 @@ https://karthinks.com/software/avy-can-do-anything/."
     (mini-defk "x"      'restart-emacs            mode-specific-map)
     (mini-addmenu "file"
       '(["Restart Emacs" restart-emacs]))))
-
-
-;;; Flycheck
-
-(mini-pkgif flycheck
-  (add-hook 'prog-mode-hook 'global-flycheck-mode)
-  (mini-eval which-key
-    (declare-function which-key-add-key-based-replacements nil)
-    (which-key-add-key-based-replacements
-     "C-c !" "flycheck-prefix")))
 
 
 ;;; Flymake
@@ -1041,64 +673,6 @@ the number row are un-shifted.)\n\n")
       (goto-char 0))))
 
 
-;;; Geiser
-
-(mini-pkgif geiser
-  (mini-set geiser-active-implementations '(guile)))
-
-
-;;; Geiser-guile
-
-(mini-pkgif geiser-guile
-  (mini-eval geiser-guile
-    (unless (executable-find "guile")
-      (mini-set geiser-guile-binary "guile3.0"))))
-
-
-;;; God-mode
-
-(mini-pkgif god-mode
-  (mini-set god-mode-enable-function-key-translation nil)
-  (mini-set god-exempt-major-modes nil)
-  (mini-set god-exempt-predicates nil)
-  ;; potentials: i, q, j, x, SPC, g, c, m, h, r, RET
-  ;; "SPC" conflicts with `god-literal-key', but I'm using "<menu>" for prefixes, so I don't need it.
-  ;; For the same reason, I also don't need to reserve "x", "c", or "h".
-  ;; It also conflicts with "C-SPC", but I can use the "@" symbol, which doesn't even have to be
-  ;; shifted in programmer-dvorak.
-  (mini-set god-mode-alist '((nil . "C-")
-                             ;; ("j" . "M-")
-                             ("m" . "M-")
-                             ("j" . "C-M-")
-                             ("c" . "C-M-")))
-                                        ;(mini-set god-literal-key "SPC")
-  (declare-function god-local-mode nil)
-  (defvar god-local-mode-map)
-  (defun mini-god-mode-start ()
-    (interactive)
-    (god-local-mode 1))
-  (defun mini-god-mode-stop ()
-    (interactive)
-    (god-local-mode -1))
-  ;; Bind to foot pedal press and release, respectively.
-  (mini-defk [Launch6] 'mini-god-mode-start) ;; this is f15
-  (mini-defk [Launch7] 'mini-god-mode-stop god-local-mode-map)) ;; this is f16
-
-
-;;; Gumshoe
-
-(mini-pkgif gumshoe
-  (add-hook 'after-init-hook 'global-gumshoe-mode)
-  (mini-defk "g b" 'gumshoe-backtrack-back    mode-specific-map)
-  (mini-defk "g f" 'gumshoe-backtrack-forward mode-specific-map)
-  (mini-eval repeaters
-    (declare-function repeaters-define-maps nil)
-    (repeaters-define-maps
-     '(("gumshoe-backtracking"
-	gumshoe-backtrack-back    "b"
-	gumshoe-backtrack-forward "f")))))
-
-
 ;;; Help
 ;; built-in
 
@@ -1129,59 +703,8 @@ the number row are un-shifted.)\n\n")
       (mini-defk (car kb) (cdr kb) help-map))))
 
 
-;;; Helpful
-
-(mini-pkgif helpful
-  ;; Put the helpful commands a little further down, since the
-  ;; electric-help commands are usually good enough and less
-  ;; obtrusive.
-  (defvar helpful-help-map)
-  (define-prefix-command 'helpful-help-map)
-  (mini-defk "h"      'helpful-help-map          mode-specific-map)
-
-  ;; helpful-help-map (C-h h, <f1> h, <help> h)
-  (mini-defk "f"      'helpful-callable         helpful-help-map)
-  (mini-defk "v"      'helpful-variable         helpful-help-map)
-  (mini-defk "k"      'helpful-key              helpful-help-map)
-  (mini-defk "F"      'helpful-function         helpful-help-map)
-  (mini-defk "c"      'helpful-command          helpful-help-map)
-  (mini-defk "C"      'helpful-command          helpful-help-map)
-  (mini-defk "m"      'helpful-macro            helpful-help-map)
-  (mini-defk "s"      'helpful-symbol           helpful-help-map)
-  (mini-defk "p"      'helpful-at-point         helpful-help-map)
-
-  ;; Make org-link to help use helpful.el instead of help.el
-  (autoload 'helpful-callable "helpful")
-  (autoload 'helpful-variable "helpful")
-  (defun mini-org-link-helpful (orig &rest args)
-    "Alternative way to open `org-mode' help: links.
-If the `helpful' package is installed, use `helpful-callable' and
-`helpful-variable', instead of `describe-function' and
-`describe-variable', respectively.  Otherwise, no change.  Takes
-ORIG and ARGS as arguments."
-    (load "helpful" t)
-    (cl-letf (((symbol-function 'describe-function) 'helpful-callable)
-              ((symbol-function 'describe-variable) 'helpful-variable))
-      (apply orig args))
-    (apply orig args))
-
-  (advice-add 'org-link--open-help :around 'mini-org-link-helpful))
-
-
-;;; Highlight-indent-guides
-
-(mini-pkgif highlight-indent-guides
-  (add-hook 'python-mode-hook 'highlight-indent-guides-mode)
-  (mini-set highlight-indent-guides-method 'column))
-
-
-;;; Highlight-indentation
-
-(mini-pkgif highlight-indentation
-  (add-hook 'python-mode-hook 'highlight-indentation-mode))
-
-
 ;;; Hippie-exp
+;; built-in
 
 (mini-bltin hippie-exp
   (mini-defk "M-/"	'hippie-expand)) ;; to replace 'dabbrev-expand
@@ -1199,29 +722,8 @@ ORIG and ARGS as arguments."
     (set-face-attribute 'hl-line nil :extend t)))
 
 
-;;; Hl-todo
-
-(mini-pkgif hl-todo
-  (dolist (hk '(prog-mode-hook
-                text-mode-hook))
-    (add-hook hk 'hl-todo-mode))
-  (mini-eval hl-todo
-    (defvar hl-todo-keyword-faces)
-    (add-to-list 'hl-todo-keyword-faces '("IDEA" . "#d0bf8f"))))
-
-
-;;; Hyperbole
-
-(mini-pkgif hyperbole
-  (add-hook 'after-init-hook 'hyperbole-mode)
-  (mini-eval avy
-    (defvar avy-dispatch-alist)
-    (add-to-list 'avy-dispatch-alist '(?: . (lambda (pt)
-					      (goto-char pt)
-					      (hkey-either))))))
-
-
 ;;; Ibuffer
+;; built-in
 
 ;; Use `ibuffer' instead of `list-buffers'
 (when mini-use-ibuffer-over-list-buffers
@@ -1291,23 +793,10 @@ ORIG and ARGS as arguments."
       (mini-defk (car kb) (cdr kb) minibuffer-local-isearch-map))))
 
 
-;;; Jit-lock
-;; built-in
+;;; Kbd-mode
 
-;; (mini-bltin jit-lock
-;;   (mini-set jit-lock-stealth-time 1)
-;;   (mini-set jit-lock-defer-time 1)
-;;   (mini-set jit-lock-stealth-load 200))
-
-
-;;; Jump-char
-
-(mini-pkgif jump-char
-  (mini-defk "M-m" 'jump-char-forward)
-  (mini-defk "M-M" 'jump-char-backward)
-  (mini-eval jump-char
-    (defvar jump-char-base-map)
-    (mini-defk "C-m" 'jump-char-exit jump-char-base-map)))
+(mini-pkgif kbd-mode
+  (add-to-list 'auto-mode-alist '("\\.kbd\\'" . kbd-mode)))
 
 
 ;;; Lin
@@ -1334,24 +823,6 @@ ORIG and ARGS as arguments."
       occur-mode-hook
       org-agenda-mode-hook
       tabulated-list-mode-hook)))
-
-
-;;; Kbd-mode
-
-(mini-pkgif kbd-mode
-  (add-to-list 'auto-mode-alist '("\\.kbd\\'" . kbd-mode)))
-
-
-;;; Link-hint
-
-(mini-pkgif link-hint
-  (mini-defk [?\M-g ?o] 'link-hint-open-link)
-  (mini-eval ibuffer
-    (defvar ibuffer-mode-map)
-    (mini-defk ?\M-g nil ibuffer-mode-map)
-    (mini-defk [?\M-g ?o] 'link-hint-open-link ibuffer-mode-map))
-  ;; (mini-defk "C-c l c" 'link-hint-copy-link)
-  )
 
 
 ;;; "Lisp"
@@ -1383,102 +854,11 @@ ORIG and ARGS as arguments."
   )
 
 
-;;; Logos
-
-(mini-pkgif logos
-  (mini-set logos-outlines-are-pages t)
-  (defvar logos--page-delimiter)
-  (mini-eval outline
-    (mini-set logos-outline-regexp-alist
-      `((emacs-lisp-mode . "^;;;+ ")
-	(org-mode . "^\\*+ +")
-	(markdown-mode . "^\\#+ +")
-	(t . ,(or outline-regexp logos--page-delimiter)))))
-
-  ;; These apply when `logos-focus-mode' is enabled.  Their value is
-  ;; buffer-local.
-  (mini-set logos-hide-mode-line t)
-  (mini-set logos-hide-buffer-boundaries t)
-  (mini-set logos-hide-fringe t)
-  (mini-set logos-variable-pitch nil)
-  (mini-set logos-buffer-read-only nil)
-  (mini-set logos-scroll-lock nil)
-  (mini-set logos-olivetti nil)
-
-  ;; Also check this manual for `logos-focus-mode-extra-functions'.  It is
-  ;; a hook that lets you extend `logos-focus-mode'.
-
-  (mini-defk [remap narrow-to-region] 'logos-narrow-dwim)
-  (mini-defk [remap forward-page] 'logos-forward-page-dwim)
-  (mini-defk [remap backward-page] 'logos-backward-page-dwim)
-  (mini-defk "<f8>" 'logos-focus-mode))
-
-;; Also consider adding keys to `logos-focus-mode-map'.  They will take
-;; effect when `logos-focus-mode' is enabled.
-
-
-;;; Lsp-bridge
-
-(mini-pkgif lsp-bridge
-  ;; Doesn't work.
-  ;; :install-file "lsp-bridge"
-  (add-to-list 'load-path (expand-file-name "lisp/lsp-bridge" user-emacs-directory))
-  (add-to-list 'exec-path (expand-file-name ".cache/lsp/eclipse.jdt.ls/bin" user-emacs-directory))
-  (mini-pkgif yasnippet
-    (require 'yasnippet)
-    (declare-function yas-global-mode nil)
-    (yas-global-mode 1))
-  (declare-function global-lsp-bridge-mode nil)
-  (global-lsp-bridge-mode))
-
-
-;;; Lsp-java
-
-(mini-pkgif lsp-java
-  (when (memq 'lsp-mode package-selected-packages)
-    (mini-set lsp-java-configuration-runtimes
-      '[(:name "OpenJDK-1.8"
-	       :path "/usr/lib/jvm/java-1.8.0-openjdk-1.8.0.332.b09-1.fc36.x86_64/jre/")
-	(:name "OpenJDK-11"
-	       :path "/usr/lib/jvm/java-11-openjdk-11.0.15.0.10-1.fc36.x86_64/"
-	       :default t)
-	(:name "OpenJDK-17"
-               :path "/usr/lib/jvm/java-17-openjdk-17.0.3.0.7-1.fc36.x86_64/")])
-    (add-hook 'java-mode-hook 'lsp-deferred)))
-
-
-;;; Lsp-mode
-
-(mini-pkgif lsp-mode
-  (dolist (hook '(c-mode c++-mode))
-    (add-hook (intern (concat (symbol-name hook) "-hook")) 'lsp-deferred))
-  (add-hook 'lsp-mode-hook 'lsp-enable-which-key-integration)
-  (mini-eval lsp-mode
-    (dolist (pkg4lsp '(lsp-completion lsp-diagnostics lsp-modeline))
-      (require pkg4lsp))))
-
-
 ;;; Macrostep
 
 (mini-pkgif macrostep
   (mini-defk "C-<tab>" 'macrostep-expand emacs-lisp-mode-map)
   (mini-defk "C-<tab>" 'macrostep-expand lisp-interaction-mode-map))
-
-
-;;; Macrostep-geiser
-
-(mini-pkgif macrostep-geiser
-  nil) ;; placeholder
-
-;;; Magit
-
-(mini-pkgif magit
-  ;; :system-deps "git"
-  (mini-eval magit
-    (mini-set magit-define-global-key-bindings nil))
-  (mini-defk "v S" 'magit-status ctl-x-map)
-  (mini-defk "M-g" 'magit-dispatch ctl-x-map)
-  (mini-defk "M-g" 'magit-file-dispatch mode-specific-map))
 
 
 ;;; Marginalia
@@ -1501,13 +881,6 @@ ORIG and ARGS as arguments."
   nil) ;; placeholder
 
 
-;;; Mct
-
-(mini-pkgif mct
-  (add-hook 'minibuffer-setup-hook 'mct-minibuffer-mode)
-  (add-hook 'completion-in-region-mode-hook 'mct-region-mode))
-
-
 ;;; Minimap
 
 (mini-pkgif minimap
@@ -1528,12 +901,6 @@ ORIG and ARGS as arguments."
   (when mini-to-word-bindings
     (mini-defk "M-B" 'backward-to-word)
     (mini-defk "M-F" 'forward-to-word)))
-
-
-;;; Mixed-pitch
-
-(mini-pkgif mixed-pitch
-  (add-hook 'text-mode-hook 'mixed-pitch-mode))
 
 
 ;;; Modus-themes
@@ -1567,25 +934,7 @@ ORIG and ARGS as arguments."
   (mini-set custom-enabled-themes '(modus-vivendi)))
 
 
-;;; Mood-line
-
-(mini-pkgif mood-line
-  (add-hook 'after-init-hook 'mood-line-mode)
-  (add-hook 'vc-mode-line-hook 'mood-line--update-vc-segment))
-
-
-;;; Moody
-
-(mini-pkgif moody
-  (mini-set x-underline-at-descent-line t)
-  (declare-function moody-replace-mode-line-buffer-identification nil)
-  (declare-function moody-replace-vc-mode nil)
-  (moody-replace-mode-line-buffer-identification)
-  (moody-replace-vc-mode))
-
-
 ;;; Mu4e
-
 ;; This is a system install.
 
 ;; :system-deps ("mu" "mbsync") ;; packages are "maildir-utils" and "isync"
@@ -1611,30 +960,6 @@ ORIG and ARGS as arguments."
    mu4e-headers-calendar-mark  '("c" . "📅"))) ;; This may need to be customized.
 
 
-;;; Mu4e-alert
-
-(mini-pkgif mu4e-alert
-  ;;:system-deps "notify-send"
-  ;;(run-at-time 6 nil 'mu4e-alert-enable-mode-line-display)
-  (declare-function mu4e-alert-set-default-style nil)
-  (mu4e-alert-set-default-style 'libnotify)
-  (declare-function mu4e-alert-enable-notifications nil)
-  (add-hook 'after-init-hook #'mu4e-alert-enable-notifications)
-  ;; (mini-set mu4e-alert-interesting-mail-query
-  ;;   "flag:unread maildir:/gmail/inbox")
-  (declare-function mu4e-alert-enable-mode-line-display nil)
-  (add-hook 'after-init-hook #'mu4e-alert-enable-mode-line-display))
-
-
-;;; Mu4e-marker-icons
-
-(mini-pkgif mu4e-marker-icons
-  ;; mini-eval (mu4e all-the-icons)
-  (declare-function mu4e-marker-icons-mode nil)
-  (mini-eval (mu4e all-the-icons)
-    (mu4e-marker-icons-mode 1)))
-
-
 ;;; Mwim
 
 (mini-pkgif mwim
@@ -1651,26 +976,6 @@ ORIG and ARGS as arguments."
 
 (mini-bltin newcomment
   (mini-defk "M-;" 'comment-line)) ; to replace 'comment-dwim
-
-
-;;; Nov
-
-(mini-pkgif nov
-  ;; Currently, this is the only entry-point (opening a file with
-  ;; the ".epub" extension).  This can be done from `dired' of
-  ;; course, but...  IDEA It would be nice to have an interface
-  ;; for browsing ebooks, kind of like Calibre.  This may already
-  ;; exist, as there are already some apps which work with Calibre
-  ;; databases.  Such a package might also open pds with
-  ;; `pdf-tools'.
-  (add-to-list 'auto-mode-alist "\\.epub\\'" 'nov-mode))
-
-
-;;; Olivetti
-
-(mini-pkgif olivetti
-  (mini-addmenu "options"
-    '(["Olivetti Mode" olivetti-mode])))
 
 
 ;;; Orderless
@@ -1737,34 +1042,6 @@ ORIG and ARGS as arguments."
        (python . t)))))
 
 
-;;; Org-contacts
-
-(mini-pkgif org-contacts
-  (require 'org-contacts)
-  (defvar org-directory)
-  (mini-set org-contacts-files (list (expand-file-name "contacts.org" org-directory)))
-  (defvar org-capture-templates)
-  (defvar mini-pkg-org-contacts-template
-    "* %(org-contacts-template-name)
-:PROPERTIES:
-:ADDRESS: %^{289 Cleveland St. Brooklyn, 11206 NY, USA}
-:BIRTHDAY: %^{yyyy-mm-dd}
-:EMAIL: %(org-contacts-template-email)
-:NOTE: %^{NOTE}
-:END:" "Template for org-contacts.")
-  (mini-eval org-contacts
-    (add-to-list 'org-capture-templates
-		 `(("c" "Contact" entry (file+headline "~/org/contacts.org" "Friends"),
-		    mini-pkg-org-contacts-template
-		    :empty-lines 1)))))
-
-
-;;; Org-contrib
-
-(mini-pkgif org-contrib
-  nil) ;; placeholder
-
-
 ;;; Org-modern
 
 (mini-pkgif org-modern
@@ -1811,13 +1088,6 @@ ORIG and ARGS as arguments."
   (pdf-loader-install))
 
 ;; Needs make automake autoconf gcc gcc-c++ libpng-devel zlib-devel poppler
-
-
-;;; Persistent-scratch
-
-(mini-pkgif persistent-scratch
-  (add-hook 'after-init-hook
-            'persistent-scratch-setup-default))
 
 
 ;;; Pixel-scroll
@@ -1872,33 +1142,6 @@ ORIG and ARGS as arguments."
     (mini-set python-shell-prompt-detect-failure-warning nil)))
 
 
-;;; Python-black
-
-(mini-pkgif python-black
-  (mini-eval python
-    (defvar python-mode-map)
-    (mini-defk "C-c p b" 'python-black-buffer python-mode-map)
-    ;; (add-hook 'python-mode-hook 'python-black-on-save-mode-enable-dwim)
-    ))
-
-
-;;; Pyvenv
-
-(mini-pkgif pyvenv
-  (mini-eval pyvenv
-    (declare-function pyvenv-mode nil)
-    ;; (pyvenv-activate "~/pyvenv-test/")
-    (pyvenv-mode 1)))
-
-
-;;; Quickrun
-
-(mini-pkgif quickrun
-  (mini-eval python
-    (defvar python-mode-map) ;; Get flycheck to shut up.
-    (mini-defk [?\C-c ?\C-c] 'quickrun-shell python-mode-map)))
-
-
 ;;; Recentf
 ;; built-in
 
@@ -1921,24 +1164,6 @@ ORIG and ARGS as arguments."
 	 (repeat-mode))))))
 
 
-;;; Restart-emacs
-
-(mini-pkgif restart-emacs
-  ;; Emacs 29 provides a built-in command of the same name.
-  (mini-defk ?C 'restart-emacs ctl-x-map)
-  (mini-addmenu "file"
-    '(["Restart Emacs" restart-emacs])))
-
-
-;;; Rg
-
-(mini-pkgif rg
-  ;; :system-deps "rg" ;; ripgrep
-  ;; (mini-set rg-executable "toolbox -c ripgrep run rg")
-  (mini-addmenu "tools"
-    '(["Ripgrep*" rg])))
-
-
 ;;; Savehist
 ;; built-in
 
@@ -1951,13 +1176,6 @@ ORIG and ARGS as arguments."
 
 (mini-bltin saveplace
   (add-hook 'after-init-hook 'save-place-mode))
-
-
-;;; Shx
-
-(mini-pkgif shx
-  (declare-function shx-mode nil)
-  (add-hook 'shell-mode-hook #'shx-mode))
 
 
 ;;; Simple
@@ -1996,17 +1214,6 @@ ORIG and ARGS as arguments."
   (mini-set smtpmail-stream-type 'ssl))
 
 
-;;; Somafm
-
-(mini-pkgif somafm
-  (autoload 'somafm "somafm" "Refresh channels and display the channels buffer.
-If we don't have the list already, or if the refresh interval
-has passed, otherwise show the channel buffer." t)
-  (mini-addmenu "tools"
-    '(["Soma.fm radio" somafm])
-    '("Other Apps*" "Media")))
-
-
 ;;; Startup
 ;; built-in
 
@@ -2021,12 +1228,6 @@ has passed, otherwise show the channel buffer." t)
        (fancy-splash-insert
 	:face 'variable-pitch
 	(emacs-init-time "\n\nEmacs started in %.2f seconds."))))))
-
-
-;;; Su
-
-(mini-pkgif su
-  nil) ;; placeholder
 
 
 ;;; Subword
@@ -2180,43 +1381,6 @@ other arguments R."
   (advice-add 'completing-read-default :around 'mini-tmm-change-prompt-advice))
 
 
-;;; Transpose-frame
-
-(mini-pkgif transpose-frame
-  (defvar mini-transpose-frame-prefix-map)
-  (define-prefix-command 'mini-transpose-frame-prefix-command 'mini-transpose-frame-prefix-map)
-  (mini-defk ?f 'mini-transpose-frame-prefix-command mini-transpose-prefix-map)
-  (mini-defk ?t 'transpose-frame                   mini-transpose-frame-prefix-map)
-  (mini-defk ?f 'flip-frame                        mini-transpose-frame-prefix-map)
-  (mini-defk ?l 'flop-frame                        mini-transpose-frame-prefix-map)
-  (mini-defk ?r 'rotate-frame                      mini-transpose-frame-prefix-map)
-  (mini-defk ?c 'rotate-frame-clockwise            mini-transpose-frame-prefix-map)
-  (mini-defk ?a 'rotate-frame-anticlockwise        mini-transpose-frame-prefix-map))
-
-
-;;; Treemacs
-
-(mini-pkgif treemacs
-  (mini-defk "<f8>" 'treemacs))
-
-
-;;; Treemacs-tab-bar
-
-(mini-pkgif treemacs-tab-bar
-  (mini-eval treemacs
-    (require 'treemacs-tab-bar)
-    (declare-function treemacs-set-scope-type nil)
-    (treemacs-set-scope-type 'Tabs)))
-
-
-;;; Tree-sitter
-
-(mini-pkgif tree-sitter
-  (mini-ensure tree-sitter-langs)
-  (mini-eval tree-sitter
-    (require 'tree-sitter-langs)))
-
-
 ;;; Vertico
 
 (mini-pkgif vertico
@@ -2255,54 +1419,6 @@ other arguments R."
 		    (apply args))))))
 
 
-;;; Vertigo
-
-;; Not to be confused with the "Vertico" package.
-
-(mini-pkgif vertigo
-  (mini-set vertigo-home-row (if (eq mini-keyboard-layout 'programmer-dvorak)
-				 '(?u ?h ?e ?t ?o ?n ?a ?s ?i ?d)
-                               (append mini-keys-homerow-10 nil)))
-  (mini-set vertigo-cut-off 9)
-  (mini-set vertigo-max-digits 2)
-  (mini-defk [?\M-g ?\M--] 'vertigo-set-negative-digit-argument)
-  (mini-defk [?\M-g ?-] 'vertigo-set-negative-digit-argument)
-  (mini-defk [?\M-g ?\M-r] 'vertigo-set-digit-argument)
-  (mini-defk [?\M-p] 'vertigo-jump-up)
-  (mini-defk [?\M-n] 'vertigo-jump-down)
-  (defun mini-vertigo-jump-up-column ()
-    ""
-    (interactive)
-    (declare-function vertigo--run nil)
-    (vertigo--run #'previous-line "Jump up: "))
-  (defun mini-vertigo-jump-down-column ()
-    ""
-    (interactive)
-    (vertigo--run #'next-line "Jump down: "))
-  ;; FIXME Make it go to end of line if column number exceeds length of line.
-  (defun mini-vertigo-jump-to-column ()
-    "Jump to a specific absolute column."
-    (interactive)
-    (vertigo--run (lambda (arg)
-                    (interactive "p")
-                    (move-beginning-of-line 1)
-                    (forward-char arg))
-                  "Jump to column: "))
-  (defun mini-vertigo-go-up ()
-    ""
-    (interactive)
-    (declare-function vertigo-jump-up nil)
-    (vertigo-jump-up)
-    (declare-function mini-vertigo-jump-to-column nil)
-    (mini-vertigo-jump-to-column))
-  (defun mini-vertigo-go-down ()
-    ""
-    (interactive)
-    (declare-function vertigo-jump-down nil)
-    (vertigo-jump-down)
-    (mini-vertigo-jump-to-column)))
-
-
 ;;; View
 ;; built-in
 
@@ -2312,16 +1428,6 @@ other arguments R."
   (mini-addmenu "options"
     '(["View-Mode" view-mode])
     '("View Enhancements*")))
-
-
-;;; Vterm
-
-(mini-pkgif vterm
-  ;; Needs: cmake libtool
-  ;; :system-deps ("cmake" "libtool")
-  (mini-addmenu "tools"
-    '(["Vterm" vterm])
-    '("Other Apps*" "System" "Command Lines")))
 
 
 ;;; Vundo
@@ -2519,14 +1625,6 @@ in lines and characters respectively."
 
 (mini-bltin window
   (mini-defk "M-o" 'other-window))
-
-
-;;; Yasnippet
-
-(mini-pkgif yasnippet
-  ;; Is this not duplicative with abbrev, auto-insert, skeletons, etc?
-  (add-hook 'find-file-hook 'yas-global-mode)
-  (mini-ensure yasnippet-snippets))
 
 
 (provide 'mini-packages)
