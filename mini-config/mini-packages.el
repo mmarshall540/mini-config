@@ -340,7 +340,7 @@
   ;; (autoload 'avy-prev "avy" "Go to the previous candidate of the last ‘avy-read’." t)
   ;; (mini-defk ?n             'avy-next             mode-specific-map)
   ;; (autoload 'avy-next "avy" "Go to the next candidate of the last ‘avy-read’." t)
-  (mini-defk ?r             'avy-resume           mode-specific-map)
+  ;; (mini-defk ?r             'avy-resume           mode-specific-map)
   (autoload 'avy-resume "avy" nil t)
 
   ;; isearch
@@ -399,7 +399,8 @@
 		  ("p ^" . cape-tex)
 		  ("p &" . cape-sgml)
 		  ("p r" . cape-rfc1345)))
-    (mini-defk (car pair) (cdr pair) mode-specific-map))
+    ;; (mini-defk (car pair) (cdr pair) mode-specific-map)
+    )
 
   ;; Add `completion-at-point-functions', used by `completion-at-point'.
   (add-to-list 'completion-at-point-functions 'cape-dabbrev)
@@ -460,7 +461,7 @@
 
   (defvar mini-consult-prefix-map (make-sparse-keymap))
   (define-prefix-command 'mini-consult-prefix-command 'mini-consult-prefix-map)
-  (mini-defk [?u] 'mini-consult-prefix-command mode-specific-map)
+  ;; (mini-defk [?u] 'mini-consult-prefix-command mode-specific-map)
 
   (dolist (kb '(("h" . consult-history)
 		("m" . consult-mode-command)
@@ -599,7 +600,7 @@
 
 (mini-bltin cperl-mode
   (defvar cperl-mode-map)
-  (add-to-list 'auto-mode-alist "\\.\\([pP][Llm]\\|al\\)\\'" 'cperl-mode)
+  (add-to-list 'auto-mode-alist '("\\.\\([pP][Llm]\\|al\\)\\'" . 'cperl-mode))
   (dolist (intr '("perl" "perl5" "miniperl"))
     (add-to-list 'interpreter-mode-alist (cons intr 'cperl-mode)))
   (define-auto-insert
@@ -674,7 +675,16 @@
 
 (mini-pkgif denote
   (add-hook 'find-file-hook 'denote-link-buttonize-buffer)
-  (add-hook 'dired-mode-hook 'denote-dired-mode))
+  (add-hook 'dired-mode-hook 'denote-dired-mode)
+  (mini-eval org-capture
+    (add-to-list 'org-capture-templates
+		 '("n" "New note (with Denote)" plain
+                   (file denote-last-path)
+                   #'denote-org-capture
+                   :no-save t
+                   :immediate-finish nil
+                   :kill-buffer t
+                   :jump-to-captured t))))
 
 
 ;;; Dired
@@ -772,8 +782,9 @@
     (declare-function eglot-alternatives nil)
     (setcdr
      (assq 'python-mode eglot-server-programs)
-     (eglot-alternatives
-      '("jedi-language-server" "pylsp" "pyls" ("pyright-langserver" "--stdio"))))))
+     ;; (eglot-alternatives
+     ;;  '("jedi-language-server" "pylsp" "pyls" ("pyright-langserver" "--stdio")))
+     '("jedi-language-server"))))
 
 
 ;;; Eglot-java
@@ -784,14 +795,15 @@
    'eglot-java-init))
 
 
-;; Ehelp
+;;; Ehelp
 ;; built-in
 
 (mini-bltin ehelp
   (autoload		'ehelp-command "ehelp"
     "Prefix command (definition is a keymap associating keystrokes with commands)."
     'interactive 'keymap)
-  (mini-defk "C-h"	'ehelp-command)  ;; electric-help
+  (unless mini-use-C-h-for-backspace
+    (mini-defk "C-h"	'ehelp-command))  ;; electric-help
   (mini-defk "<f1>"	'ehelp-command)  ;; electric-help
   (mini-defk "<help>"	'ehelp-command)) ;; electric-help
 
@@ -940,9 +952,9 @@ https://karthinks.com/software/avy-can-do-anything/."
   ;; Silverblue or Kinoite.
   (add-to-list 'exec-path "~/.local/bin")
   (when (version< "29" emacs-version)
-  (mini-defk "x"      'restart-emacs            mode-specific-map)
-  (mini-addmenu "file"
-    '(["Restart Emacs" restart-emacs]))))
+    (mini-defk "x"      'restart-emacs            mode-specific-map)
+    (mini-addmenu "file"
+      '(["Restart Emacs" restart-emacs]))))
 
 
 ;;; Flycheck
@@ -1102,7 +1114,7 @@ the number row are un-shifted.)\n\n")
                   (?d     . nil) ;; (apropos-documentation)
                   ;; (?A     . apropos-documentation) ;; Re-binding
                   (?\C-e  . nil) ;; (available in the Info manual) (view-external-packages)
-                  (?\C-f  . find-library) ;; from find-func.el (original binding is available in the Info manual)
+                  (?\M-f  . find-library) ;; from find-func.el (original binding is available in the Info manual)
                   (?h     . nil) ;; (view-hello-file)
                   (?H     . view-hello-file) ;; Re-bound to prevent accidental invocation
                   (?\C-o  . nil) ;; message about distribution
@@ -1213,7 +1225,7 @@ ORIG and ARGS as arguments."
 
 ;; Use `ibuffer' instead of `list-buffers'
 (when mini-use-ibuffer-over-list-buffers
-  (mini-defk [remap list-buffers] 'ibuffer))
+  (mini-defk "C-b" 'ibuffer ctl-x-map))
 
 
 ;;; Icomplete
@@ -1360,7 +1372,7 @@ ORIG and ARGS as arguments."
    ;; Delete paired punctuation.  How can this be made to work within
    ;; comments?  Parentheses are highlighted, but using this command
    ;; results in a message about unbalanced parentheses.
-  (mini-defk "d" 'delete-pair mode-specific-map)
+  ;; (mini-defk "d" 'delete-pair mode-specific-map)
   ;;
   ;; insert-pair-alist default value is:
   ;; '((?\( ?\)) (?\[ ?\]) (?\{ ?\}) (?\< ?\>) (?\" ?\") (?\' ?\') (?\` ?\'))
@@ -1574,23 +1586,29 @@ ORIG and ARGS as arguments."
 
 ;;; Mu4e
 
-(mini-pkgif mu4e
-  ;; :system-deps ("mu" "mbsync") ;; packages are "maildir-utils" and "isync"
-  (mini-addmenu "tools"
-    '(["Mu4e: Email client" mu4e])
-    '("Other Apps*" "Communication"))
-  ;; (mini-set mu4e-get-mail-command "mbsync -c ~/.config/mbsync/mbsyncrc gmail")
-  (mini-set mu4e-headers-unread-mark    '("u" . "📩 "))
-  (mini-set mu4e-headers-draft-mark     '("D" . "🚧 "))
-  (mini-set mu4e-headers-flagged-mark   '("F" . "🚩 "))
-  (mini-set mu4e-headers-new-mark       '("N" . "✨ "))
-  (mini-set mu4e-headers-passed-mark    '("P" . "↪ "))
-  (mini-set mu4e-headers-replied-mark   '("R" . "↩ "))
-  (mini-set mu4e-headers-seen-mark      '("S" . " "))
-  (mini-set mu4e-headers-trashed-mark   '("T" . "🗑️"))
-  (mini-set mu4e-headers-attach-mark    '("a" . "📎 "))
-  (mini-set mu4e-headers-encrypted-mark '("x" . "🔑 "))
-  (mini-set mu4e-headers-signed-mark    '("s" . "⚖ "))) ;; This may need to be customized.
+;; This is a system install.
+
+;; :system-deps ("mu" "mbsync") ;; packages are "maildir-utils" and "isync"
+(mini-addmenu "tools"
+  '(["Mu4e: Email client" mu4e])
+  '("Other Apps*" "Communication"))
+;; (mini-set mu4e-get-mail-command "mbsync -c ~/.config/mbsync/mbsyncrc gmail")
+(mini-eval mu4e
+  (setq
+   mu4e-headers-draft-mark     '("D" . "💈")
+   mu4e-headers-flagged-mark   '("F" . "📍")
+   mu4e-headers-new-mark       '("N" . "🔥")
+   mu4e-headers-passed-mark    '("P" . "❯")
+   mu4e-headers-replied-mark   '("R" . "❮")
+   mu4e-headers-seen-mark      '("S" . "☑")
+   mu4e-headers-trashed-mark   '("T" . "💀")
+   mu4e-headers-attach-mark    '("a" . "📎")
+   mu4e-headers-encrypted-mark '("x" . "🔒")
+   mu4e-headers-signed-mark    '("s" . "🔑")
+   mu4e-headers-unread-mark    '("u" . "⎕")
+   mu4e-headers-list-mark      '("s" . "🔈")
+   mu4e-headers-personal-mark  '("p" . "👨")
+   mu4e-headers-calendar-mark  '("c" . "📅"))) ;; This may need to be customized.
 
 
 ;;; Mu4e-alert
@@ -1613,7 +1631,8 @@ ORIG and ARGS as arguments."
 (mini-pkgif mu4e-marker-icons
   ;; mini-eval (mu4e all-the-icons)
   (declare-function mu4e-marker-icons-mode nil)
-  (mu4e-marker-icons-mode 1))
+  (mini-eval (mu4e all-the-icons)
+    (mu4e-marker-icons-mode 1)))
 
 
 ;;; Mwim
@@ -1672,9 +1691,9 @@ ORIG and ARGS as arguments."
   ;; :system-deps ("/usr/share/texlive/texmf-dist/tex/generic/ulem/ulem.sty"      ;; texlive-capt-of
   ;;               "/usr/share/texlive/texmf-dist/tex/latex/capt-of/capt-of.sty"  ;; texlive-ulem
   ;;               "/usr/share/texlive/texmf-dist/tex/latex/wrapfig/wrapfig.sty)" ;; texlive-wrapfig
-  (mini-defk ?a 'org-agenda     mode-specific-map)
-  (mini-defk ?c 'org-capture    mode-specific-map)
-  (mini-defk ?l 'org-store-link mode-specific-map)
+  ;; (mini-defk ?a 'org-agenda     mode-specific-map)
+  ;; (mini-defk ?c 'org-capture    mode-specific-map)
+  ;; (mini-defk ?l 'org-store-link mode-specific-map)
   (mini-eval org-agenda
     (mini-set org-agenda-block-separator ?─)
     (mini-set org-agenda-current-time-string
@@ -1826,8 +1845,7 @@ ORIG and ARGS as arguments."
   (add-hook 'after-init-hook 'pulsar-global-mode)
   (mini-set pulsar-face 'pulsar-generic)
   (mini-set pulsar-iterations 20)
-  (mini-set pulsar-delay 0.03)
-  (mini-defk [?s] 'pulsar-pulse-line mode-specific-map))
+  (mini-set pulsar-delay 0.03))
 
 
 ;;; Python
@@ -1845,6 +1863,7 @@ ORIG and ARGS as arguments."
 		       space-after-tab::tab space-before-tab::tab))
 	      (setq-local tab-width 4)
 	      (whitespace-mode)))
+  (add-hook 'python-mode-hook 'subword-mode)
   (mini-eval python
     (mini-set python-shell-completion-native-disabled-interpreters
       '("jupyter" "pypy")) ; try to autoload python
@@ -2309,8 +2328,7 @@ other arguments R."
 
 (mini-pkgif vundo
   (mini-addmenu "tools"
-    '(["Visualize Undos*" vundo]))
-  (mini-defk "v" 'vundo mode-specific-map))
+    '(["Visualize Undos*" vundo])))
 
 
 ;;; Warnings
