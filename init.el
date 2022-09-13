@@ -211,13 +211,16 @@
 (mini-set package-archive-priorities '(("gnu" . 2) ("nongnu" . 1)))
 
 
-;; Make sure package-archives have been downloaded at least once.
-(unless
-    (file-exists-p
-     (expand-file-name
-      "elpa/archives/gnu/archive-contents"
-      user-emacs-directory))
-  (package-refresh-contents))
+;; ;; Make sure package-archives have been downloaded at least once.
+;; (unless
+;;     (file-exists-p
+;;      (expand-file-name
+;;       "elpa/archives/gnu/archive-contents"
+;;       user-emacs-directory))
+;;   (package-refresh-contents))
+
+;; Refresh package contents in the background.
+(package-refresh-contents t)
 
 
 ;;; Install selected but not-yet-installed packages.
@@ -228,6 +231,29 @@
   (if (version< "28" emacs-version)
       (package-install-selected-packages 'noconfirm)
     (package-install-selected-packages)))
+
+
+;;; Add all site-lisp directories to the `load-path'.
+
+;; If Emacs is installed under /usr/local, it won't see
+;; distro-installed package files under /usr/share/emacs/site-lisp/
+;; (such as mu4e).  Since those directories are under a different
+;; prefix, Emacs doesn't add them to the load-path automatically.  We
+;; have to add them ourselves...  And vice-versa if we've installed
+;; Emacs through the package manager but have installed something like
+;; mu4e from source to /usr/local.
+(dolist (default-directory '("/usr/share/emacs/site-lisp/" "/usr/local/share/emacs/site-lisp/"))
+  (when (file-exists-p default-directory)
+    (normal-top-level-add-subdirs-to-load-path)))
+
+
+;;; Show us the init-time after we finish loading (because we care).
+
+(add-hook
+ 'window-setup-hook
+ (lambda ()
+   (message (emacs-init-time "Emacs started in %.2f seconds."))
+   (set-frame-position (selected-frame) 0 0)))
 
 
 ;;; Configure selected and built-in packages.
