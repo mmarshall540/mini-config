@@ -459,8 +459,9 @@ initially found within the current line."
 ;;; Corfu
 
 (mini-pkgif corfu
-  (mini-set corfu-auto-delay 0.4)
-  (mini-set corfu-auto-prefix 4)
+  ;; (mini-set corfu-auto-delay 0.4)
+  ;; (mini-set corfu-auto-prefix 4)
+  (mini-set corfu-auto nil)
   (run-at-time 2 nil
 	       (lambda () (add-hook 'window-state-change-hook 'corfu-mode))))
 
