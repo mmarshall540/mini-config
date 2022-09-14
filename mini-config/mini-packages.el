@@ -627,19 +627,10 @@ initially found within the current line."
 (mini-bltin elec-pair
   (mini-set electric-pair-inhibit-predicate 'ignore)
   (mini-set electric-pair-skip-self t)
-  (mini-set electric-pair-text-pairs '((34 . 34) (8216 . 8217) (8220 . 8221) (42 . 42)))
+  (mini-set electric-pair-text-pairs
+    '((34 . 34) (8216 . 8217) (8220 . 8221) (42 . 42)))
   (run-at-time 2 nil
 	       'electric-pair-mode))
-
-
-;;; Electric
-;; built-in
-
-;; (mini-bltin electric
-;;   (add-hook 'text-mode-hook 'electric-quote-local-mode)
-;;   ;; (mini-eval org
-;;   ;;   (add-hook 'org-mode-hook 'mini-electric-quote-inhibit-add))
-;;   )
 
 
 ;;; Embark
