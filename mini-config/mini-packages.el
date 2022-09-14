@@ -1776,6 +1776,7 @@ Optional argument ARG is the same as for `mark-word'." t))
   ;; Name tabs automatically based on the current file's project, if
   ;; it has one.
   (defvar mini-projects-directory "~/Projects/")
+  (autoload 'project-root "project")
   (defun mini-tab-bar-tab-name-function ()
     (let* ((project (project-current))
 	   (projdir (when project
