@@ -745,6 +745,7 @@ https://karthinks.com/software/avy-can-do-anything/."
 ;; built-in
 
 (mini-bltin frame
+  (mini-set blink-cursor-blinks 1)
   ;; Disable the 'suspend-frame command when running in GUI.
   (when (display-graphic-p) (put 'suspend-frame 'disabled t)))
 
