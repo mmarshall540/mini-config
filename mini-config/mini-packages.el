@@ -625,6 +625,9 @@ initially found within the current line."
 ;; built-in
 
 (mini-bltin elec-pair
+  (mini-set electric-pair-inhibit-predicate 'ignore)
+  (mini-set electric-pair-skip-self t)
+  (mini-set electric-pair-text-pairs '((34 . 34) (8216 . 8217) (8220 . 8221) (42 . 42)))
   (run-at-time 2 nil
 	       'electric-pair-mode))
 
