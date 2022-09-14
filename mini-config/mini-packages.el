@@ -335,6 +335,7 @@ initially found within the current line."
 			(112 "Packages" font-lock-constant-face)
 			(116 "Types" font-lock-type-face)
 			(118 "Variables" font-lock-variable-name-face)))))
+  (mini-set consult-narrow-key [60])
   (defvar mini-consult-prefix-map (make-sparse-keymap))
   (define-prefix-command 'mini-consult-prefix-command 'mini-consult-prefix-map)
   ;; (mini-defk [?u] 'mini-consult-prefix-command mode-specific-map)
