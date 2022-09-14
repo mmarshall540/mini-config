@@ -709,6 +709,7 @@ https://karthinks.com/software/avy-can-do-anything/."
 ;; built-in
 
 (mini-bltin files
+  (mini-set delete-old-versions t)
   ;; (`kill-buffer-query-functions' is defined in C source code, so
   ;; there's no associated package, but it is related to other
   ;; functions found in the built-in files package.)  This prevents
