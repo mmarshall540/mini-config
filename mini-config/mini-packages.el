@@ -569,8 +569,7 @@ initially found within the current line."
 ;; built-in
 
 (mini-bltin display-line-numbers
-  ;; Show line-numbers in programming modes.
-  (add-hook 'prog-mode-hook 'display-line-numbers-mode))
+)
 
 
 ;;; Eglot
@@ -1620,7 +1619,15 @@ Use in `isearch-mode-end-hook'."
 
 (mini-bltin prog-mode
   (mini-eval prog-mode
-    (global-prettify-symbols-mode)))
+    (global-prettify-symbols-mode))
+  ;; Show line-numbers on the side and column-numbers on the mode-line
+  ;; when in programming modes.
+  (add-hook 'prog-mode-hook
+	    (mini-make-caller
+	     'eval
+	     '(list (display-line-numbers-mode)
+		    (setq-local line-number-mode nil)
+		    (setq-local column-number-mode t)))))
 
 
 ;;; Pulsar
@@ -1706,7 +1713,6 @@ Use in `isearch-mode-end-hook'."
 ;; built-in
 
 (mini-bltin simple
-  (mini-set column-number-mode t)
   (mini-set completion-show-help nil)
   (mini-set kill-whole-line t)
   (mini-set set-mark-command-repeat-pop t)
