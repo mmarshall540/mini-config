@@ -1205,6 +1205,7 @@ Use in `isearch-mode-end-hook'."
 		    ;;  ("X" "C-x X" "Edebug Pt.2: C-x X"))
 		    (("e" mini-leader-editing-map "Editing")
 		     ;; ("c" 'cape-prefix)
+		     ("e" 'mini-meow-delete-pair-of-things "Erase Pairs")
 		     ("k" 'mini-kill-prefix-command "Kill Commands")
 		     ("m" 'mini-mark-prefix-command "Marking Commands")
 		     ("t" 'mini-transpose-prefix-command "Transpose Cmds"))
@@ -1315,8 +1316,6 @@ Use in `isearch-mode-end-hook'."
       (push-mark (point) t t)
       (yank)
       (exchange-point-and-mark)))
-
-  (mini-defk "d" 'mini-meow-delete-pair-of-things mode-specific-map "Delete Pairs")
 
   (add-hook 'meow-insert-enter-hook (mini-make-setter 'delete-active-region t))
   (add-hook 'meow-insert-exit-hook (mini-make-setter 'delete-active-region nil))
@@ -1433,22 +1432,22 @@ Use in `isearch-mode-end-hook'."
   '("Other Apps" "Communication"))
 ;; (mini-set mu4e-get-mail-command "mbsync -c ~/.config/mbsync/mbsyncrc gmail")
 (autoload 'mu4e "mu4e" "Mu4e" 'interactive)
+
 (mini-eval mu4e
-  (setq
-   mu4e-headers-draft-mark     '("D" . "💈")
-   mu4e-headers-flagged-mark   '("F" . "📍")
-   mu4e-headers-new-mark       '("N" . "🔥")
-   mu4e-headers-passed-mark    '("P" . "❯")
-   mu4e-headers-replied-mark   '("R" . "❮")
-   mu4e-headers-seen-mark      '("S" . "☑")
-   mu4e-headers-trashed-mark   '("T" . "💀")
-   mu4e-headers-attach-mark    '("a" . "📎")
-   mu4e-headers-encrypted-mark '("x" . "🔒")
-   mu4e-headers-signed-mark    '("s" . "🔑")
-   mu4e-headers-unread-mark    '("u" . "⎕")
-   mu4e-headers-list-mark      '("s" . "🔈")
-   mu4e-headers-personal-mark  '("p" . "👨")
-   mu4e-headers-calendar-mark  '("c" . "📅"))) ;; This may need to be customized.
+  (mini-set mu4e-headers-draft-mark     '("D" . "💈"))
+  (mini-set mu4e-headers-flagged-mark   '("F" . "📍"))
+  (mini-set mu4e-headers-new-mark       '("N" . "🔥"))
+  (mini-set mu4e-headers-passed-mark    '("P" . "❯"))
+  (mini-set mu4e-headers-replied-mark   '("R" . "❮"))
+  (mini-set mu4e-headers-seen-mark      '("S" . "☑"))
+  (mini-set mu4e-headers-trashed-mark   '("T" . "💀"))
+  (mini-set mu4e-headers-attach-mark    '("a" . "📎"))
+  (mini-set mu4e-headers-encrypted-mark '("x" . "🔒"))
+  (mini-set mu4e-headers-signed-mark    '("s" . "🔑"))
+  (mini-set mu4e-headers-unread-mark    '("u" . "⎕"))
+  (mini-set mu4e-headers-list-mark      '("s" . "🔈"))
+  (mini-set mu4e-headers-personal-mark  '("p" . "👨"))
+  (mini-set mu4e-headers-calendar-mark  '("c" . "📅"))) ;; This may need to be customized.
 
 
 ;;; Mwim
