@@ -328,7 +328,13 @@ initially found within the current line."
                    #'consult-completion-in-region
 		 #'completion--in-region)
                args))))
-
+  (mini-set consult-imenu-config
+    '((emacs-lisp-mode :toplevel "Headings" :types
+		       ((102 "Functions" font-lock-function-name-face)
+			(109 "Macros" font-lock-function-name-face)
+			(112 "Packages" font-lock-constant-face)
+			(116 "Types" font-lock-type-face)
+			(118 "Variables" font-lock-variable-name-face)))))
   (defvar mini-consult-prefix-map (make-sparse-keymap))
   (define-prefix-command 'mini-consult-prefix-command 'mini-consult-prefix-map)
   ;; (mini-defk [?u] 'mini-consult-prefix-command mode-specific-map)
