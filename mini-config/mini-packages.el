@@ -24,13 +24,20 @@
 ;; packages configured with `mini-pkgif', the configuration will be
 ;; skipped, unless the package is a member of
 ;; `package-selected-packages'.
-;;; ---
-;;; Press "C-c @ C-t" to fold all package configs, leaving a list of package names visible.
-;;; Press "C-c @ C-e" on a package name to make that package config visible.
-;;; Or press "C-c @ C-a" to make everything visible again.
-;;;
-;;; Alternatively, you can press "M-i" to select a package config using `consult-imenu'.
-;;; ---
+;; ---
+;; Press "C-c @ C-t" to fold all package configs, leaving a list of package names visible.
+;; Press "C-c @ C-e" on a package name to make that package config visible.
+;; Or press "C-c @ C-a" to make everything visible again.
+;;
+;; Alternatively, you can press "M-i" to select a package config using `consult-imenu'.
+;; ---
+;; Package types:
+;; + built-in
+;; + installed by package.el via package-install
+;; + installed by package.el via package-install-file
+;; + installed by packiage.el via package-vc-unpack
+;; + installed by operating system (e.g. mu4e)
+
 ;;; Code:
 
 (require 'mini-core)
@@ -905,7 +912,9 @@ the number row are un-shifted.)\n\n")
 		  ("C-p"   . isearch-repeat-backward)
 		  ("C-n"   . isearch-repeat-forward)
 		  ("C-m"   . mini-isearch-bor-exit)
-		  ("<return>" . mini-isearch-eor-exit)))
+		  ("<return>" . mini-isearch-eor-exit)
+		  ("M-s"   . isearch-forward)
+		  ("M-r"   . isearch-backward)))
       (mini-defk (car kb) (cdr kb) isearch-mode-map))
     (dolist (kb '(([left]  . isearch-reverse-exit-minibuffer)
                   ([right] . isearch-forward-exit-minibuffer)))
@@ -968,6 +977,18 @@ Use in `isearch-mode-end-hook'."
       occur-mode-hook
       org-agenda-mode-hook
       tabulated-list-mode-hook)))
+
+
+;;; Link-hint
+
+(mini-pkgif link-hint
+  (mini-defk [?\M-g ?o] 'link-hint-open-link)
+  (mini-eval ibuffer
+    (defvar ibuffer-mode-map)
+    (mini-defk ?\M-g nil ibuffer-mode-map)
+    (mini-defk [?\M-g ?o] 'link-hint-open-link ibuffer-mode-map))
+  (mini-eval meow
+    (mini-defk "o" 'link-hint-open-link mode-specific-map "Open Link")))
 
 
 ;;; "Lisp"
@@ -1186,8 +1207,12 @@ Use in `isearch-mode-end-hook'."
 		     ;; ("c" 'cape-prefix)
 		     ("k" 'mini-kill-prefix-command "Kill Commands")
 		     ("m" 'mini-mark-prefix-command "Marking Commands")
-		     ("t" 'mini-transpose-prefix-command "Transpose Cmds")
-		     ("d" 'delete-pair "Delete Pair"))
+		     ("t" 'mini-transpose-prefix-command "Transpose Cmds"))
+		    ;; ("d" 'delete-pair "Delete Pair")
+		    ;; ("r" 'mini-delete-parentheses "Delete Parentheses")
+		    ;; ("s" 'mini-delete-square-brackets "Delete Square Brackets")
+		    ;; ("c" 'mini-delete-curly-brackets "Delete Curly Brackets")
+		    ;; ("g" 'mini-delete-quotes "Delete Double Quotes")
 		    (("f" mini-leader-files-map "Files")
 		     ("d" 'dired "Dired")
 		     ("f" 'find-file "Find File")
@@ -1199,7 +1224,7 @@ Use in `isearch-mode-end-hook'."
 		    ;;  ("$" "C-x 8" "group:C-x 8"))
 		    (("k" "C-x k" "Kill Buffer"))
 		    (("l" "C-l" "Recenter-Top-Bottom"))
-   		    (("o" "C-x o" "Other Window"))
+   		    ;; (("o" "C-x o" "Other Window"))
 		    (("n" mini-notes-map "Notes & Org-Mode")
 		     ("a" 'org-agenda)
 		     ("c" 'org-capture)
@@ -1268,6 +1293,30 @@ Use in `isearch-mode-end-hook'."
     (when (cdr submap)
       (dolist (smbinding (cdr submap)) ; smbinding = everything in an item except for the key.
 	(eval `(mini-defk ,(car smbinding) (meow--parse-def ,(cadr smbinding)) ,(cadar submap) ,(caddr smbinding))))))
+
+  (defun mini-meow-delete-pair-of-things (things)
+    "Delete pair of chosen THINGS."
+    (interactive (list
+		  (let ((meow-char-thing-table
+			 (seq-filter
+			  (lambda (x)
+			    (memq (cdr x)
+				  '(round square curly string)))
+			  meow-char-thing-table)))
+		    (meow-thing-prompt "Delete surrounding pair: "))))
+    (save-window-excursion
+      (let ((back (equal 'backward (meow--thing-get-direction 'inner)))
+	    (bounds (meow--parse-inner-of-thing-char things)))
+	(meow--select-range back bounds)))
+    (let ((deactivate-mark))
+      (meow-kill)
+      (backward-delete-char 1)
+      (delete-char 1)
+      (push-mark (point) t t)
+      (yank)
+      (exchange-point-and-mark)))
+
+  (mini-defk "d" 'mini-meow-delete-pair-of-things mode-specific-map "Delete Pairs")
 
   (add-hook 'meow-insert-enter-hook (mini-make-setter 'delete-active-region t))
   (add-hook 'meow-insert-exit-hook (mini-make-setter 'delete-active-region nil))
@@ -1684,6 +1733,12 @@ Use in `isearch-mode-end-hook'."
   (mini-set smtpmail-stream-type 'ssl))
 
 
+;;; Sly
+
+(mini-pkgif sly
+  (autoload 'sly "sly" nil t))
+
+
 ;;; Startup
 ;; built-in
 
@@ -1889,10 +1944,10 @@ other arguments R."
 
   (mini-eval vertico
     (defvar vertico-map)
-    ;; Use C-s and C-r to navigate between results (esp. for consult-line)
-    (mini-defk "C-s" 'vertico-next     vertico-map)
-    (mini-defk "C-r" 'vertico-previous vertico-map)
-    (mini-defk "M-s" 'vertico-quick-exit   vertico-map)
+    ;; Use M-s and M-r to navigate between results (esp. for consult-line)
+    (mini-defk "M-s" 'vertico-next         vertico-map)
+    (mini-defk "M-r" 'vertico-previous     vertico-map)
+    (mini-defk "M-e" 'vertico-quick-exit   vertico-map)
     (mini-defk "M-i" 'vertico-quick-insert vertico-map)
 
     ;; Avoid duplicate menu when using `tmm-menubar'.
