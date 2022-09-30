@@ -366,7 +366,7 @@ key, the command, and the which-key-string (if any).")
 (defmacro mini-defk (key cmd &optional map wkstringk)
   "Bind KEY to CMD in MAP or `global-map'.
 If which-key is installed, it can use the string provided as
-WKSTRINGK"
+WKSTRINGK."
   `(let* ((kmap-symbol (if ,map (quote ,map) (quote global-map)))
 	  (kmap (eval kmap-symbol))
 	  (kmap-name (mini-org-help-link (symbol-name kmap-symbol)))
@@ -1097,107 +1097,6 @@ Otherwise, call `isearch-repeat-backward' and then
   (call-interactively 'isearch-exit))
 
 
-;;; Menus for built-in packages
-
-;; File menu
-(mini-addmenu "file"
-  `(["***---" ignore]
-    ["HTML-Fontify Buffer" htmlfontify-buffer]
-    ["Config Files" (dired (expand-file-name "*.el" user-emacs-directory))]
-    ["Org Directory" (progn (require 'org) (dired (expand-file-name org-directory)))]
-    ,(let ((dirmenu nil)
-	   (source-dirs-menu-name "Emacs Elisp sources"))
-       (cons (format "%s" source-dirs-menu-name)
-	     (nreverse
-	      (dolist (dir load-path dirmenu)
-		(when (string-match-p (regexp-quote "lisp") dir)
-		  (setq dirmenu
-			(cons (vector
-			       (format "%s" (expand-file-name dir))
-			       `(dired (format "%s"
-					       ,(expand-file-name dir))))
-			      dirmenu)))))))
-    ["Autorevert-Mode" auto-revert-mode]
-    ,(when (version< "29" emacs-version)
-      ["Restart Emacs" restart-emacs])))
-
-;; Edit menu
-(mini-addmenu "edit"
-  '(["***---" ignore]
-    ["Align-Regexp" align-regexp]
-    ["Auto-Fill mode" auto-fill-mode]
-    ["Subword mode" subword-mode]
-    ["Superword mode" superword-mode]
-    ;; For vcursor, we open the library, since it appears to be the
-    ;; only documentation available.
-    ["Vcursor (Load and Find vcursor.el)" (mini-menu-load-and-read 'vcursor)]
-    ["DelSel-Mode" delete-selection-mod]))
-
-;; Options menu
-(mini-addmenu "options"
-  `(["***---" ignore]
-    ("View Enhancements"
-     ["Fill-Column-Indicator" display-fill-column-indicator-mode]
-     ["Hideshow mode" hs-minor-mode]
-     ["Highlight-Changes" highlight-changes-mode]
-     ["Highlight Current Line" hl-line-mode]
-     ["Horizontal Ruler" ruler-mode]
-     ["Scroll Lock Mode" scroll-lock-mode]
-     ["Hide lines indented past..."
-      ,(lambda () (interactive)
-	 (if (y-or-n-p "Use selective-display to hide indented lines? ")
-	     (set-selective-display
-	      (read-number "Enter the minimum indentation of lines to hide: " 4))
-	   (set-selective-display nil)))]
-     ["Show Trailing Whitespace"
-      ,(lambda () (interactive)
-	 (setq show-trailing-whitespace (not show-trailing-whitespace)))]
-     ["Show All Whitespace" whitespace-mode]
-     ["Winner Mode (undo window arrangements)" winner-mode]
-     ["View-Mode" view-mode])
-    ("Editing Enhancements"
-     ["Abbrev-Mode" abbrev-mode])
-    ["Eldoc-Mode" eldoc-mode]
-    ["Winner Mode (undo window arrangements)" winner-mode]))
-
-;; Buffers menu
-(mini-addmenu 'global-buffers-menu-map
-  '(["***---" ignore]
-    ["Org-Switchb" org-switchb]
-    ["MSB-Mode" msb-mode]))
-
-;; Tools menu
-(mini-addmenu "tools"
-  '(["***---" ignore]
-    ["Dired" dired]
-    ["Web Jump" webjump]
-    ("Other Apps"
-     ("Organizing"
-      ["Calendar" calendar]
-      ["Diary" (progn (diary) (switch-to-buffer "diary"))]
-      ["Org-Agenda" org-agenda]
-      ["ToDo-mode" todo-show]
-      ["SES: Simple Emacs Spreadsheet" ses-mode])
-     ("Communication"
-      ["ERC: IRC client" erc]
-      ["Gnus: Usenet, Email, and RSS client" gnus]
-      ["rcirc: IRC client" rcirc]
-      ["Rmail: Email client" rmail])
-     ("Media"
-      ["MPC: Music Player Daemon client" mpc]
-      ["Newsticker: RSS feed reader" newsticker-show-news])
-     ("Net"
-      ["Dig" dig])
-     ("System"
-      ["Proced: System process viewer" proced]
-      ("Command Lines"
-       ["Term" term]
-       ["Eshell" eshell]
-       ["IELM" ielm]))
-     ("Reference"
-      ["Dictionary" dictionary]))))
-
-
 ;;; Key translations
 
 ;; For consistency with GNU Readline...
@@ -1281,22 +1180,6 @@ Otherwise, call `isearch-repeat-backward' and then
   (mini-defk "C-t"    'exchange-point-and-mark  ctl-x-map)
   ;; Make "C-t M-t" work like "C-x C-t" did before.
   (mini-defk "M-t"    'transpose-lines          ctl-x-map))
-  ;; Fix `ibuffer' C-t binding
-
-;;; Mode-specific-map *** C-c ***
-;; (when mini-keep-defk-list
-;;   (mini-defk "b"      'mini-show-defk-list      mode-specific-map))  ;; View user bindings + priors.
-;; (when mini-bind-init-file
-;;   (mini-defk "i"      'mini-find-init-file      mode-specific-map))
-;; (mini-defk "w q"    'delete-window            mode-specific-map)  ;; Some easier to reach
-;; (mini-defk "w k"    'delete-other-windows     mode-specific-map)  ;;   window commands...
-;; (mini-defk "w h"    'split-window-below       mode-specific-map)
-;; (mini-defk "w v"    'split-window-right       mode-specific-map)
-;; (mini-defk "f q"    'delete-frame             mode-specific-map)  ;; Some easier to reach
-;; (mini-defk "f k"    'delete-other-frames      mode-specific-map)  ;;   frame commands...
-;; (mini-defk "f h"    'make-frame-command       mode-specific-map)
-;; (mini-defk "f o"    'other-frame              mode-specific-map)
-;; (mini-defk "v"      'view-mode                mode-specific-map)
 
 (when mini-transpose-bindings
   (defvar mini-transpose-prefix-map (make-sparse-keymap))
@@ -1308,9 +1191,7 @@ Otherwise, call `isearch-repeat-backward' and then
 		(?r . transpose-regions)
 		(?e . transpose-sentences)
 		(?p . transpose-paragraphs)))
-    (mini-defk (car kb) (cdr kb) mini-transpose-prefix-map))
-  ;; (mini-defk "t"      'mini-transpose-prefix-command mode-specific-map)
-  )
+    (mini-defk (car kb) (cdr kb) mini-transpose-prefix-map)))
 
 
 (when mini-kill-bindings
@@ -1331,9 +1212,7 @@ Otherwise, call `isearch-repeat-backward' and then
 		(?u . kill-backward-up-list)
 		(?z . zap-to-char)
 		(?Z . zap-up-to-char)))
-    (mini-defk (car kb) (cdr kb) mini-kill-prefix-map))
-  ;; (mini-defk "k"      'mini-kill-prefix-command mode-specific-map)
-  )
+    (mini-defk (car kb) (cdr kb) mini-kill-prefix-map)))
 
 (when mini-mark-bindings
   (defvar mini-mark-prefix-map (make-sparse-keymap))
