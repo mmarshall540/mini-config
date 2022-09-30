@@ -1453,6 +1453,14 @@ Use in `isearch-mode-end-hook'."
       (dolist (smbinding (cdr submap)) ; smbinding = everything in an item except for the key.
 	(eval `(mini-defk ,(car smbinding) (meow--parse-def ,(cadr smbinding)) ,(cadar submap) ,(caddr smbinding))))))
 
+  ;; Switch to other states from keypad-state.  (Helps in buffers that
+  ;; default to motion-state by providing a means to switch to
+  ;; normal-state in order to select and copy text.  Insert mode
+  ;; included for completeness, but not really necessary.)
+  (mini-defk "N" 'meow-normal-mode mode-specific-map "Normal mode")
+  (mini-defk "M" 'meow-motion-mode mode-specific-map "Motion mode")
+  (mini-defk "I" 'meow-insert-mode mode-specific-map "Insert mode")
+
   (defun mini-meow-delete-pair-of-things (things)
     "Delete pair of chosen THINGS."
     (interactive (list
@@ -2181,15 +2189,34 @@ other arguments R."
                   (?M . which-key-show-major-mode)))
       (mini-defk (car kb) (cdr kb) help-map))
     (defvar which-key-replacement-alist)
-    (push (cons '(nil . "\\([[:alnum:]-]+\\)-mode$")
+    (push (cons '(nil . "\\([[:alnum:]- ]+\\)mode$")
 		(lambda (kb)
                   (cons (car kb)
 			(let* ((kbstr (cdr kb))
                                (cmdsym (intern kbstr))
                                (vblsym (cond
-					((boundp cmdsym) cmdsym)
-					;; mode command with variable named differently
-					((eq cmdsym 'read-only-mode) 'buffer-read-only))))
+					;; mode commands where a different symbol's variable value determines status:
+					((eq cmdsym 'read-only-mode) 'buffer-read-only)
+					;; Meow-mode state when shown in keypad-state leader map:
+					;; (keypad-state is temporary and switches back to previous state on exit)
+					((bound-and-true-p meow-keypad-mode)
+					 (cond
+					  ((eq cmdsym 'Normal\ mode)
+					   '(eq meow--keypad-previous-state 'normal))
+					  ((eq cmdsym 'Motion\ mode)
+					   '(eq meow--keypad-previous-state 'motion))
+					  ((eq cmdsym 'Insert\ mode)
+					   '(eq meow--keypad-previous-state 'insert))
+					  ((boundp cmdsym) cmdsym)))
+					;; Meow-mode state when accessing mode-specific-map directly:
+					((eq cmdsym 'Normal\ mode)
+					 'meow-normal-mode)
+					((eq cmdsym 'Motion\ mode)
+					 'meow-motion-mode)
+					((eq cmdsym 'Insert\ mode)
+					 'meow-insert-mode)
+					;; most other mode commands
+					((boundp cmdsym) cmdsym))))
                           ;; TODO Fix checkbox for edebug
                           ;; modes ("C-x X" and "C-x C-a")?
                           ;; These several modes set the
@@ -2222,35 +2249,35 @@ other arguments R."
     ;;            (push (concat "C-c " ltr) orig)))
     ;;   (regexp-opt orig))
     (which-key-add-key-based-replacements
-     "C-c" "mode-specific-map"
-     "C-c g" "Ctrl"
-     "C-x" "ctl-x-map"
-     "C-x RET" "encoding"
-     "C-x 4" "other-window"
-     "C-x 5" "other-frame"
-     "C-x 6" "2-columns"
-     "C-x 8" "characters"
-     "C-x 8 e" "emojis"
-     "C-x X" "edebug"
-     "C-x a" "abbrev"
-     "C-x a i" "inverse-abbrev"
-     "C-x g" "Ctrl"
-     "C-x n" "narrow"
-     "C-x p" "project"
-     "C-x r" "rectangles/registers"
-     "C-x t" "tab-bar"
-     "C-x v" "version-control"
-     "C-x v M" "mergebase"
-     "C-x x" "buffer"
-     "C-x C-a" "edebug (more?)"
-     "M-g" "goto-map"
-     "M-s" "search-map"
-     "M-s h" "highlighting"
-     "<menu>" "user-bindings"
-     "<menu> h 4" "other-window-help"
-     "C-h 4" "other-window-help"
-     "<f1> 4" "other-window-help"
-     "<help> 4" "other-window-help")
+      "C-c" "mode-specific-map"
+      "C-c g" "Ctrl"
+      "C-x" "ctl-x-map"
+      "C-x RET" "encoding"
+      "C-x 4" "other-window"
+      "C-x 5" "other-frame"
+      "C-x 6" "2-columns"
+      "C-x 8" "characters"
+      "C-x 8 e" "emojis"
+      "C-x X" "edebug"
+      "C-x a" "abbrev"
+      "C-x a i" "inverse-abbrev"
+      "C-x g" "Ctrl"
+      "C-x n" "narrow"
+      "C-x p" "project"
+      "C-x r" "rectangles/registers"
+      "C-x t" "tab-bar"
+      "C-x v" "version-control"
+      "C-x v M" "mergebase"
+      "C-x x" "buffer"
+      "C-x C-a" "edebug (more?)"
+      "M-g" "goto-map"
+      "M-s" "search-map"
+      "M-s h" "highlighting"
+      "<menu>" "user-bindings"
+      "<menu> h 4" "other-window-help"
+      "C-h 4" "other-window-help"
+      "<f1> 4" "other-window-help"
+      "<help> 4" "other-window-help")
     ;; TEMP Remove the following if and when PR #333 is
     ;; accepted.  The rest of this block is a fix for
     ;; side-window-right popup, which without this allows the
