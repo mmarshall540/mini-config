@@ -1210,6 +1210,13 @@ Use in `isearch-mode-end-hook'."
 	(meow--make-selection '(select . visit) isearch-other-end (point))
 	(meow--select))))
 
+  (defun mini-meow-set-state (mode state)
+      "Set the default Meow STATE for MODE."
+      (let ((statecons (assoc mode meow-mode-state-list)))
+	(if statecons
+	    (setcdr statecons state)
+	  (add-to-list 'meow-mode-state-list (cons mode state)))))
+
   (defun meow-setup ()
     (setq meow-cheatsheet-layout meow-cheatsheet-layout-dvp)
     ;; (meow-leader-define-key
@@ -1334,10 +1341,11 @@ Use in `isearch-mode-end-hook'."
 	      #'meow-two-char-exit-insert-state)
 
   (mini-eval meow
-    (let ((statecons (assoc 'help-mode meow-mode-state-list)))
-      (if statecons
-	  (setcdr statecons 'motion)
-	(cons '(help-mode . motion) meow-mode-state-list))))
+    (mini-meow-set-state 'help-mode 'motion)
+    (mini-meow-set-state 'comint-mode 'insert)
+    (mini-meow-set-state 'term-mode 'insert)
+    (mini-meow-set-state 'eshell-mode 'insert)
+    (mini-meow-set-state 'log-edit-mode 'insert))
 
   ;; leader key map
   ;; Keep descriptions to 25 chars or less.
