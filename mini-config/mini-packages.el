@@ -1096,7 +1096,7 @@ Use in `isearch-mode-end-hook'."
       (make-string (length tmm-mid-prompt) ?\-)
       (make-string (length tmm-mid-prompt) ?\*)
       (make-string (length tmm-mid-prompt) ?\-))
-     'mini-tmm-ignore))
+     'mini-menu-ignore))
 
 ;;; Menus for built-in packages
 

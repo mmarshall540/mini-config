@@ -343,6 +343,9 @@ on the home-row, even if the layout is Programmer Dvorak." nil)
   "Return a command to toggle the boolean value of variable SYM."
   (lambda () (interactive) (setq sym (not sym))))
 
+(defalias 'mini-menu-ignore 'ignore
+      "For matching `mini-addmenu-divider' entries in `tmm-add-one-shortcut'.")
+
 
 ;;; Keybinding
 
