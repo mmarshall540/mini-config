@@ -610,7 +610,11 @@ initially found within the current line."
   (unless mini-use-C-h-for-backspace
     (mini-defk "C-h"	'ehelp-command))  ;; electric-help
   (mini-defk "<f1>"	'ehelp-command)  ;; electric-help
-  (mini-defk "<help>"	'ehelp-command)) ;; electric-help
+  (mini-defk "<help>"	'ehelp-command) ;; electric-help
+  (mini-eval ehelp
+    ;; was `view-emacs-faq', removing because it blocks electric-describe-function in
+    ;; meow-leader-map
+    (mini-defk "C-f" nil ehelp-map)))
 
 
 ;;; Eldoc
@@ -818,6 +822,7 @@ the number row are un-shifted.)\n\n")
                   (?d     . nil) ;; (apropos-documentation)
                   ;; (?A     . apropos-documentation) ;; Re-binding
                   (?\C-e  . nil) ;; (available in the Info manual) (view-external-packages)
+		  (?\C-f  . nil) ;; (blocks describe-function in meow-leader-map) (view-emacs-faq)
                   (?\M-f  . find-library) ;; from find-func.el (original binding is available in the Info manual)
                   (?h     . nil) ;; (view-hello-file)
                   (?H     . view-hello-file) ;; Re-bound to prevent accidental invocation
@@ -1380,6 +1385,7 @@ Use in `isearch-mode-end-hook'."
 		    ;; (("i" mini-leader-insert-map "Insert")
 		    ;;  ("f" 'insert-file "Insert File")
 		    ;;  ("$" "C-x 8" "group:C-x 8"))
+		    (("h" "<f1>" "Help"))
 		    (("k" "C-x k" "Kill Buffer"))
 		    (("l" "C-l" "Recenter-Top-Bottom"))
    		    ;; (("o" "C-x o" "Other Window"))
@@ -1460,6 +1466,8 @@ Use in `isearch-mode-end-hook'."
   (mini-defk "N" 'meow-normal-mode mode-specific-map "Normal mode")
   (mini-defk "M" 'meow-motion-mode mode-specific-map "Motion mode")
   (mini-defk "I" 'meow-insert-mode mode-specific-map "Insert mode")
+
+  (mini-defk "h" 'ehelp-command mode-specific-map "Help")
 
   (defun mini-meow-delete-pair-of-things (things)
     "Delete pair of chosen THINGS."
