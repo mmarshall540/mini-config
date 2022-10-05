@@ -604,13 +604,13 @@ initially found within the current line."
 ;; built-in
 
 (mini-bltin ehelp
-  (autoload		'ehelp-command "ehelp"
+  (autoload 'ehelp-command "ehelp"
     "Prefix command (definition is a keymap associating keystrokes with commands)."
-    'interactive 'keymap)
+    nil 'keymap)
   (unless mini-use-C-h-for-backspace
-    (mini-defk "C-h"	'ehelp-command))  ;; electric-help
+    (mini-defk "C-h" 'ehelp-command))  ;; electric-help
   (mini-defk "<f1>"	'ehelp-command)  ;; electric-help
-  (mini-defk "<help>"	'ehelp-command) ;; electric-help
+  (mini-defk "<help>" 'ehelp-command) ;; electric-help
   (mini-eval ehelp
     ;; was `view-emacs-faq', removing because it blocks electric-describe-function in
     ;; meow-leader-map
