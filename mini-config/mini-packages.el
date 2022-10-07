@@ -823,9 +823,9 @@ the number row are un-shifted.)\n\n")
                   ;; (?A     . apropos-documentation) ;; Re-binding
                   (?\C-e  . nil) ;; (available in the Info manual) (view-external-packages)
 		  (?\C-f  . nil) ;; (blocks describe-function in meow-leader-map) (view-emacs-faq)
-                  (?\M-f  . find-library) ;; from find-func.el (original binding is available in the Info manual)
                   (?h     . nil) ;; (view-hello-file)
                   (?H     . view-hello-file) ;; Re-bound to prevent accidental invocation
+		  (?L     . find-library) ;; from find-func.el (original binding is available in the Info manual)
                   (?\C-o  . nil) ;; message about distribution
                   (?\C-m  . nil) ;; don't kill trees
                   (?\C-n  . nil) ;; duplicate of "C-h n"
@@ -2372,7 +2372,8 @@ in lines and characters respectively."
 ;; built-in
 
 (mini-bltin window
-  (mini-defk "M-o" 'other-window))
+  (mini-defk "M-o" 'other-window)
+  (mini-defk "<insert>" 'other-window))
 
 
 (provide 'mini-packages)
