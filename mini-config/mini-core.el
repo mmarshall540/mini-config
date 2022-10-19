@@ -977,12 +977,17 @@ the bindings to `universal-argument-map'.  Use
          (last-command-event (plist-get mini-digits e)))
     (call-interactively 'digit-argument)))
 
-;; ;; Bind the above to keys in `universal-argument-map'.
-;; (dolist (key (number-sequence 0 9))
-;;   (mini-defk (nth (* key 2) mini-digits) 'mini-digit-arg universal-argument-map))
+;; Bind the above to keys in `universal-argument-map'.
+(dolist (key (number-sequence 0 9))
+  (mini-defk (nth (* key 2) mini-digits) 'mini-digit-arg universal-argument-map))
 
 ;; (dolist (key (number-sequence 0 9))
 ;;   (mini-defk (nth (* key 2) mini-digits) nil universal-argument-map))
+
+;; Add repeat to the universal-argument-map to allow easy repetition
+;; with numeric arguments.  Inspired by the "Meow" modal editing
+;; package, because of how it allows expanding a selection afterwards.
+(mini-defk "r" 'repeat universal-argument-map) ; comment
 
 ;; A macro for evaluating forms after a package or list of packages
 ;; has loaded.
@@ -1213,8 +1218,8 @@ Otherwise, call `isearch-repeat-backward' and then
 		(?v . kill-visual-line)
 		(?o . kill-matching-lines)
 		(?u . kill-backward-up-list)
-		(?z . zap-to-char)
-		(?Z . zap-up-to-char)))
+		(?z . zap-up-to-char)
+		(?Z . zap-to-char)))
     (mini-defk (car kb) (cdr kb) mini-kill-prefix-map)))
 
 (when mini-mark-bindings
