@@ -1,4 +1,4 @@
-;;; mini-packages.el --- shorter configurations  -*- lexical-binding: t; outline-regexp: ";;;;* [^	]" -*-
+;;; mini-packages.el --- shorter configurations  -*- lexical-binding: t -*-
 
 ;; Copyright (C) 2022  Martin Marshall
 
@@ -35,16 +35,15 @@
 ;; + built-in
 ;; + installed by package.el via package-install
 ;; + installed by package.el via package-install-file
-;; + installed by packiage.el via package-vc-unpack
+;; + installed by package.el via package-vc-unpack
 ;; + installed by operating system (e.g. mu4e)
 
 ;;; Code:
 
 (require 'mini-core)
-
 
-;;; Abbrev
-;; built-in
+
+;;; Abbrev (built-in)
 
 (mini-bltin abbrev
   ;; Cause the text-mode-abbrev-table to be used in comments and
@@ -63,15 +62,13 @@
   (mini-set abbrev-expand-function 'mini-abbrev-expand-function))
 
 
-;;; Align
-;; built-in
+;;; Align (built-in)
 
 (mini-bltin align
-    (mini-set align-to-tab-stop nil))
+  (mini-set align-to-tab-stop nil))
 
 
-;;; Autoinsert
-;; built-in
+;;; Autoinsert (built-in)
 
 (mini-bltin autoinsert
   (defvar auto-insert-alist)
@@ -83,8 +80,7 @@
      '("custom.el" . (ignore)))))
 
 
-;;; Autorevert
-;; built-in
+;;; Autorevert (built-in)
 
 (mini-bltin autorevert
   (run-at-time 4 nil 'global-auto-revert-mode))
@@ -143,68 +139,68 @@
   ;; (mini-defk ?s             'avy-next              goto-map)
 
   (defun avy-goto-char-2-in-line (char1 char2)
-  "Jump to the currently visible CHAR1 followed by CHAR2.
+    "Jump to the currently visible CHAR1 followed by CHAR2.
 Scope is limited to the current line."
-  (interactive (list (read-char "char 1: " t)
-                     (read-char "char 2: " t)))
-  (avy-with avy-goto-char-2
-    (avy-jump
-     (regexp-quote (string char1 char2))
-     :beg (line-beginning-position)
-     :end (line-end-position))))
+    (interactive (list (read-char "char 1: " t)
+                       (read-char "char 2: " t)))
+    (avy-with avy-goto-char-2
+      (avy-jump
+       (regexp-quote (string char1 char2))
+       :beg (line-beginning-position)
+       :end (line-end-position))))
 
-(defun mini-over-one-nil (list)
-  "If LIST longer than 1, return nil, otherwise LIST."
-  (if (> (length list) 1)
-      nil
-    list))
+  (defun mini-over-one-nil (list)
+    "If LIST longer than 1, return nil, otherwise LIST."
+    (if (> (length list) 1)
+	nil
+      list))
 
-(defun avy-goto-char-2-dwim (&optional arg beg end)
-  ;; Check line:
-  ;; * no results --> repeat search in window scope (done)
-  ;; * exactly one result --> jump to it (done)
-  ;; * multiple results --> repeat search in window scope (or present
-  ;; in-line candidates but allow switching to window-scope with
-  ;; `keyboard-quit'. this option is done)
-  ;;
-  ;; If we are invoking immediately after landing on a single in-line
-  ;; result from this same command, then go straight to window-scope
-  ;; and repeat the search without needing to reenter the
-  ;; characters. To implement this, we would need to 1. Check
-  ;; `last-command'. 2. Store the characters and the result in a
-  ;; variable, or at least the result, because Avy must already be
-  ;; storing the characters somewhere or else `avy-next' and
-  ;; `avy-resume' wouldn't be things... But it's probably enough to
-  ;; just use `last-command', because you can always interrupt with
-  ;; `keyboard-quit' to prevent repetition.
-  ;;
-  ;; TODO Provide a way to switch to the larger scope when there was
-  ;; only one result on the current line which was automatically
-  ;; jumped to, since that would otherwise end the search.
-  ;;
-  ;; Idea: If already positioned at the one result, then expand the
-  ;; scope. But for this to be useful, there needs to be an easy way
-  ;; to repeat the search without reentering it, so you don't have to
-  ;; type the whole thing in again... So we could check the
-  ;; last-command variable, and if we just did the same command, and
-  ;; it landed us on a single result within the current-line scope,
-  ;; simply repeat the same search with the wider scope?
+  (defun avy-goto-char-2-dwim (&optional arg beg end)
+    ;; Check line:
+    ;; * no results --> repeat search in window scope (done)
+    ;; * exactly one result --> jump to it (done)
+    ;; * multiple results --> repeat search in window scope (or present
+    ;; in-line candidates but allow switching to window-scope with
+    ;; `keyboard-quit'. this option is done)
+    ;;
+    ;; If we are invoking immediately after landing on a single in-line
+    ;; result from this same command, then go straight to window-scope
+    ;; and repeat the search without needing to reenter the
+    ;; characters. To implement this, we would need to 1. Check
+    ;; `last-command'. 2. Store the characters and the result in a
+    ;; variable, or at least the result, because Avy must already be
+    ;; storing the characters somewhere or else `avy-next' and
+    ;; `avy-resume' wouldn't be things... But it's probably enough to
+    ;; just use `last-command', because you can always interrupt with
+    ;; `keyboard-quit' to prevent repetition.
+    ;;
+    ;; TODO Provide a way to switch to the larger scope when there was
+    ;; only one result on the current line which was automatically
+    ;; jumped to, since that would otherwise end the search.
+    ;;
+    ;; Idea: If already positioned at the one result, then expand the
+    ;; scope. But for this to be useful, there needs to be an easy way
+    ;; to repeat the search without reentering it, so you don't have to
+    ;; type the whole thing in again... So we could check the
+    ;; last-command variable, and if we just did the same command, and
+    ;; it landed us on a single result within the current-line scope,
+    ;; simply repeat the same search with the wider scope?
 
-  ;; (Is `avy-resume' useful for this?  Or maybe it would be better to
-  ;; add advice to `keyboard-quit'.  Then, you can use C-g to expand
-  ;; the scope either way...  Actually, whenever there are more than
-  ;; one result on the current line, it shouldn't require pressing C-g
-  ;; at all.  Rather, it should automatically expand the scope in that
-  ;; case, because it doesn't cost any extra keystrokes to stay on the
-  ;; current line).  So you would only need to press another key if
-  ;; you've landed on a result within the line but didn't want to
-  ;; restrict it to the line.  Maybe repeating the command would cause
-  ;; it to check if it was the last command and if so also check if it
-  ;; landed on target without having to choose one. ... Once this is
-  ;; done, you can get rid of the separate binding for
-  ;; avy-goto-char-2.
+    ;; (Is `avy-resume' useful for this?  Or maybe it would be better to
+    ;; add advice to `keyboard-quit'.  Then, you can use C-g to expand
+    ;; the scope either way...  Actually, whenever there are more than
+    ;; one result on the current line, it shouldn't require pressing C-g
+    ;; at all.  Rather, it should automatically expand the scope in that
+    ;; case, because it doesn't cost any extra keystrokes to stay on the
+    ;; current line).  So you would only need to press another key if
+    ;; you've landed on a result within the line but didn't want to
+    ;; restrict it to the line.  Maybe repeating the command would cause
+    ;; it to check if it was the last command and if so also check if it
+    ;; landed on target without having to choose one. ... Once this is
+    ;; done, you can get rid of the separate binding for
+    ;; avy-goto-char-2.
 
-  "Jump to the currently visible CHAR1 followed by CHAR2.
+    "Jump to the currently visible CHAR1 followed by CHAR2.
 Scope is initially limited to the current line.  But if no
 candidate is found, expand to the scope as determined by
 `avy-all-windows', unless ARG is non-nil, in which case, do the
@@ -213,53 +209,238 @@ the current line, select one to go there, or press
 \\[keyboard-quit] to expand the scope.  If region is active, BEG
 and END define the scope where candidates are searched if not
 initially found within the current line."
-  (interactive (list current-prefix-arg
-		     nil nil))
-  (defvar jumpoffpt)
-  (setq jumpoffpt (point))
-  (if (eq this-command last-command)
-      ;; If repeating, just call `avy-resume'.
-      (avy-resume)
-    ;; Else, get the chars and attempt to find targets...
-    (let ((char1 (read-char "char 1: " t))
-          (char2 (read-char "char 2: " t)))
-      ;; Try the current line.  And if there is more than one
-      ;; result, go straight to window-scope.
-      (avy-with avy-goto-char-2
-	(advice-add 'avy--regex-candidates :filter-return 'mini-over-one-nil)
-	(avy-jump
-	 (regexp-quote (string char1 char2))
-	 :beg (line-beginning-position)
-	 :end (line-end-position)
-	 :pred
-	 (lambda ()
-	   ;; Check if match target is point.
-	   (/= (+ 2 jumpoffpt) (point))))
-	(advice-remove 'avy--regex-candidates 'mini-over-one-nil))
-      (if (eq 1 (length avy-last-candidates))
-	  ;; If that works, just set avy-resume to window-scope.
-	  (setf (symbol-function 'avy-resume)
-		(lambda ()
-		  (interactive)
-		  (avy-with avy-goto-char-2
-		    (avy-jump
-		     (regexp-quote (string char1 char2))
-		     :beg beg
-		     :end end
-		     :window-flip arg
-		     :pred
-		     (lambda () (/= (+ 2 jumpoffpt) (point)))))))
-	;; Otherwise, do an actual attempt with window-scope.
-	;; Note that this also sets avy-resume to window-scope, so
-	;; that if we flub target-entry, we can quickly reattempt.
+    (interactive (list current-prefix-arg
+		       nil nil))
+    (defvar jumpoffpt)
+    (setq jumpoffpt (point))
+    (if (eq this-command last-command)
+	;; If repeating, just call `avy-resume'.
+	(avy-resume)
+      ;; Else, get the chars and attempt to find targets...
+      (let ((char1 (read-char "char 1: " t))
+            (char2 (read-char "char 2: " t)))
+	;; Try the current line.  And if there is more than one
+	;; result, go straight to window-scope.
 	(avy-with avy-goto-char-2
+	  (advice-add 'avy--regex-candidates :filter-return 'mini-over-one-nil)
 	  (avy-jump
 	   (regexp-quote (string char1 char2))
-	   :beg beg
-	   :end end
-	   :window-flip arg
+	   :beg (line-beginning-position)
+	   :end (line-end-position)
 	   :pred
-	   (lambda () (/= (+ 2 jumpoffpt) (point))))))))))
+	   (lambda ()
+	     ;; Check if match target is point.
+	     (/= (+ 2 jumpoffpt) (point))))
+	  (advice-remove 'avy--regex-candidates 'mini-over-one-nil))
+	(if (eq 1 (length avy-last-candidates))
+	    ;; If that works, just set avy-resume to window-scope.
+	    (setf (symbol-function 'avy-resume)
+		  (lambda ()
+		    (interactive)
+		    (avy-with avy-goto-char-2
+		      (avy-jump
+		       (regexp-quote (string char1 char2))
+		       :beg beg
+		       :end end
+		       :window-flip arg
+		       :pred
+		       (lambda () (/= (+ 2 jumpoffpt) (point)))))))
+	  ;; Otherwise, do an actual attempt with window-scope.
+	  ;; Note that this also sets avy-resume to window-scope, so
+	  ;; that if we flub target-entry, we can quickly reattempt.
+	  (avy-with avy-goto-char-2
+	    (avy-jump
+	     (regexp-quote (string char1 char2))
+	     :beg beg
+	     :end end
+	     :window-flip arg
+	     :pred
+	     (lambda () (/= (+ 2 jumpoffpt) (point)))))))))
+
+  (mini-defk "C-," 'avy-goto-char-2-dwim))
+
+
+;;; Bindings (built-in)
+
+;; Mode-line customizations
+(mini-set
+    mode-line-modified
+  (list '(:eval
+	  (propertize
+	   (if buffer-read-only "🔒" "")
+	   'help-echo 'mode-line-read-only-help-echo
+	   'local-map (purecopy (make-mode-line-mouse-map
+				 'mouse-1
+				 #'mode-line-toggle-read-only))
+	   'mouse-face 'mode-line-highlight))
+	'(:eval
+	  (propertize
+	   (if (buffer-modified-p) "🔴" "")
+	   'help-echo 'mode-line-modified-help-echo
+	   'local-map (purecopy (make-mode-line-mouse-map
+				 'mouse-1 #'mode-line-toggle-modified))
+	   'mouse-face 'mode-line-highlight))))
+
+(mini-set
+    mode-line-remote
+  (list '(:eval
+	  (propertize
+	   ;; "%1@"
+	   (if (file-remote-p default-directory) "📡" "")
+	   'mouse-face 'mode-line-highlight
+	   'help-echo (purecopy (lambda (window _object _point)
+ 				  (format "%s"
+					  (with-selected-window window
+					    (if (stringp default-directory)
+						(concat
+						 (if (file-remote-p default-directory)
+						     "Current directory is remote: "
+						   "Current directory is local: ")
+						 default-directory)
+					      "Current directory is nil")))))))))
+
+(mini-set mode-line-position-column-line-format '("%l ǀ %c"))
+
+;; This is not actually defined in bindings.el.  It's in C code, but
+;; it fits with the above variables.
+(mini-set
+    mode-line-format
+  (list "%e" 'mode-line-front-space
+	'(:propertize
+	  ;; ("" mode-line-mule-info mode-line-client mode-line-modified mode-line-remote)
+	  ("" mode-line-client mode-line-modified mode-line-remote)
+	  'display
+	  '(min-width
+	    (0.0)))
+	'mode-line-frame-identification 'mode-line-buffer-identification "   " 'mode-line-position
+	'(vc-mode vc-mode)
+	"  " 'mode-line-modes 'mode-line-misc-info 'mode-line-end-spaces))
+
+
+;; leader key map
+;; Keep descriptions to 25 chars or less.
+(dolist (submap
+	 `(
+	   ;; (("/" mini-snippets-map "Snippets")
+	   ;;  ("a" "C-x a" "Abbrev"))
+	   ;; ((")" "C-x C-k" "Keyboard Macros: C-x C-k"))
+	   ;; (("a" mini-appearance-map "Appearance")
+	   ;;  ("e" "C-x RET" "Encoding: C-x RET")
+	   ;;  ("n" "C-x n" "Narrowing: C-x n")
+	   ;;  ("p" 'pulsar-pulse-line)
+	   ;;  ("t" 'consult-theme))
+	   ;; (("b" "C-x b" "Change Buffer"))
+	   ;; (("b" mini-buffer-map "Buffers")
+	   ;;  ("b" 'consult-buffer)
+	   ;;  ("i" 'ibuffer "IBuffer")
+	   ;;  ("x" "C-x x" "Buffer Cmds: C-x x"))
+	   ;; (("d" mini-code/lsp-map "Code/Debugging")
+	   ;;  ("a" "C-x C-a" "Edebug Pt.1: C-x C-a")
+	   ;;  ("X" "C-x X" "Edebug Pt.2: C-x X"))
+	   ;; (("i" mini-leader-insert-map "Insert")
+	   ;;  ("f" 'insert-file "Insert File")
+	   ;;  ("$" "C-x 8" "group:C-x 8"))
+	   ;; (("k" "C-x k" "Kill Buffer"))
+	   ;; (("j" mini-get-around-map "Jump Around")
+	   ;;  ("l" recenter-top-bottom "Recenter-Top-Bottom")
+	   ;;  ("m" back-to-indentation "Back-to-Indentation")
+	   ;;  ("r" move-to-window-line-top-bottom "Move-to-Top-Bottom"))
+   	   ;; (("o" "C-x o" "Other Window"))
+	   (("n" mini-notes-map "Notes & Org-Mode")
+	    ("c" org-capture)
+	    ("l" org-store-link)
+	    ("d" denote)
+	    ("a" org-agenda))
+	   ;; (("o" mini-open-map "Open")
+	   ;;  ("v" 'vundo))
+	   (("o" ,(mini-simk "C-x o") "Other Window"))
+	   ;; (("p" "C-x p" "Project Cmds: C-x p"))
+	   ;; (("n" "C-x n" "group:Narrowing"))
+	   (("p" project-prefix-map "group:Project Cmds")) ;; ,(mini-simk "C-x p")
+	   ;; (("q" "C-q" "Quoted Insert"))
+	   ;; (("q" mini-quit/restart-map "Quit/Restart")
+	   ;;  ("r" 'restart-emacs))
+	   (("r" ,(mini-simk "C-x r") "group:Rect/Reg/Bkmrks")) ;; ctl-x-r-map
+	   ;; (("r" "C-x r" "Rectangles & Reg'rs: C-x r"))
+	   ;; (("s" "M-s" "Search: M-s"))
+	   (("s" ,(mini-simk "C-x C-s") "Save File"))
+	   (("t" ,(mini-simk "M-`") "group:TMM Menu-Bar")) ;; not really a prefix, but acts similarly
+	   ;; (("t" mini-toggle/features-map "Features/Toggle")
+	   ;;  ("r" "C-x C-q" "Read-Only: C-x C-q")
+	   ;;  ("v" 'view-mode "View Mode"))
+	   ;; (("u" "C-u" "Universal Argument"))
+	   (("v" vc-prefix-map "Version Control")) ;; ,(mini-simk "C-x v")
+	   (("w" mini-leader-windows-map "Windows/Tabs/Frames")
+	    ("c" ,(mini-simk "C-x 6") "group:2-Columns - C-x 6") ; *
+	    ("f" ,(mini-simk "C-x 5") "group:Other Frame - C-x 5") ; *
+	    ("h" ,(mini-simk "C-x 2") "Split Horiz - C-x 2")
+	    ("o" ,(mini-simk "C-x 4") "group:Other Window - C-x 4") ; *
+	    ("q" ,(mini-simk "C-x 0") "Quit Current Window")
+	    ("k" ,(mini-simk "C-x 1") "Kill Other Windows")
+	    ("t" ,(mini-simk "C-x t") "group:Tab-Bar - C-x t") ; *
+	    ("v" ,(mini-simk "C-x 3") "Split Vert - C-x 3"))))
+  ;; Create prefix map and command.
+  (unless (= 1 (length submap))
+    ;; Make a prefix-map out of the first item in the list.
+    (define-prefix-command (cadar submap)))
+  ;; Bind it in mode-specific-map, which Meow uses by default with its leader key.
+  (mini-defk (caar submap)
+	     (cadar submap)
+	     mode-specific-map (caddar submap))
+  ;; Remaining items are bound in the prefix map.
+  (when (cdr submap)
+    (dolist (smbinding (cdr submap)) ; smbinding = everything in an item except for the key.
+      (eval `(mini-defk ,(car smbinding) (quote ,(cadr smbinding))
+			,(cadar submap) ,(caddr smbinding))))))
+
+(defvar mini-leader-windows-map)
+(dolist (submap '((("m" mini-leader-windmove-map "Windmove")
+		   ("h" windmove-left)
+		   ("t" windmove-right)
+		   ("p" windmove-up)
+		   ("n" windmove-down))
+		  ;; "c" as in "choose".
+ 		  (("d" mini-leader-windmove-display-map "Windmove-Display")
+		   ("h" windmove-display-left)
+		   ("t" windmove-display-right)
+		   ("p" windmove-display-up)
+		   ("n" windmove-display-down)
+		   ("S" windmove-display-same-window)
+		   ("T" windmove-display-new-tab)
+		   ("F" windmove-display-new-frame))
+		  (("D" mini-leader-windmove-delete-map "Windmove-Delete")
+		   ("h" windmove-delete-left)
+		   ("t" windmove-delete-right)
+		   ("p" windmove-delete-up)
+		   ("n" windmove-delete-down))
+		  (("s" mini-leader-windmove-swap-map "Windmove-Swap")
+		   ("h" windmove-swap-states-left)
+		   ("t" windmove-swap-states-right)
+		   ("p" windmove-swap-states-up)
+		   ("n" windmove-swap-states-down))))
+  ;; Create prefix map and command.
+  ;; Make a prefix-map out of the first item in the list.
+  (define-prefix-command (cadar submap))
+  ;; Bind it in mini-leader-windows-map which Meow uses by default with its leader key.
+  (mini-defk (caar submap)
+	     (cadar submap)
+	     mini-leader-windows-map (caddar submap))
+  ;; Remaining items are bound in the prefix map.
+  (dolist (smbinding (cdr submap)) ; smbinding = everything in an item except for the key.
+    (eval `(mini-defk ,(car smbinding) (quote ,(cadr smbinding))
+		      ,(cadar submap))))
+  ;; This is necessary, because merely loading windmove.el enables
+  ;; `windmove-mode'.  The `defcustom' declaration for each
+  ;; `windmove-...-default-keybindings' variable calls a function in
+  ;; its :set properties which copies all keybindings for windmove
+  ;; commands to `windmove-mode-map', which then shadows the "C-c w"
+  ;; binding defined above.  But it doesn't copy the description
+  ;; strings, so in order for `which-key' to show the description
+  ;; strings again, we have to disable `windmove-mode', so its copied
+  ;; bindings won't shadow the descriptions for the prefix keys
+  ;; defined above.
+  (mini-eval windmove
+    (windmove-mode -1)))
 
 
 ;;; Cape
@@ -301,8 +482,7 @@ initially found within the current line."
   (add-to-list 'completion-at-point-functions 'cape-line))
 
 
-;;; Checkdoc
-;; built-in
+;;; Checkdoc (built-in)
 
 (mini-bltin checkdoc
   ;; Too many false positives, as the original function
@@ -473,8 +653,7 @@ initially found within the current line."
 	       (lambda () (add-hook 'window-state-change-hook 'corfu-mode))))
 
 
-;;; Cperl-mode
-;; built-in
+;;; Cperl-mode (built-in)
 
 (mini-bltin cperl-mode
   (defvar cperl-mode-map)
@@ -492,8 +671,9 @@ initially found within the current line."
       "# Author: " user-full-name "\n#\n"
       "# Description:\n\n"
       "use warnings;\nuse strict;\n"))
-  (mini-eval cperl-mode
-    (mini-defk [?\C-c ?\C-c] 'quickrun-shell cperl-mode-map)))
+  ;; (mini-eval cperl-mode
+  ;;   (mini-defk [?\C-c ?\C-c] 'quickrun-shell cperl-mode-map))
+  (add-hook 'cperl-mode-hook (lambda () (setq mode-name "🐪"))))
 
 
 ;;; Darkroom
@@ -504,7 +684,7 @@ initially found within the current line."
   (defun mini-darkroom-tab-bar-check ()
     (if darkroom-mode
 	(progn
-	  (setq mini-darkroom-last-tab-bar-state tab-bar-mode)
+          (setq mini-darkroom-last-tab-bar-state tab-bar-mode)
 	  (tab-bar-mode 0))
       (when mini-darkroom-last-tab-bar-state
 	(tab-bar-mode 1))))
@@ -515,8 +695,7 @@ initially found within the current line."
     '(["Darkroom-Mode" darkroom-mode])))
 
 
-;;; Delsel
-;; built-in
+;;; Delsel (built-in)
 
 (mini-bltin delsel
   (run-at-time 3 nil 'delete-selection-mode))
@@ -538,8 +717,7 @@ initially found within the current line."
                    :jump-to-captured t))))
 
 
-;;; Dired
-;; built-in
+;;; Dired (built-in)
 
 (mini-bltin dired
   (mini-eval which-key
@@ -549,47 +727,31 @@ initially found within the current line."
 		 'which-key-show-major-mode dired-mode-map))))
 
 
-;;; Dired-aux
-;; built-in
+;;; Dired-aux (built-in)
 
 (mini-bltin dired-aux
   (mini-eval dired
     (require 'dired-aux)))
 
 
-;;; Dired-x
-;; built-in
+;;; Dired-x (built-in)
 
 (mini-bltin dired-x
   (mini-eval dired
     (require 'dired-x)))
 
 
-;;; Display-line-numbers
-;; built-in
+;;; Display-line-numbers (built-in)
 
 (mini-bltin display-line-numbers
-)
+  )
 
 
 ;;; Eglot
 
-(mini-pkgif eglot
-  ;; Eglot needs the most recent versions of these built-in packages.
-  (mini-ensure (eldoc xref project))
+(mini-bltin eglot
   (add-hook 'python-mode-hook 'eglot-ensure)
-  ;; "jdtls" is already in 'eglot-server-programs.
-  ;; =You just have to make sure that it's in your path.=
-  (add-hook 'java-mode-hook 'eglot-ensure)
-  ;; Add jedi-language-server to the list of auto-detected Python LSPs.
-  (mini-eval eglot
-    (defvar eglot-server-programs)
-    (declare-function eglot-alternatives nil)
-    (setcdr
-     (assq 'python-mode eglot-server-programs)
-     ;; (eglot-alternatives
-     ;;  '("jedi-language-server" "pylsp" "pyls" ("pyright-langserver" "--stdio")))
-     '("jedi-language-server"))))
+  (add-hook 'java-mode-hook 'eglot-ensure))
 
 
 ;;; Eglot-java
@@ -600,32 +762,32 @@ initially found within the current line."
    'eglot-java-init))
 
 
-;;; Ehelp
-;; built-in
+;;; Ehelp (built-in)
 
 (mini-bltin ehelp
-  (autoload 'ehelp-command "ehelp"
-    "Prefix command (definition is a keymap associating keystrokes with commands)."
-    nil 'keymap)
-  (unless mini-use-C-h-for-backspace
-    (mini-defk "C-h" 'ehelp-command))  ;; electric-help
-  (mini-defk "<f1>"	'ehelp-command)  ;; electric-help
-  (mini-defk "<help>" 'ehelp-command) ;; electric-help
-  (mini-eval ehelp
-    ;; was `view-emacs-faq', removing because it blocks electric-describe-function in
-    ;; meow-leader-map
-    (mini-defk "C-f" nil ehelp-map)))
+  (when mini-use-electric-help
+    (autoload 'ehelp-command "ehelp"
+      "Prefix command (definition is a keymap associating keystrokes with commands)."
+      nil 'keymap)
+    (if mini-use-C-h-for-backspace
+	(mini-defk "h"   'ehelp-command mode-specific-map "Help")
+      (mini-defk "C-h" 'ehelp-command))  ;; electric-help
+    (mini-defk "<f1>"   'ehelp-command)  ;; electric-help
+    (mini-defk "<help>" 'ehelp-command) ;; electric-help
+    (defvar ehelp-map)
+    (mini-eval ehelp
+      ;; was `view-emacs-faq', removing because it blocks electric-describe-function in
+      ;; meow-leader-map
+      (mini-defk "C-f" nil ehelp-map))))
 
 
-;;; Eldoc
-;; built-in
+;;; Eldoc (built-in)
 
 (mini-bltin eldoc
   (add-hook 'prog-mode-hook 'eldoc-mode))
 
 
-;;; Elec-pair
-;; built-in
+;;; Elec-pair (built-in)
 
 (mini-bltin elec-pair
   (mini-set electric-pair-inhibit-predicate 'ignore)
@@ -634,6 +796,11 @@ initially found within the current line."
     '((34 . 34) (8216 . 8217) (8220 . 8221) (42 . 42)))
   (run-at-time 2 nil
 	       'electric-pair-mode))
+
+
+;;; Elisp-mode (built-in)
+
+(add-hook 'emacs-lisp-mode-hook (lambda () (setq mode-name "𝝠")))
 
 
 ;;; Embark
@@ -693,8 +860,7 @@ https://karthinks.com/software/avy-can-do-anything/."
       (setf (alist-get ?\; avy-dispatch-alist) 'avy-action-embark-dwim))))
 
 
-;;; Executable
-;; built-in
+;;; Executable (built-in)
 
 (mini-bltin executable
   ;; Automatically make scripts executable.
@@ -702,8 +868,7 @@ https://karthinks.com/software/avy-can-do-anything/."
             'executable-make-buffer-file-executable-if-script-p))
 
 
-;;; Files
-;; built-in
+;;; Files (built-in)
 
 (mini-bltin files
   (mini-set delete-old-versions t)
@@ -725,11 +890,10 @@ https://karthinks.com/software/avy-can-do-anything/."
   ;; Silverblue or Kinoite.
   (add-to-list 'exec-path "~/.local/bin")
   (when (version< "29" emacs-version)
-    (mini-defk "x" 'restart-emacs mode-specific-map)))
+    (mini-defk "x" 'restart-emacs mode-specific-map "Restart Emacs")))
 
 
-;;; Flymake
-;; built-in
+;;; Flymake (built-in)
 
 (mini-bltin flymake
   (unless (memq 'flycheck package-selected-packages)
@@ -748,8 +912,7 @@ https://karthinks.com/software/avy-can-do-anything/."
   )
 
 
-;;; Frame
-;; built-in
+;;; Frame (built-in)
 
 (mini-bltin frame
   (mini-set blink-cursor-blinks 1)
@@ -803,8 +966,7 @@ the number row are un-shifted.)\n\n")
       (goto-char 0))))
 
 
-;;; Help
-;; built-in
+;;; Help (built-in)
 
 (mini-bltin help
   ;; Using C-h for backspace, <f1> for accessing help.  So `help-char'
@@ -812,6 +974,7 @@ the number row are un-shifted.)\n\n")
   ;; navigation of `which-key' menus.
   (mini-set help-char 'f1)
   (mini-set describe-bindings-outline t)
+  (add-hook 'help-mode-hook (lambda () (setq mode-name "❓")))
   ;; Show "^L" characters as horizontal lines in help-mode buffers.
   (add-hook 'help-mode-hook 'mini-xah-show-formfeed-as-line)
   ;; Unclutter the help map.
@@ -838,15 +1001,13 @@ the number row are un-shifted.)\n\n")
       (mini-defk (car kb) (cdr kb) help-map))))
 
 
-;;; Hippie-exp
-;; built-in
+;;; Hippie-exp (built-in)
 
 (mini-bltin hippie-exp
   (mini-defk "M-/"	'hippie-expand)) ;; to replace 'dabbrev-expand
 
 
-;;; Hl-line
-;; built-in
+;;; Hl-line (built-in)
 
 (mini-bltin hl-line
   (mini-set hl-line-sticky-flag nil)
@@ -857,16 +1018,14 @@ the number row are un-shifted.)\n\n")
     (set-face-attribute 'hl-line nil :extend t)))
 
 
-;;; Ibuffer
-;; built-in
+;;; Ibuffer (built-in)
 
 ;; Use `ibuffer' instead of `list-buffers'
 (when mini-use-ibuffer-over-list-buffers
   (mini-defk "C-b" 'ibuffer ctl-x-map))
 
 
-;;; Icomplete
-;; built-in
+;;; Icomplete (built-in)
 
 (mini-bltin icomplete
   (unless (cl-intersection
@@ -889,8 +1048,7 @@ the number row are un-shifted.)\n\n")
 		 minibuffer-local-completion-map))))
 
 
-;;; Imenu
-;; built-in
+;;; Imenu (built-in)
 
 (mini-bltin imenu
   (unless (memq 'consult package-selected-packages)
@@ -907,14 +1065,19 @@ the number row are un-shifted.)\n\n")
     (add-hook 'emacs-lisp-mode-hook 'mini-add-imenu-package-headings)))
 
 
-;;; Isearch
-;;built-in
+;;; Info (built-in)
+
+(add-hook 'Info-mode-hook (lambda () (setq mode-name "📖")))
+
+
+;;; Isearch (built-in)
 
 (mini-bltin isearch
   (mini-set isearch-allow-motion t)
   (mini-set isearch-allow-scroll t)
   (mini-set isearch-lazy-count t)
   (mini-eval isearch
+    (setcdr (assoc 'isearch-mode minor-mode-alist) '(" 🔎" nil))
     (dolist (kb '(([up]    . isearch-ring-retreat)
                   ([down]  . isearch-ring-advance)
                   ([left]  . isearch-repeat-backward)
@@ -951,10 +1114,15 @@ Use in `isearch-mode-end-hook'."
                (not isearch-mode-end-hook-quit))
       (goto-char isearch-other-end))))
 
-    ;; But I usually want the cursor to be at the start, regardless of the
-    ;; direction of the search.  When I end it, I can use a different key
-    ;; to move it to the end.
-    ;; isearch-update-post-hook
+;; But I usually want the cursor to be at the start, regardless of the
+;; direction of the search.  When I end it, I can use a different key
+;; to move it to the end.
+;; isearch-update-post-hook
+
+
+;;; Java-mode (built-in)
+
+(add-hook 'java-mode-hook (lambda () (setq mode-name "☕")))
 
 
 ;;; Kbd-mode
@@ -1023,12 +1191,14 @@ Use in `isearch-mode-end-hook'."
     (defvar ibuffer-mode-map)
     (mini-defk ?\M-g nil ibuffer-mode-map)
     (mini-defk [?\M-g ?o] 'link-hint-open-link ibuffer-mode-map))
-  (mini-eval meow
-    (mini-defk "o" 'link-hint-open-link mode-specific-map "Open Link")))
+  (mini-addmenu "tools"
+    '(["Link Hint" link-hint-open-link]))
+  ;; (mini-eval meow
+  ;;   (mini-defk "o" 'link-hint-open-link mode-specific-map "Open Link"))
+  )
 
 
-;;; "Lisp"
-;; built-in
+;;; "Lisp" (built-in)
 
 (mini-bltin "lisp"
   (mini-set parens-require-spaces nil)
@@ -1042,9 +1212,9 @@ Use in `isearch-mode-end-hook'."
   ;; and not just the sexp (or portion thereof) that follows point.
   ;;(mini-defk [(control meta backspace)] 'kill-backward-up-list)
 
-   ;; Delete paired punctuation.  How can this be made to work within
-   ;; comments?  Parentheses are highlighted, but using this command
-   ;; results in a message about unbalanced parentheses.
+  ;; Delete paired punctuation.  How can this be made to work within
+  ;; comments?  Parentheses are highlighted, but using this command
+  ;; results in a message about unbalanced parentheses.
   ;; (mini-defk "d" 'delete-pair mode-specific-map)
   ;;
   ;; insert-pair-alist default value is:
@@ -1083,7 +1253,7 @@ Use in `isearch-mode-end-hook'."
   nil) ;; placeholder
 
 
-;;; Menu-bar
+;;; Menu-bar (built-in)
 
 (mini-bltin menu-bar
   
@@ -1134,8 +1304,12 @@ Use in `isearch-mode-end-hook'."
       ;; For vcursor, we open the library, since it appears to be the
       ;; only documentation available.
       ["Vcursor (Load and Find vcursor.el)" (mini-menu-load-and-read 'vcursor)]
-      ["DelSel-Mode" delete-selection-mod]))
-
+      ["DelSel-Mode" delete-selection-mod]
+      ;; ["Kill Commands" mini-kill-prefix-command]
+      ;; ["Marking Commands" mini-mark-prefix-command]
+      ;; ["Transpose Cmds" mini-transpose-prefix-command]
+      ))
+  
   ;; Options menu
   (mini-addmenu "options"
     `(,(mini-addmenu-divider)
@@ -1198,366 +1372,366 @@ Use in `isearch-mode-end-hook'."
 
 ;;; Meow
 
-(mini-pkgif meow
-  (mini-set meow-thing-selection-directions
-    '((inner . backward)
-      (bounds . forward)
-      (beginning . backward)
-      (end . forward)))
+(when nil
+  (mini-pkgif meow
+    
+    (mini-set meow-thing-selection-directions
+      '((inner	 . backward)
+	(bounds	 . forward)
+	(beginning . backward)
+	(end	 . forward)))
 
-  (defun meow-isearch ()
-    (interactive)
-    (if (meow--direction-backward-p) ; not sure how should work
-	(isearch-backward t)
-      (isearch-forward t))
-    (when isearch-success
-      (thread-first
-	(meow--make-selection '(select . visit) isearch-other-end (point))
-	(meow--select))))
+    (defun meow-isearch ()
+      (interactive)
+      (if (meow--direction-backward-p) ; not sure how should work
+	  (isearch-backward t)
+	(isearch-forward t))
+      (when isearch-success
+	(thread-first
+	  (meow--make-selection '(select . visit) isearch-other-end (point))
+	  (meow--select))))
 
-  (defun mini-meow-set-state (mode state)
+    (defun mini-meow-set-state (mode state)
       "Set the default Meow STATE for MODE."
       (let ((statecons (assoc mode meow-mode-state-list)))
 	(if statecons
 	    (setcdr statecons state)
 	  (add-to-list 'meow-mode-state-list (cons mode state)))))
 
-  (defun meow-setup ()
-    (setq meow-cheatsheet-layout meow-cheatsheet-layout-dvp)
-    ;; (meow-leader-define-key
-    ;;  '("?" . meow-cheatsheet))
-    (meow-motion-overwrite-define-key
-     ;; custom keybinding for motion state
-     '("<escape>" . ignore))
-    (meow-normal-define-key
-     '("?" . meow-cheatsheet)
-     '("*" . meow-expand-0)
-     '("=" . meow-expand-9)
-     '("!" . meow-expand-8)
-     '("[" . meow-expand-7)
-     '("]" . meow-expand-6)
-     '("{" . meow-expand-5)
-     '("+" . meow-expand-4)
-     '("}" . meow-expand-3)
-     '(")" . meow-expand-2)
-     '("(" . meow-expand-1)
-     '("1" . digit-argument)
-     '("2" . digit-argument)
-     '("3" . digit-argument)
-     '("4" . digit-argument)
-     '("5" . digit-argument)
-     '("6" . digit-argument)
-     '("7" . digit-argument)
-     '("8" . digit-argument)
-     '("9" . digit-argument)
-     '("0" . digit-argument)
-     '("/" . meow-isearch)
-     '("-" . negative-argument)
-     '(";" . meow-comment) ;meow-reverse)
-     '("," . meow-inner-of-thing)
-     '("." . meow-bounds-of-thing)
-     '("<" . meow-beginning-of-thing)
-     '(">" . meow-end-of-thing)
-     '("a" . meow-join) ;meow-append)
-     ;; '("A" . meow-open-below)
-     '("b" . meow-undo) ;meow-back-word)
-     '("B" . meow-undo-in-selection) ;meow-back-symbol)
-     '("c" . meow-next-word) ;meow-change)
-     '("C" . meow-next-symbol)
-     '("d" . meow-delete)
-     '("D" . meow-backward-delete)
-     '("e" . meow-line)
-     '("E" . meow-goto-line)
-     '("f" . meow-find)
-     '("g" . meow-back-word) ;meow-cancel-selection)
-     '("G" . meow-back-symbol) ;meow-grab)
-     '("h" . meow-left)
-     '("H" . meow-left-expand)
-     '("i" . meow-insert)
-     '("I" . meow-open-above)
-     '("j" . meow-mark-word) ;meow-join)
-     '("J" . meow-mark-symbol)
-     '("k" . meow-kill)
-     '("K" . backward-kill-word)
-     '("l" . meow-till)
-     '("m" . meow-change) ;meow-mark-word)
-     '("M" . meow-grab) ;meow-mark-symbol)
-     '("n" . meow-next)
-     '("N" . meow-next-expand)
-     '("o" . meow-block)
-     '("O" . meow-to-block)
-     '("p" . meow-prev)
-     '("P" . meow-prev-expand)
-     '("q" . meow-quit)
-     '("Q" . meow-cancel-selection)
-     '("r" . meow-reverse) ;meow-replace)
-     ;; '("R" . meow-swap-grab)
-     '("s" . avy-goto-char-2-dwim)
-     '("S" . meow-search)
-     '("t" . meow-right)
-     '("T" . meow-right-expand)
-     '("u" . meow-append) ;meow-insert) ;meow-undo)
-     '("U" . meow-open-below) ;meow-open-above) ;meow-undo-in-selection)
-     '("v" . meow-visit)
-     '("V" . meow-swap-grab)
-     '("w" . meow-save) ;meow-next-word)
-     '("W" . meow-sync-grab) ;meow-next-symbol)
-     '("x" . meow-backward-delete) ;meow-save)
-     '("X" . delete-region) ;meow-sync-grab)
-     '("y" . meow-yank)
-     '("Y" . meow-replace)
-     '("z" . meow-pop-selection)
-     '("'" . repeat) ;meow-reverse)
-     '("<escape>" . ignore)))
+    (defun meow-setup ()
+      (setq meow-cheatsheet-layout meow-cheatsheet-layout-dvp)
+      ;; (meow-leader-define-key
+      ;;  '("?" . meow-cheatsheet))
+      (meow-motion-overwrite-define-key
+       ;; custom keybinding for motion state
+       '("<escape>" . ignore))
+      (meow-normal-define-key
+       '("?" . meow-cheatsheet)
+       '("*" . meow-expand-0)
+       '("=" . meow-expand-9)
+       '("!" . meow-expand-8)
+       '("[" . meow-expand-7)
+       '("]" . meow-expand-6)
+       '("{" . meow-expand-5)
+       '("+" . meow-expand-4)
+       '("}" . meow-expand-3)
+       '(")" . meow-expand-2)
+       '("(" . meow-expand-1)
+       '("1" . digit-argument)
+       '("2" . digit-argument)
+       '("3" . digit-argument)
+       '("4" . digit-argument)
+       '("5" . digit-argument)
+       '("6" . digit-argument)
+       '("7" . digit-argument)
+       '("8" . digit-argument)
+       '("9" . digit-argument)
+       '("0" . digit-argument)
+       '("/" . meow-isearch)
+       '("-" . negative-argument)
+       '(";" . meow-comment) ;meow-reverse)
+       '("," . meow-inner-of-thing)
+       '("." . meow-bounds-of-thing)
+       '("<" . meow-beginning-of-thing)
+       '(">" . meow-end-of-thing)
+       '("a" . meow-join) ;meow-append)
+       ;; '("A" . meow-open-below)
+       '("b" . meow-undo) ;meow-back-word)
+       '("B" . meow-undo-in-selection) ;meow-back-symbol)
+       '("c" . meow-next-word) ;meow-change)
+       '("C" . meow-next-symbol)
+       '("d" . meow-delete)
+       '("D" . meow-backward-delete)
+       '("e" . meow-line)
+       '("E" . meow-goto-line)
+       '("f" . meow-find)
+       '("g" . meow-back-word) ;meow-cancel-selection)
+       '("G" . meow-back-symbol) ;meow-grab)
+       '("h" . meow-left)
+       '("H" . meow-left-expand)
+       '("i" . meow-insert)
+       '("I" . meow-open-above)
+       '("j" . meow-mark-word) ;meow-join)
+       '("J" . meow-mark-symbol)
+       '("k" . meow-kill)
+       '("K" . backward-kill-word)
+       '("l" . meow-till)
+       '("m" . meow-change) ;meow-mark-word)
+       '("M" . meow-grab) ;meow-mark-symbol)
+       '("n" . meow-next)
+       '("N" . meow-next-expand)
+       '("o" . meow-block)
+       '("O" . meow-to-block)
+       '("p" . meow-prev)
+       '("P" . meow-prev-expand)
+       '("q" . meow-quit)
+       '("Q" . meow-cancel-selection)
+       '("r" . meow-reverse) ;meow-replace)
+       ;; '("R" . meow-swap-grab)
+       '("s" . avy-goto-char-2-dwim)
+       '("S" . meow-search)
+       '("t" . meow-right)
+       '("T" . meow-right-expand)
+       '("u" . meow-append) ;meow-insert) ;meow-undo)
+       '("U" . meow-open-below) ;meow-open-above) ;meow-undo-in-selection)
+       '("v" . meow-visit)
+       '("V" . meow-swap-grab)
+       '("w" . meow-save) ;meow-next-word)
+       '("W" . meow-sync-grab) ;meow-next-symbol)
+       '("x" . meow-backward-delete) ;meow-save)
+       '("X" . delete-region) ;meow-sync-grab)
+       '("y" . meow-yank)
+       '("Y" . meow-replace)
+       '("z" . meow-pop-selection)
+       '("'" . repeat) ;meow-reverse)
+       '("<escape>" . ignore)))
 
-  (require 'meow)
-  (meow-setup)
-  (meow-global-mode 1)
-  ;; (require 'key-chord)
-  ;; (key-chord-mode 1)
-  ;; (key-chord-define meow-insert-state-keymap ",."
-  ;; 		  'meow-normal-mode)
+    (require 'meow)
+    (meow-setup)
+    ;; (meow-global-mode 1)
+    ;; (require 'key-chord)
+    ;; (key-chord-mode 1)
+    ;; (key-chord-define meow-insert-state-keymap ",."
+    ;; 		  'meow-normal-mode)
 
-  (setq meow-two-char-escape-sequence ",.")
-  (setq meow-two-char-escape-delay 0.5)
+    (setq meow-two-char-escape-sequence ",.")
+    (setq meow-two-char-escape-delay 0.5)
 
-  (defun meow--two-char-exit-insert-state (s)
-    (when (meow-insert-mode-p)
-      (let ((modified (buffer-modified-p)))
-	(insert (elt s 0))
-	(let* ((second-char (elt s 1))
-               (event
-		(if defining-kbd-macro
-                    (read-event nil nil)
-		  (read-event nil nil meow-two-char-escape-delay))))
-          (when event
-            (if (and (characterp event) (= event second-char))
-		(progn
-                  (backward-delete-char 1)
-                  (set-buffer-modified-p modified)
-                  (meow--execute-kbd-macro "<escape>"))
-              (push event unread-command-events)))))))
+    (defun meow--two-char-exit-insert-state (s)
+      (when (meow-insert-mode-p)
+	(let ((modified (buffer-modified-p)))
+	  (insert (elt s 0))
+	  (let* ((second-char (elt s 1))
+		 (event
+		  (if defining-kbd-macro
+                      (read-event nil nil)
+		    (read-event nil nil meow-two-char-escape-delay))))
+            (when event
+              (if (and (characterp event) (= event second-char))
+		  (progn
+                    (backward-delete-char 1)
+                    (set-buffer-modified-p modified)
+                    (meow--execute-kbd-macro "<escape>"))
+		(push event unread-command-events)))))))
 
-  (defun meow-two-char-exit-insert-state ()
-    (interactive)
-    (meow--two-char-exit-insert-state meow-two-char-escape-sequence))
+    (defun meow-two-char-exit-insert-state ()
+      (interactive)
+      (meow--two-char-exit-insert-state meow-two-char-escape-sequence))
 
-  (define-key meow-insert-state-keymap (substring meow-two-char-escape-sequence 0 1)
-	      #'meow-two-char-exit-insert-state)
+    (define-key meow-insert-state-keymap (substring meow-two-char-escape-sequence 0 1)
+		#'meow-two-char-exit-insert-state)
 
-  (mini-eval meow
-    (mini-meow-set-state 'help-mode 'motion)
-    (mini-meow-set-state 'comint-mode 'insert)
-    (mini-meow-set-state 'term-mode 'insert)
-    (mini-meow-set-state 'eshell-mode 'insert)
-    (mini-meow-set-state 'log-edit-mode 'insert))
+    (mini-eval meow
+      (setcdr (assoc 'meow-normal-mode minor-mode-alist) `(,(propertize " [N]" 'face 'mode-line-emphasis) nil))
+      (setcdr (assoc 'meow-insert-mode minor-mode-alist) `(,(propertize " [I]" 'face 'italic) nil))
+      (mini-meow-set-state 'help-mode 'motion)
+      (mini-meow-set-state 'comint-mode 'insert)
+      (mini-meow-set-state 'term-mode 'insert)
+      (mini-meow-set-state 'eshell-mode 'insert)
+      (mini-meow-set-state 'log-edit-mode 'insert))
 
-  ;; leader key map
-  ;; Keep descriptions to 25 chars or less.
-  (dolist (submap '(
-		    ;; (("/" mini-snippets-map "Snippets")
-		    ;;  ("a" "C-x a" "Abbrev"))
-		    ;; ((")" "C-x C-k" "Keyboard Macros: C-x C-k"))
-		    ;; (("a" mini-appearance-map "Appearance")
-		    ;;  ("e" "C-x RET" "Encoding: C-x RET")
-		    ;;  ("n" "C-x n" "Narrowing: C-x n")
-		    ;;  ("p" 'pulsar-pulse-line)
-		    ;;  ("t" 'consult-theme))
-		    (("b" "C-x b" "Change Buffer"))
-		    ;; (("b" mini-buffer-map "Buffers")
-		    ;;  ("b" 'consult-buffer)
-		    ;;  ("i" 'ibuffer "IBuffer")
-		    ;;  ("x" "C-x x" "Buffer Cmds: C-x x"))
-		    ;; (("d" mini-code/lsp-map "Code/Debugging")
-		    ;;  ("a" "C-x C-a" "Edebug Pt.1: C-x C-a")
-		    ;;  ("X" "C-x X" "Edebug Pt.2: C-x X"))
-		    (("e" mini-leader-editing-map "Editing")
-		     ;; ("c" 'cape-prefix)
-		     ("e" 'mini-meow-delete-pair-of-things "Erase Pairs")
-		     ("k" 'mini-kill-prefix-command "Kill Commands")
-		     ("m" 'mini-mark-prefix-command "Marking Commands")
-		     ("t" 'mini-transpose-prefix-command "Transpose Cmds"))
-		    ;; ("d" 'delete-pair "Delete Pair")
-		    ;; ("r" 'mini-delete-parentheses "Delete Parentheses")
-		    ;; ("s" 'mini-delete-square-brackets "Delete Square Brackets")
-		    ;; ("c" 'mini-delete-curly-brackets "Delete Curly Brackets")
-		    ;; ("g" 'mini-delete-quotes "Delete Double Quotes")
-		    ;; (("i" mini-leader-insert-map "Insert")
-		    ;;  ("f" 'insert-file "Insert File")
-		    ;;  ("$" "C-x 8" "group:C-x 8"))
-		    (("h" "<f1>" "Help"))
-		    (("k" "C-x k" "Kill Buffer"))
-		    (("l" "C-l" "Recenter-Top-Bottom"))
-   		    ;; (("o" "C-x o" "Other Window"))
-		    (("n" mini-notes-map "Notes & Org-Mode")
-		     ("a" 'org-agenda)
-		     ("c" 'org-capture)
-		     ("l" 'org-store-link)
-		     ("d" 'denote))
-		    ;; (("o" mini-open-map "Open")
-		    ;;  ("v" 'vundo))
-		    ;; (("p" "C-x p" "Project Cmds: C-x p"))
-		    ;; (("n" "C-x n" "group:Narrowing"))
-		    (("p" "C-x p" "group:Project Cmds"))
-		    (("q" "C-q" "Quoted Insert"))
-		    ;; (("q" mini-quit/restart-map "Quit/Restart")
-		    ;;  ("r" 'restart-emacs))
-		    (("r" "C-x r" "group:Rect/Reg/Bkmrks"))
-		    ;; (("r" "C-x r" "Rectangles & Reg'rs: C-x r"))
-		    ;; (("s" "M-s" "Search: M-s"))
-		    (("s" "C-x C-s" "Save File"))
-		    (("t" "<f10>" "group:TMM Menu-Bar"))
-		    ;; (("t" mini-toggle/features-map "Features/Toggle")
-		    ;;  ("r" "C-x C-q" "Read-Only: C-x C-q")
-		    ;;  ("v" 'view-mode "View Mode"))
-		    (("u" "C-u" "Universal Argument"))
-		    (("v" "C-x v" "group:Version Control"))
-		    (("w" mini-leader-windows-map "Windows/Tabs/Frames")
-		     ("c" "C-x 6" "group:2-Columns - C-x 6")
-		     ("f" "C-x 5" "group:Other Frame - C-x 5")
-		     ("h" "C-x 2" "Split Horiz - C-x 2")
-		     ("o" "C-x 4" "group:Other Window - C-x 4")
-		     ("q" "C-x 0" "Quit Current Window")
-		     ("k" "C-x 1" "Kill Other Windows")
-		     ("t" "C-x t" "group:Tab-Bar - C-x t")
-		     ("v" "C-x 3" "Split Vert - C-x 3")
-		     ("<left>" 'winner-undo "Winner Undo")
-		     ("<right>" 'winner-redo "Winner Redo"))
-		    (("w m" mini-leader-windmove-map "Windmove")
-		     ("h" 'windmove-left)
-		     ("t" 'windmove-right)
-		     ("p" 'windmove-up)
-		     ("n" 'windmove-down))
-		    ;; "c" as in "choose".
-		    (("w c" mini-leader-windmove-display-map "Windmove-Display")
-		     ("h" 'windmove-display-left)
-		     ("t" 'windmove-display-right)
-		     ("p" 'windmove-display-up)
-		     ("n" 'windmove-display-down)
-		     ("S" 'windmove-display-same-window)
-		     ("T" 'windmove-display-new-tab)
-		     ("F" 'windmove-display-new-frame))
-		    (("w d" mini-leader-windmove-delete-map "Windmove-Delete")
-		     ("h" 'windmove-delete-left)
-		     ("t" 'windmove-delete-right)
-		     ("p" 'windmove-delete-up)
-		     ("n" 'windmove-delete-down))
-		    (("w s" mini-leader-windmove-swap-map "Windmove-Swap")
-		     ("h" 'windmove-swap-left)
-		     ("t" 'windmove-swap-right)
-		     ("p" 'windmove-swap-up)
-		     ("n" 'windmove-swap-down))
-		    (("y" "M-y" "Yank Pop"))))
-    ;; Create prefix map and command.
-    (unless (= 1 (length submap))
-      ;; Make a prefix-map out of the first item in the list.
-      (define-prefix-command (cadar submap)))
-    ;; Bind it in mode-specific-map, which Meow uses by default with its leader key.
-    (mini-defk (caar submap) (meow--parse-def (cadar submap)) mode-specific-map (caddar submap))
-    ;; Remaining items are bound in the prefix map.
-    (when (cdr submap)
-      (dolist (smbinding (cdr submap)) ; smbinding = everything in an item except for the key.
-	(eval `(mini-defk ,(car smbinding) (meow--parse-def ,(cadr smbinding)) ,(cadar submap) ,(caddr smbinding))))))
+    ;; leader key map
+    ;; Keep descriptions to 25 chars or less.
+    (dolist (submap '(
+		      ;; (("/" mini-snippets-map "Snippets")
+		      ;;  ("a" "C-x a" "Abbrev"))
+		      ;; ((")" "C-x C-k" "Keyboard Macros: C-x C-k"))
+		      ;; (("a" mini-appearance-map "Appearance")
+		      ;;  ("e" "C-x RET" "Encoding: C-x RET")
+		      ;;  ("n" "C-x n" "Narrowing: C-x n")
+		      ;;  ("p" 'pulsar-pulse-line)
+		      ;;  ("t" 'consult-theme))
+		      (("b" "C-x b" "Change Buffer"))
+		      ;; (("b" mini-buffer-map "Buffers")
+		      ;;  ("b" 'consult-buffer)
+		      ;;  ("i" 'ibuffer "IBuffer")
+		      ;;  ("x" "C-x x" "Buffer Cmds: C-x x"))
+		      ;; (("d" mini-code/lsp-map "Code/Debugging")
+		      ;;  ("a" "C-x C-a" "Edebug Pt.1: C-x C-a")
+		      ;;  ("X" "C-x X" "Edebug Pt.2: C-x X"))
+		      (("e" mini-leader-editing-map "Editing")
+		       ;; ("c" 'cape-prefix)
+		       ("e" 'mini-meow-delete-pair-of-things "Erase Pairs")
+		       ("k" 'mini-kill-prefix-command "Kill Commands")
+		       ("m" 'mini-mark-prefix-command "Marking Commands")
+		       ("t" 'mini-transpose-prefix-command "Transpose Cmds"))
+		      ;; ("d" 'delete-pair "Delete Pair")
+		      ;; ("r" 'mini-delete-parentheses "Delete Parentheses")
+		      ;; ("s" 'mini-delete-square-brackets "Delete Square Brackets")
+		      ;; ("c" 'mini-delete-curly-brackets "Delete Curly Brackets")
+		      ;; ("g" 'mini-delete-quotes "Delete Double Quotes")
+		      ;; (("i" mini-leader-insert-map "Insert")
+		      ;;  ("f" 'insert-file "Insert File")
+		      ;;  ("$" "C-x 8" "group:C-x 8"))
+		      (("h" "<f1>" "Help"))
+		      (("k" "C-x k" "Kill Buffer"))
+		      (("j" mini-get-around-map "Jump Around")
+		       ("l" 'recenter-top-bottom "Recenter-Top-Bottom")
+		       ("m" 'back-to-indentation "Back-to-Indentation")
+		       ("r" 'move-to-window-line-top-bottom "Move-to-Top-Bottom"))
+   		      ;; (("o" "C-x o" "Other Window"))
+		      (("n" mini-notes-map "Notes & Org-Mode")
+		       ("c" 'org-capture)
+		       ("l" 'org-store-link)
+		       ("d" 'denote)
+		       ("a" 'org-agenda))
+		      ;; (("o" mini-open-map "Open")
+		      ;;  ("v" 'vundo))
+		      (("o" "C-x o" "Other Window"))
+		      ;; (("p" "C-x p" "Project Cmds: C-x p"))
+		      ;; (("n" "C-x n" "group:Narrowing"))
+		      (("p" "C-x p" "group:Project Cmds"))
+		      (("q" "C-q" "Quoted Insert"))
+		      ;; (("q" mini-quit/restart-map "Quit/Restart")
+		      ;;  ("r" 'restart-emacs))
+		      (("r" "C-x r" "group:Rect/Reg/Bkmrks"))
+		      ;; (("r" "C-x r" "Rectangles & Reg'rs: C-x r"))
+		      ;; (("s" "M-s" "Search: M-s"))
+		      (("s" "C-x C-s" "Save File"))
+		      (("t" "M-`" "group:TMM Menu-Bar"))
+		      ;; (("t" mini-toggle/features-map "Features/Toggle")
+		      ;;  ("r" "C-x C-q" "Read-Only: C-x C-q")
+		      ;;  ("v" 'view-mode "View Mode"))
+		      (("u" "C-u" "Universal Argument"))
+		      (("v" "C-x v" "group:Version Control"))
+		      (("w" mini-leader-windows-map "Windows/Tabs/Frames")
+		       ("6" "C-x 6" "group:2-Columns - C-x 6")
+		       ("5" "C-x 5" "group:Other Frame - C-x 5")
+		       ("h" "C-x 2" "Split Horiz - C-x 2")
+		       ("4" "C-x 4" "group:Other Window - C-x 4")
+		       ("q" "C-x 0" "Quit Current Window")
+		       ("k" "C-x 1" "Kill Other Windows")
+		       ("t" "C-x t" "group:Tab-Bar - C-x t")
+		       ("v" "C-x 3" "Split Vert - C-x 3")
+		       ("<left>" 'winner-undo "Winner Undo")
+		       ("<right>" 'winner-redo "Winner Redo"))
+		      (("w m" mini-leader-windmove-map "Windmove")
+		       ("h" 'windmove-left)
+		       ("t" 'windmove-right)
+		       ("p" 'windmove-up)
+		       ("n" 'windmove-down))
+		      ;; "c" as in "choose".
+		      (("w c" mini-leader-windmove-display-map "Windmove-Display")
+		       ("h" 'windmove-display-left)
+		       ("t" 'windmove-display-right)
+		       ("p" 'windmove-display-up)
+		       ("n" 'windmove-display-down)
+		       ("S" 'windmove-display-same-window)
+		       ("T" 'windmove-display-new-tab)
+		       ("F" 'windmove-display-new-frame))
+		      (("w d" mini-leader-windmove-delete-map "Windmove-Delete")
+		       ("h" 'windmove-delete-left)
+		       ("t" 'windmove-delete-right)
+		       ("p" 'windmove-delete-up)
+		       ("n" 'windmove-delete-down))
+		      (("w s" mini-leader-windmove-swap-map "Windmove-Swap")
+		       ("h" 'windmove-swap-left)
+		       ("t" 'windmove-swap-right)
+		       ("p" 'windmove-swap-up)
+		       ("n" 'windmove-swap-down))
+		      (("y" "M-y" "Yank Pop"))))
+      ;; Create prefix map and command.
+      (unless (= 1 (length submap))
+	;; Make a prefix-map out of the first item in the list.
+	(define-prefix-command (cadar submap)))
+      ;; Bind it in mode-specific-map, which Meow uses by default with its leader key.
+      (mini-defk (caar submap) (meow--parse-def (cadar submap)) mode-specific-map (caddar submap))
+      ;; Remaining items are bound in the prefix map.
+      (when (cdr submap)
+	(dolist (smbinding (cdr submap)) ; smbinding = everything in an item except for the key.
+	  (eval `(mini-defk ,(car smbinding) (meow--parse-def ,(cadr smbinding)) ,(cadar submap) ,(caddr smbinding))))))
+    (mini-defk "h" 'ehelp-command mode-specific-map "Help")
 
-  ;; Switch to other states from keypad-state.  (Helps in buffers that
-  ;; default to motion-state by providing a means to switch to
-  ;; normal-state in order to select and copy text.  Insert mode
-  ;; included for completeness, but not really necessary.)
-  (mini-defk "N" 'meow-normal-mode mode-specific-map "Normal mode")
-  (mini-defk "M" 'meow-motion-mode mode-specific-map "Motion mode")
-  (mini-defk "I" 'meow-insert-mode mode-specific-map "Insert mode")
 
-  (mini-defk "h" 'ehelp-command mode-specific-map "Help")
+    ;; Switch to other states from keypad-state.  (Helps in buffers that
+    ;; default to motion-state by providing a means to switch to
+    ;; normal-state in order to select and copy text.  Insert mode
+    ;; included for completeness, but not really necessary.)
+    (mini-defk "N" 'meow-normal-mode mode-specific-map "Normal mode")
+    (mini-defk "M" 'meow-motion-mode mode-specific-map "Motion mode")
+    (mini-defk "I" 'meow-insert-mode mode-specific-map "Insert mode")
 
-  (defun mini-meow-delete-pair-of-things (things)
-    "Delete pair of chosen THINGS."
-    (interactive (list
-		  (let ((meow-char-thing-table
-			 (seq-filter
-			  (lambda (x)
-			    (memq (cdr x)
-				  '(round square curly string)))
-			  meow-char-thing-table)))
-		    (meow-thing-prompt "Delete surrounding pair: "))))
-    (save-window-excursion
-      (let ((back (equal 'backward (meow--thing-get-direction 'inner)))
-	    (bounds (meow--parse-inner-of-thing-char things)))
-	(meow--select-range back bounds)))
-    (let ((deactivate-mark))
-      (meow-kill)
-      (backward-delete-char 1)
-      (delete-char 1)
-      (push-mark (point) t t)
-      (yank)
-      (exchange-point-and-mark)))
+    (defun mini-meow-delete-pair-of-things (things)
+      "Delete pair of chosen THINGS."
+      (interactive (list
+		    (let ((meow-char-thing-table
+			   (seq-filter
+			    (lambda (x)
+			      (memq (cdr x)
+				    '(round square curly string)))
+			    meow-char-thing-table)))
+		      (meow-thing-prompt "Delete surrounding pair: "))))
+      (save-window-excursion
+	(let ((back (equal 'backward (meow--thing-get-direction 'inner)))
+	      (bounds (meow--parse-inner-of-thing-char things)))
+	  (meow--select-range back bounds)))
+      (let ((deactivate-mark))
+	(meow-kill)
+	(backward-delete-char 1)
+	(delete-char 1)
+	(push-mark (point) t t)
+	(yank)
+	(exchange-point-and-mark)))
 
-  ;; Enable delete-active-region, but only in insert-state.
-  (add-hook 'meow-insert-enter-hook (mini-make-setter 'delete-active-region t))
-  (add-hook 'meow-insert-exit-hook (mini-make-setter 'delete-active-region nil))
+    ;; Enable delete-active-region, but only in insert-state.
+    (add-hook 'meow-insert-enter-hook (mini-make-setter 'delete-active-region t))
+    (add-hook 'meow-insert-exit-hook (mini-make-setter 'delete-active-region nil))
 
-  ;; Enable delete-selection-mode, but only in insert-state.
-  (add-hook 'meow-insert-enter-hook (mini-make-setter 'delete-selection-mode t))
-  (add-hook 'meow-insert-exit-hook (mini-make-setter 'delete-selection-mode nil))
+    ;; Enable delete-selection-mode, but only in insert-state.
+    (add-hook 'meow-insert-enter-hook (mini-make-setter 'delete-selection-mode t))
+    (add-hook 'meow-insert-exit-hook (mini-make-setter 'delete-selection-mode nil))
 
-  ;; A simpler approach.  Make the most frequently used "C-x [a-z]" and
-  ;; "C-[a-z]" commands available directly from the leader key.
+    ;; A simpler approach.  Make the most frequently used "C-x [a-z]" and
+    ;; "C-[a-z]" commands available directly from the leader key.
 
-  ;; (defun mini-meow-macro-to-leader (prestring stringlist &optional map)
-  ;;   (dolist (cmdltr stringlist)
-  ;;     (eval `(mini-defk
-  ;; 	    ,(car cmdltr)
-  ;; 	    (if ,(cdr cmdltr)
-  ;; 		(cons ,(cdr cmdltr)
-  ;; 		      (meow--parse-def (concat ,prestring ,(car cmdltr))))
-  ;; 	      (meow--parse-def (concat ,prestring ,(car cmdltr))))
-  ;; 	    ;; FIXME get this to directly look up the chosen leader key map.
-  ;; 	    ,(if map map 'mode-specific-map)))))
+    ;; (defun mini-meow-macro-to-leader (prestring stringlist &optional map)
+    ;;   (dolist (cmdltr stringlist)
+    ;;     (eval `(mini-defk
+    ;; 	    ,(car cmdltr)
+    ;; 	    (if ,(cdr cmdltr)
+    ;; 		(cons ,(cdr cmdltr)
+    ;; 		      (meow--parse-def (concat ,prestring ,(car cmdltr))))
+    ;; 	      (meow--parse-def (concat ,prestring ,(car cmdltr))))
+    ;; 	    ;; FIXME get this to directly look up the chosen leader key map.
+    ;; 	    ,(if map map 'mode-specific-map)))))
 
-  ;; Others you might consider but which aren't as necessary:
-  ;; C-o (splits line at point, which is different from I; but "RET p e g" is good enough for me.)
-  ;; C-t (but alternative is "S-h k h y", which isn't bad if you don't use it a lot... better alternative?)
-  ;; C-v (but PgDn key is an alternative)
+    ;; Others you might consider but which aren't as necessary:
+    ;; C-o (splits line at point, which is different from I; but "RET p e g" is good enough for me.)
+    ;; C-t (but alternative is "S-h k h y", which isn't bad if you don't use it a lot... better alternative?)
+    ;; C-v (but PgDn key is an alternative)
+    ))
 
-  (mini-eval which-key
-    (which-key-add-keymap-based-replacements
-      ctl-x-map
-      ;; "c" "mode-specific-map"
-      ;; "c @" "outline-map"
-      ;; "x" "ctl-x-map"
-      "RET" "encoding"
-      "4" "other-window"
-      "5" "other-frame"
-      "6" "2-columns"
-      "8" "characters"
-      "8 e" "emojis"
-      "X" "edebug"
-      "a" "abbrev"
-      "a i" "inverse-abbrev"
-      "g" "Ctrl"
-      "n" "narrow"
-      "p" "project"
-      "r" "rectangles/registers"
-      "t" "tab-bar"
-      "v" "version-control"
-      "v M" "mergebase"
-      "x" "buffer"
-      ;; "C-a" "edebug (more?)"
-      ;; "m g" "goto-map"
-      ;; "m s" "search-map"
-      ;; "m s h" "highlighting"
-      ;; "h 4" "other-window-help"
-      )))
+
+;;; Minibuffer (built-in)
+
+;; Some bindings to use with the built-in completion system
+(unless (cl-intersection '(vertico selectrum ivy helm) package-selected-packages)
+  (define-key minibuffer-mode-map (kbd "C-n") 'minibuffer-next-completion)
+  (define-key minibuffer-mode-map (kbd "C-p") 'minibuffer-previous-completion)
+  (define-key minibuffer-mode-map (kbd "C-s") 'minibuffer-next-completion)
+  (define-key minibuffer-mode-map (kbd "C-r") 'minibuffer-previous-completion)
+  (define-key minibuffer-mode-map (kbd "C-v") 'scroll-other-window)
+  ;; need to fix below, so it doesn't move focus to *Completions* buffer window
+  ;; is there a customization setting for this?
+  (define-key minibuffer-mode-map (kbd "M-v") 'scroll-other-window-down)
+  (define-key minibuffer-mode-map (kbd "M-<") 'beginning-of-buffer-other-window)
+  (define-key minibuffer-mode-map (kbd "M->") 'end-of-buffer-other-window)
+  (define-key completion-in-region-mode-map (kbd "C-n") 'minibuffer-next-completion)
+  (define-key completion-in-region-mode-map (kbd "C-p") 'minibuffer-previous-completion)
+  (define-key completion-in-region-mode-map (kbd "C-s") 'minibuffer-next-completion)
+  (define-key completion-in-region-mode-map (kbd "C-r") 'minibuffer-previous-completion))
 
 
 ;;; Minimap
 
 (mini-pkgif minimap
   (mini-defk "<f9>" 'minimap-mode)
-  (mini-set minimap-window-location 'right))
+  (mini-set minimap-window-location 'right)
+  (mini-eval minimap
+    (setcdr (assoc 'minimap-mode minor-mode-alist) '("" nil))))
 
 
-;;; Misc
-;; built-in
+;;; Misc (built-in)
 
 (mini-bltin misc
   (when (display-graphic-p)
@@ -1640,15 +1814,13 @@ Use in `isearch-mode-end-hook'."
 ;; `mwim-end-position-functions'.
 
 
-;;; Newcomment
-;; built-in
+;;; Newcomment (built-in)
 
 (mini-bltin newcomment
   (mini-defk "M-;" 'comment-line)) ; to replace 'comment-dwim
 
 
-;;; Newsticker
-;; built-in
+;;; Newsticker (built-in)
 
 (mini-set newsticker-url-list
   '(("Free Software Foundation Europe" "https://fsfe.org/news/news.it.rss")
@@ -1676,8 +1848,7 @@ Use in `isearch-mode-end-hook'."
     '((file (styles partial-completion)))))
 
 
-;;; Org
-;; built-in
+;;; Org (built-in)
 
 (mini-bltin org
   ;; To get latest version of org, use mini-ensure instead.
@@ -1688,6 +1859,7 @@ Use in `isearch-mode-end-hook'."
   ;; (mini-defk ?a 'org-agenda     mode-specific-map)
   ;; (mini-defk ?c 'org-capture    mode-specific-map)
   ;; (mini-defk ?l 'org-store-link mode-specific-map)
+  
   (mini-eval org-agenda
     (mini-set org-agenda-block-separator ?─)
     (mini-set org-agenda-current-time-string
@@ -1698,6 +1870,14 @@ Use in `isearch-mode-end-hook'."
 	" ┄┄┄┄┄ " "┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄")))
   (mini-set org-auto-align-tags nil)
   (mini-set org-catch-invisible-edits 'show-and-error)
+  (mini-set
+      org-confirm-babel-evaluate
+    (lambda (lang body)
+      (ignore body)
+      (not
+       (member lang '("python"))))
+    "List of languages for org-src blocks that don't require
+confirmation to evaluate.")
   (mini-set org-directory "~/org")
   (mini-set org-ellipsis "↲")
   (mini-set org-enforce-todo-checkbox-dependencies t)
@@ -1717,9 +1897,9 @@ Use in `isearch-mode-end-hook'."
   (declare-function which-key-add-major-mode-key-based-replacements nil)
   (mini-eval (org which-key)
     (which-key-add-major-mode-key-based-replacements 'org-mode
-						     "C-c \"" "plot prefix"
-						     "C-c C-v" "org-babel prefix"
-						     "C-c C-x" "extra prefix"))
+      "C-c \"" "plot prefix"
+      "C-c C-v" "org-babel prefix"
+      "C-c C-x" "extra prefix"))
   (mini-eval org
     ;; It's built-in, but it depends on org.
     (require 'org-mouse)
@@ -1728,7 +1908,19 @@ Use in `isearch-mode-end-hook'."
      'org-babel-load-languages
      '((emacs-lisp . t)
        (perl . t)
-       (python . t)))))
+       (python . t))))
+
+  (add-hook 'org-mode-hook (lambda () (setq mode-name "📓")))
+  (add-hook 'org-mode-hook 'auto-fill-mode)
+
+  (mini-eval org-indent
+    (setcdr (assoc 'org-indent-mode minor-mode-alist) '("" nil))))
+
+
+;;; Org-agenda (built-in)
+
+(add-hook 'org-agenda-mode-hook
+	  (defun my-org-agenda-mode-name () (setcar mode-name "📅")))
 
 
 ;;; Org-modern
@@ -1739,22 +1931,19 @@ Use in `isearch-mode-end-hook'."
   (mini-set org-modern-hide-stars nil))
 
 
-;;; Outline
-;; built-in
+;;; Outline (built-in)
 
-(mini-bltin outline
-  (add-hook 'emacs-lisp-mode-hook 'outline-minor-mode))
+(mini-eval outline
+  (setcdr (assoc 'outline-minor-mode minor-mode-alist) '(" ➤" nil)))
 
 
-;;; Paragraphs
-;; built-in
+;;; Paragraphs (built-in)
 
 (mini-bltin paragraphs
   (mini-defk ?R 'repunctuate-sentences search-map))
 
 
-;;; Paren
-;; built-in
+;;; Paren (built-in)
 
 (mini-bltin paren
   (add-hook 'prog-mode-hook 'show-paren-mode))
@@ -1779,8 +1968,7 @@ Use in `isearch-mode-end-hook'."
 ;; Needs make automake autoconf gcc gcc-c++ libpng-devel zlib-devel poppler
 
 
-;;; Pixel-scroll
-;; built-in
+;;; Pixel-scroll (built-in)
 
 (mini-bltin pixel-scroll
   (when (version< "29" emacs-version)
@@ -1788,20 +1976,19 @@ Use in `isearch-mode-end-hook'."
     (pixel-scroll-precision-mode)))
 
 
-;;; Prog-mode
-;; built-in
+;;; Prog-mode (built-in)
 
-(mini-bltin prog-mode
-  (mini-eval prog-mode
-    (global-prettify-symbols-mode))
-  ;; Show line-numbers on the side and column-numbers on the mode-line
-  ;; when in programming modes.
-  (add-hook 'prog-mode-hook
-	    (mini-make-caller
-	     'eval
-	     '(list (display-line-numbers-mode)
-		    (setq-local line-number-mode nil)
-		    (setq-local column-number-mode t)))))
+;; (mini-bltin prog-mode
+;;   (mini-eval prog-mode
+;;     (global-prettify-symbols-mode))
+;;   ;; Show line-numbers on the side and column-numbers on the mode-line
+;;   ;; when in programming modes.
+;;   (add-hook 'prog-mode-hook
+;; 	    (mini-make-caller
+;; 	     'eval
+;; 	     '(list (display-line-numbers-mode)
+;; 		    (setq-local line-number-mode nil)
+;; 		    (setq-local column-number-mode t)))))
 
 
 ;;; Pulsar
@@ -1815,8 +2002,7 @@ Use in `isearch-mode-end-hook'."
   (mini-set pulsar-delay 0.03))
 
 
-;;; Python
-;; built-in
+;;; Python (built-in)
 
 (mini-bltin python
   ;; Show problematic whitespace in Python code.
@@ -1824,30 +2010,38 @@ Use in `isearch-mode-end-hook'."
 	    (lambda ()
 	      (setq-local whitespace-line-column nil)
 	      (setq-local fill-column 79)
-	      (require 'whitespace)
-	      (setq-local whitespace-style
-		'(face trailing lines-tail empty indentation::tab big-indent
-		       space-after-tab::tab space-before-tab::tab))
+	      ;; (require 'whitespace)
+	      ;; (setq-local whitespace-style
+	      ;; 	'( face trailing lines-tail empty big-indent indentation::tab
+	      ;; 	   space-after-tab::tab space-before-tab::tab ))
 	      (setq-local tab-width 4)
-	      (whitespace-mode)))
+	      ;; (whitespace-mode)
+	      ))
   (add-hook 'python-mode-hook 'subword-mode)
+  (add-hook 'python-mode-hook (lambda ()
+				(setq mode-name "🐍")))
   (mini-eval python
     (mini-set python-shell-completion-native-disabled-interpreters
       '("jupyter" "pypy")) ; try to autoload python
     (mini-set python-shell-interpreter "jupyter")
     (mini-set python-shell-interpreter-args "console --simple-prompt")
-    (mini-set python-shell-prompt-detect-failure-warning nil)))
+    (mini-set python-shell-prompt-detect-failure-warning nil)
+    (mini-eval which-key
+      (declare-function which-key-add-keymap-based-replacements "which-key")
+      (defvar python-mode-map)
+      (which-key-add-keymap-based-replacements
+	python-mode-map
+	"C-c TAB" "Python Imports"
+	"C-c C-t" "Python Skeletons"))))
 
 
-;;; Recentf
-;; built-in
+;;; Recentf (built-in)
 
 (mini-bltin recentf
   (run-at-time 1.5 nil 'recentf-mode))
 
 
-;;; Repeat
-;; built-in
+;;; Repeat (built-in)
 
 ;; Enable repeat-mode, but don't echo the message about how many
 ;; commands it's enabled for, since it's distracting and quickly
@@ -1861,32 +2055,30 @@ Use in `isearch-mode-end-hook'."
 	 (repeat-mode))))))
 
 
-;;; Savehist
-;; built-in
+;;; Savehist (built-in)
 
 (mini-bltin savehist
   (add-hook 'minibuffer-mode-hook 'savehist-mode))
 
 
-;;; Saveplace
-;; built-in
+;;; Saveplace (built-in)
 
 (mini-bltin saveplace
   (add-hook 'after-init-hook 'save-place-mode))
 
 
-;;; Sh-mode
-;; built-in
+;;; Sh-mode (built-in)
 
 (mini-bltin sh-mode
   (mini-set sh-basic-offset 2)
   (mini-set sh-indentation 2))
 
 
-;;; Simple
-;; built-in
+;;; Simple (built-in)
 
 (mini-bltin simple
+  (setcdr (assoc 'visual-line-mode minor-mode-alist) '(" VL" nil))
+  (setcdr (assoc 'auto-fill-function minor-mode-alist) '(" ¶" nil))
   (mini-set completion-show-help nil)
   (mini-set kill-whole-line t)
   (mini-set set-mark-command-repeat-pop t)
@@ -1904,12 +2096,10 @@ Use in `isearch-mode-end-hook'."
   (mini-defk "M-c"	'capitalize-dwim)
   (mini-defk "M-l"	'downcase-dwim)
   (mini-defk "C-d"      'delete-forward-char) ;; replacement for 'delete-char, deletes region if active.
-  (add-hook 'org-mode-hook 'visual-line-mode)
   (add-hook 'emacs-startup-hook 'turn-on-auto-fill))
 
 
-;;; Smtpmail
-;; built-in
+;;; Smtpmail (built-in)
 
 (mini-bltin smtpmail
 
@@ -1924,8 +2114,21 @@ Use in `isearch-mode-end-hook'."
   (autoload 'sly "sly" nil t))
 
 
-;;; Startup
-;; built-in
+;;; Speedbar (built-in)
+
+(add-hook 'speedbar-mode-hook
+	  (lambda ()
+	    (setq-local cursor-in-non-selected-windows nil)))
+
+
+;;; Sr-speedbar
+;; Turn Speedbar into a sidebar window in the same frame.
+
+(mini-pkgif sr-speedbar
+  (mini-defk "<f8>" 'sr-speedbar-toggle))
+
+
+;;; Startup (built-in)
 
 (mini-bltin startup
   ;; Insert startup time at bottom of splash screen.
@@ -1940,8 +2143,7 @@ Use in `isearch-mode-end-hook'."
 	(emacs-init-time "\n\nEmacs started in %.2f seconds."))))))
 
 
-;;; Subword
-;; built-in
+;;; Subword (built-in)
 
 (mini-bltin subword
   (autoload 'subword-mark "subword" "Do the same as `mark-word' but on subwords.
@@ -1949,11 +2151,10 @@ See the command `subword-mode' for a description of subwords.
 Optional argument ARG is the same as for `mark-word'." t))
 
 
-;;; Tab-bar
-;; built-in
+;;; Tab-bar (built-in)
 
 (mini-bltin tab-bar
-  (add-hook 'after-init-hook 'tab-bar-mode)
+  ;; (add-hook 'after-init-hook 'tab-bar-mode)
   (mini-set tab-bar-format
     '(tab-bar-format-history tab-bar-format-tabs tab-bar-separator tab-bar-format-align-right tab-bar-format-global))
   (mini-set tab-bar-select-tab-modifiers '(meta))
@@ -2008,8 +2209,7 @@ Optional argument ARG is the same as for `mark-word'." t))
   )
 
 
-;;; Term
-;; built-in
+;;; Term (built-in)
 
 (mini-bltin term
   (defun mini-termsh ()
@@ -2018,13 +2218,13 @@ Optional argument ARG is the same as for `mark-word'." t))
     (term "/bin/bash")))
 
 
-;;; Time
-;; built-in
+;;; Time (built-in)
 
 (mini-bltin time
   (mini-set display-time-default-load-average nil)
   (mini-set display-time-format "%l:%M%#p ")
-  (add-hook 'after-init-hook 'display-time-mode))
+  ;; (add-hook 'after-init-hook 'display-time-mode)
+  )
 
 
 ;;; Vertico
@@ -2037,10 +2237,9 @@ Optional argument ARG is the same as for `mark-word'." t))
     (interactive)
     (let ((vertico-count 40)
 	  (vertico-count-format nil))
-      (ignore vertico-count
-	      vertico-count-format)
       (call-interactively 'tmm-menubar)))
 
+  (mini-defk "M-`" 'mini-tmm-with-vertico)
   (mini-defk [f10] 'mini-tmm-with-vertico)
 
   (mini-eval vertico
@@ -2052,7 +2251,6 @@ Optional argument ARG is the same as for `mark-word'." t))
     (mini-defk "M-i" 'vertico-quick-insert vertico-map)
 
     ;; Avoid duplicate menu when using `tmm-menubar'.
-    (declare-function tmm-add-prompt "tmm")
     (advice-add #'tmm-add-prompt :after #'minibuffer-hide-completions)
 
     ;; Avoid duplicate completion ui with the `ffap-menu' command.
@@ -2067,12 +2265,13 @@ Optional argument ARG is the same as for `mark-word'." t))
 		    (apply args))))))
 
 
-;;; View
-;; built-in
+;;; View (built-in)
 
 (mini-bltin view
   (unless (memq 'vundo package-selected-packages)
-    (mini-defk ?v 'view-mode mode-specific-map)))
+    (mini-defk ?v 'view-mode mode-specific-map))
+  (mini-eval view
+    (setcdr (assoc 'view-mode minor-mode-alist) '(" [VIEW]" nil))))
 
 
 ;;; Vundo
@@ -2082,15 +2281,13 @@ Optional argument ARG is the same as for `mark-word'." t))
     '(["Visualize Undos" vundo])))
 
 
-;;; Warnings
-;; built-in
+;;; Warnings (built-in)
 
 (mini-bltin warnings
   (mini-set warning-minimum-level :error))
 
 
-;;; Which-func
-;; built-in
+;;; Which-func (built-in)
 
 (mini-bltin which-func
   (add-hook 'prog-mode-hook 'which-function-mode)
@@ -2148,7 +2345,7 @@ Optional argument ARG is the same as for `mark-word'." t))
                           ;; will be active.
                           (cond
                            ;; commands ending in "mode" that aren't modes.
-                           ((member kbstr '("which-key-show-major-mode" "describe-mode")) kbstr)
+                           ((member kbstr '("which-key-show-major-mode" "describe-mode" "electric-describe-mode")) kbstr)
                            (t (if (eval vblsym)
                                   (concat "[X] " kbstr)
 				(concat "[ ] " kbstr))))))))
@@ -2201,51 +2398,82 @@ Optional argument ARG is the same as for `mark-word'." t))
       "C-h 4" "other-window-help"
       "<f1> 4" "other-window-help"
       "<help> 4" "other-window-help")
-    ;; TEMP Remove the following if and when PR #333 is
-    ;; accepted.  The rest of this block is a fix for
-    ;; side-window-right popup, which without this allows the
-    ;; list of bindings to overlap the bottom of the screen
-    ;; when `line-spacing' is non-nil.
-    (defvar which-key-side-window-location)
-    (declare-function
-     which-key--height-or-percentage-to-height "which-key")
-    (defvar which-key-side-window-max-height)
-    (declare-function
-     which-key--total-width-to-text "which-key")
-    (declare-function
-     which-key--width-or-percentage-to-width "which-key")
-    (defvar which-key-side-window-max-width)
-    (defvar which-key-unicode-correction)
-    (defun which-key--side-window-max-dimensions ()
-      "Return max-dimensions of the side-window popup (height . width)
-in lines and characters respectively."
-      (cons
-       ;; height
-       (if (member which-key-side-window-location
-                   '(left right))
-           ;; 1 is a kludge to make sure there is no overlap
-           (- (/ (- (frame-inner-height)
-                    (window-pixel-height
-                     (minibuffer-window)))
-		 (default-line-height))
-              1)
-	 (which-key--height-or-percentage-to-height
-          which-key-side-window-max-height))
-       ;; width
-       (max 0
-            (- (if (member which-key-side-window-location
-                           '(left right))
-                   (which-key--total-width-to-text
-                    (which-key--width-or-percentage-to-width
-                     which-key-side-window-max-width))
-		 (which-key--total-width-to-text
-                  (which-key--width-or-percentage-to-width
-                   1.0)))
-               which-key-unicode-correction))))))
+    (mini-eval which-key
+      (which-key-add-keymap-based-replacements
+	ctl-x-map
+	;; "c" "mode-specific-map"
+	;; "c @" "outline-map"
+	;; "x" "ctl-x-map"
+	"RET" "encoding"
+	"4" "other-window"
+	"5" "other-frame"
+	"6" "2-columns"
+	"8" "characters"
+	"8 e" "emojis"
+	"X" "edebug"
+	"a" "abbrev"
+	"a i" "inverse-abbrev"
+	"g" "Ctrl"
+	"n" "narrow"
+	"p" "project"
+	"r" "rectangles/registers"
+	"t" "tab-bar"
+	"v" "version-control"
+	"v M" "mergebase"
+	"v b" "branches"
+	"x" "buffer"
+	;; "C-a" "edebug (more?)"
+	;; "m g" "goto-map"
+	;; "m s" "search-map"
+	;; "m s h" "highlighting"
+	;; "h 4" "other-window-help"
+	)))
+  
+  ;; TEMP Remove the following if and when PR #333 is
+  ;; accepted.  The rest of this block is a fix for
+  ;; side-window-right popup, which without this allows the
+  ;; list of bindings to overlap the bottom of the screen
+  ;; when `line-spacing' is non-nil.
+  ;; (defvar which-key-side-window-location)
+  ;; (declare-function
+  ;;  which-key--height-or-percentage-to-height "which-key")
+  ;; (defvar which-key-side-window-max-height)
+  ;; (declare-function
+  ;;  which-key--total-width-to-text "which-key")
+  ;; (declare-function
+  ;;  which-key--width-or-percentage-to-width "which-key")
+  ;; (defvar which-key-side-window-max-width)
+  ;; (defvar which-key-unicode-correction)
+  ;;     (defun which-key--side-window-max-dimensions ()
+  ;;       "Return max-dimensions of the side-window popup (height . width)
+  ;; in lines and characters respectively."
+  ;;       (cons
+  ;;        ;; height
+  ;;        (if (member which-key-side-window-location
+  ;;                    '(left right))
+  ;;            ;; 1 is a kludge to make sure there is no overlap
+  ;;            (- (/ (- (frame-inner-height)
+  ;;                     (window-pixel-height
+  ;;                      (minibuffer-window)))
+  ;; 		 (default-line-height))
+  ;;               1)
+  ;; 	 (which-key--height-or-percentage-to-height
+  ;;           which-key-side-window-max-height))
+  ;;        ;; width
+  ;;        (max 0
+  ;;             (- (if (member which-key-side-window-location
+  ;;                            '(left right))
+  ;;                    (which-key--total-width-to-text
+  ;;                     (which-key--width-or-percentage-to-width
+  ;;                      which-key-side-window-max-width))
+  ;; 		 (which-key--total-width-to-text
+  ;;                   (which-key--width-or-percentage-to-width
+  ;;                    1.0)))
+  ;;                which-key-unicode-correction))))
+  )
 
 
-;;; Whitespace
-;; built-in
+;;; Whitespace (built-in)
 
 ;; (mini-bltin whitespace
 ;;   (mini-set show-trailing-whitespace t)
@@ -2254,42 +2482,49 @@ in lines and characters respectively."
 ;; 	   space-after-tab::tab space-before-tab::tab)))
 
 
-;;; Windmove
-;; built-in
+;;; Windmove (built-in)
 
-(mini-bltin windmove
-  (mini-windmove-defk
-   ;; (left right up down)
-   (AudioPrev AudioNext AudioStop AudioPlay)
-   (("windmove"             nil     control)
-    ("windmove-display"     nil     meta)
-    ("windmove-delete"      (?\C-x) control)
-    ("windmove-swap-states" nil     control meta)))
+;; (mini-bltin windmove
+;;   (mini-windmove-defk
+;;    ;; (left right up down)
+;;    (AudioPrev AudioNext AudioStop AudioPlay)
+;;    (("windmove"             nil     control)
+;;     ("windmove-display"     nil     meta)
+;;     ("windmove-delete"      (?\C-x) control)
+;;     ("windmove-swap-states" nil     control meta)))
 
-  ;; Additional commands for creating a frame, creating a tab, or
-  ;; ensuring the next buffer appears in the current window.
-  (mini-defk ?\M-N 'windmove-display-new-frame) ;; M-F interferes with shift-selection
-  (mini-defk ?\M-T 'windmove-display-new-tab)
-  (mini-defk ?\M-S 'windmove-display-same-window))
+;;   ;; Additional commands for creating a frame, creating a tab, or
+;;   ;; ensuring the next buffer appears in the current window.
+;;   (mini-defk ?\M-N 'windmove-display-new-frame) ;; M-F interferes with shift-selection
+;;   (mini-defk ?\M-T 'windmove-display-new-tab)
+;;   (mini-defk ?\M-S 'windmove-display-same-window))
 
 
-;;; Winner
-;; built-in
+;;; Winner (built-in)
 
 (mini-bltin winner
   ;; This automatically binds "C-c <left>" to `winner-undo' and
   ;; "C-c <right>" to `winner-redo'.  To prevent that, you can set
   ;; `winner-dont-bind-my-keys' to a non-nil value beforehand.
   (add-hook 'window-setup-hook 'winner-mode))
-
 
-;;; Window
-;; built-in
+;;; Window (built-in)
 
 (mini-bltin window
   (mini-defk "M-o" 'other-window)
   (mini-defk "<insert>" 'other-window))
 
+
+;;; Yasnippet
+
+(mini-pkgif yasnippet
+  (add-hook 'after-init-hook 'yas-global-mode)
+  (mini-eval yasnippet
+    (setcdr (assoc 'yas-minor-mode minor-mode-alist) '(" 📎" nil))
+    (mini-eval which-key
+      (which-key-add-keymap-based-replacements
+	yas-minor-mode-map
+	"C-c &" "YASnippet"))))
 
 (provide 'mini-packages)
 ;;; mini-packages.el ends here
