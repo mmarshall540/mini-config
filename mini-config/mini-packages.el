@@ -2005,7 +2005,7 @@ confirmation to evaluate.")
     (mini-set python-shell-interpreter-args "console --simple-prompt")
     (mini-set python-shell-prompt-detect-failure-warning nil)
     (mini-eval which-key
-      (declare-function which-key-add-keymap-based-replacements "which-key")
+      (declare-function which-key-add-keymap-based-replacements nil)
       (defvar python-mode-map)
       (which-key-add-keymap-based-replacements
 	python-mode-map
@@ -2371,36 +2371,35 @@ Optional argument ARG is the same as for `mark-word'." t))
       "C-h 4" "other-window-help"
       "<f1> 4" "other-window-help"
       "<help> 4" "other-window-help")
-    (mini-eval which-key
-      (which-key-add-keymap-based-replacements
-	ctl-x-map
-	;; "c" "mode-specific-map"
-	;; "c @" "outline-map"
-	;; "x" "ctl-x-map"
-	"RET" "encoding"
-	"4" "other-window"
-	"5" "other-frame"
-	"6" "2-columns"
-	"8" "characters"
-	"8 e" "emojis"
-	"X" "edebug"
-	"a" "abbrev"
-	"a i" "inverse-abbrev"
-	"g" "Ctrl"
-	"n" "narrow"
-	"p" "project"
-	"r" "rectangles/registers"
-	"t" "tab-bar"
-	"v" "version-control"
-	"v M" "mergebase"
-	"v b" "branches"
-	"x" "buffer"
-	;; "C-a" "edebug (more?)"
-	;; "m g" "goto-map"
-	;; "m s" "search-map"
-	;; "m s h" "highlighting"
-	;; "h 4" "other-window-help"
-	)))
+    (which-key-add-keymap-based-replacements
+      ctl-x-map
+      ;; "c" "mode-specific-map"
+      ;; "c @" "outline-map"
+      ;; "x" "ctl-x-map"
+      "RET" "encoding"
+      "4" "other-window"
+      "5" "other-frame"
+      "6" "2-columns"
+      "8" "characters"
+      "8 e" "emojis"
+      "X" "edebug"
+      "a" "abbrev"
+      "a i" "inverse-abbrev"
+      "g" "Ctrl"
+      "n" "narrow"
+      "p" "project"
+      "r" "rectangles/registers"
+      "t" "tab-bar"
+      "v" "version-control"
+      "v M" "mergebase"
+      "v b" "branches"
+      "x" "buffer"
+      ;; "C-a" "edebug (more?)"
+      ;; "m g" "goto-map"
+      ;; "m s" "search-map"
+      ;; "m s h" "highlighting"
+      ;; "h 4" "other-window-help"
+      ))
   
   ;; TEMP Remove the following if and when PR #333 is
   ;; accepted.  The rest of this block is a fix for
