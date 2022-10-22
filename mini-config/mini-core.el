@@ -57,6 +57,13 @@ configuration section."
   :type 'boolean
   :group 'mini)
 
+(defcustom mini-use-electric-help t
+  "Whether to use the built-in `ehelp' package.
+This replaces some of the regular `help' command buffers with
+pop-up windows."
+  :type 'boolean
+  :group 'mini)
+
 (defcustom mini-use-ibuffer-over-list-buffers t
   "Replace the binding for `list-buffers' with `ibuffer'."
   :type 'boolean
