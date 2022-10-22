@@ -281,10 +281,12 @@
 (mini-mode-rename 'python-mode	      "🐍")
 
 ;; Minor-mode replacements
-(mini-mode-rename 'isearch-mode	      " 🔎"     'minor)
+(mini-mode-rename 'isearch-mode
+		  (propertize " 🔎" 'face '(:foreground "firebrick")) 'minor)
 (mini-mode-rename 'visual-line-mode   " VL"     'minor)
 (mini-mode-rename 'auto-fill-function " ¶"      'minor)
-(mini-mode-rename 'view-mode	      " [VIEW]" 'minor)
+(mini-mode-rename 'view-mode
+		  (propertize " [VIEW]" 'face '(:foreground "cyan")) 'minor)
 (mini-mode-rename 'outline-minor-mode " ➤"      'minor)
 (mini-mode-rename 'org-indent-mode    ""       'minor)
 
