@@ -906,12 +906,6 @@ https://karthinks.com/software/avy-can-do-anything/."
       (mini-defk [?\M-g ?\M-p] 'flymake-goto-prev-error flymake-mode-map))))
 
 
-;;; Focus
-
-(mini-pkgif focus
-  )
-
-
 ;;; Frame (built-in)
 
 (mini-bltin frame
