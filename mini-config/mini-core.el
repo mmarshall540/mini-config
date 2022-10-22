@@ -1253,5 +1253,31 @@ Otherwise, call `isearch-repeat-backward' and then
               (?r . rectangle-mark-mode)))
   (mini-defk (car kb) (cdr kb) mini-mark-prefix-map)))
 
+;;; Mode-line mode-name renaming
+
+(autoload 'find-function-library "find-func")
+(defun mini-mode-rename (mode string &optional minormode)
+  "Replace mode-line indicator with STRING.
+MODE is a major-mode, unless MINORMODE is non-nil."
+  (if minormode
+      ;; The code for changing a minor-mode name.  How it is used
+      ;; depends on whether MODE has a function binding.  If it
+      ;; doesn't, we can't use `find-function-library' to find its
+      ;; library.
+      (let ((action
+	     `(setcdr (assoc (quote ,mode) minor-mode-alist) (list ,string nil))))
+	;; If the minor mode symbol has a function-binding, we can use
+	;; `find-function-library' to find its library and make the
+	;; change after the library loads.  Otherwise, we'll guess the
+	;; name of its hook and make the change when the mode is
+	;; enabled.
+	(if (fboundp mode)
+	    (eval-after-load (cdr (find-function-library mode)) action)
+	  (add-hook (intern (concat (symbol-name mode) "-hook"))
+		    (lambda () (eval action)))))
+    ;; MINORMODE is nil, so change the major mode name using its hook.
+    (add-hook (intern (concat (symbol-name mode) "-hook"))
+	      (lambda () (setq mode-name string)))))
+
 (provide 'mini-core)
 ;;; mini-core.el ends here

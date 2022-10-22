@@ -267,6 +267,28 @@
 (load (expand-file-name "my-settings" user-emacs-directory) 'noerror)
 
 
+;;; Mode-line mode-name dimming and replacing for built-in modes
+
+;; Major-mode replacements
+(mini-mode-rename 'cperl-mode	      "🐪")
+(mini-mode-rename 'emacs-lisp-mode    "𝝠")
+(mini-mode-rename 'help-mode	      "❓")
+(mini-mode-rename 'electric-help-mode "🔌❓")
+(mini-mode-rename 'Info-mode	      "📖")
+(mini-mode-rename 'java-mode	      "☕")
+(mini-mode-rename 'org-mode	      "📓")
+(mini-mode-rename 'org-agenda-mode    "📅")
+(mini-mode-rename 'python-mode	      "🐍")
+
+;; Minor-mode replacements
+(mini-mode-rename 'isearch-mode	      " 🔎"     'minor)
+(mini-mode-rename 'visual-line-mode   " VL"     'minor)
+(mini-mode-rename 'auto-fill-function " ¶"      'minor)
+(mini-mode-rename 'view-mode	      " [VIEW]" 'minor)
+(mini-mode-rename 'outline-minor-mode " ➤"      'minor)
+(mini-mode-rename 'org-indent-mode    ""       'minor)
+
+
 
 (provide 'init)
 ;;; init.el ends here

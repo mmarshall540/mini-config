@@ -673,7 +673,7 @@ initially found within the current line."
       "use warnings;\nuse strict;\n"))
   ;; (mini-eval cperl-mode
   ;;   (mini-defk [?\C-c ?\C-c] 'quickrun-shell cperl-mode-map))
-  (add-hook 'cperl-mode-hook (lambda () (setq mode-name "🐪"))))
+  )
 
 
 ;;; Darkroom
@@ -800,7 +800,6 @@ initially found within the current line."
 
 ;;; Elisp-mode (built-in)
 
-(add-hook 'emacs-lisp-mode-hook (lambda () (setq mode-name "𝝠")))
 
 
 ;;; Embark
@@ -968,7 +967,6 @@ the number row are un-shifted.)\n\n")
   ;; navigation of `which-key' menus.
   (mini-set help-char 'f1)
   (mini-set describe-bindings-outline t)
-  (add-hook 'help-mode-hook (lambda () (setq mode-name "❓")))
   ;; Show "^L" characters as horizontal lines in help-mode buffers.
   (add-hook 'help-mode-hook 'mini-xah-show-formfeed-as-line)
   ;; Unclutter the help map.
@@ -1061,7 +1059,6 @@ the number row are un-shifted.)\n\n")
 
 ;;; Info (built-in)
 
-(add-hook 'Info-mode-hook (lambda () (setq mode-name "📖")))
 
 
 ;;; Isearch (built-in)
@@ -1071,7 +1068,6 @@ the number row are un-shifted.)\n\n")
   (mini-set isearch-allow-scroll t)
   (mini-set isearch-lazy-count t)
   (mini-eval isearch
-    (setcdr (assoc 'isearch-mode minor-mode-alist) '(" 🔎" nil))
     (dolist (kb '(([up]    . isearch-ring-retreat)
                   ([down]  . isearch-ring-advance)
                   ([left]  . isearch-repeat-backward)
@@ -1112,11 +1108,6 @@ Use in `isearch-mode-end-hook'."
 ;; direction of the search.  When I end it, I can use a different key
 ;; to move it to the end.
 ;; isearch-update-post-hook
-
-
-;;; Java-mode (built-in)
-
-(add-hook 'java-mode-hook (lambda () (setq mode-name "☕")))
 
 
 ;;; Kbd-mode
@@ -1244,7 +1235,7 @@ Use in `isearch-mode-end-hook'."
 ;;; Markdown-mode
 
 (mini-pkgif markdown-mode
-  nil) ;; placeholder
+  (mini-mode-rename 'markdown-mode " M🡓")) ;; placeholder
 
 
 ;;; Menu-bar (built-in)
@@ -1514,10 +1505,11 @@ Use in `isearch-mode-end-hook'."
 
     (define-key meow-insert-state-keymap (substring meow-two-char-escape-sequence 0 1)
 		#'meow-two-char-exit-insert-state)
-
+    
+    
     (mini-eval meow
-      (setcdr (assoc 'meow-normal-mode minor-mode-alist) `(,(propertize " [N]" 'face 'mode-line-emphasis) nil))
-      (setcdr (assoc 'meow-insert-mode minor-mode-alist) `(,(propertize " [I]" 'face 'italic) nil))
+      (mini-mode-rename 'meow-normal-mode (propertize " [N]" 'face 'mode-line-emphasis) 'minor)
+      (mini-mode-rename 'meow-insert-mode (propertize " [I]" 'face 'italic) 'minor)
       (mini-meow-set-state 'help-mode 'motion)
       (mini-meow-set-state 'comint-mode 'insert)
       (mini-meow-set-state 'term-mode 'insert)
@@ -1628,7 +1620,8 @@ Use in `isearch-mode-end-hook'."
       (unless (= 1 (length submap))
 	;; Make a prefix-map out of the first item in the list.
 	(define-prefix-command (cadar submap)))
-      ;; Bind it in mode-specific-map, which Meow uses by default with its leader key.
+      ;; Bind it in
+      mode-specific-map, which Meow uses by default with its leader key.
       (mini-defk (caar submap) (meow--parse-def (cadar submap)) mode-specific-map (caddar submap))
       ;; Remaining items are bound in the prefix map.
       (when (cdr submap)
@@ -1721,8 +1714,7 @@ Use in `isearch-mode-end-hook'."
 (mini-pkgif minimap
   (mini-defk "<f9>" 'minimap-mode)
   (mini-set minimap-window-location 'right)
-  (mini-eval minimap
-    (setcdr (assoc 'minimap-mode minor-mode-alist) '("" nil))))
+  (mini-mode-rename 'minimap-mode "" 'minor))
 
 
 ;;; Misc (built-in)
@@ -1904,17 +1896,12 @@ confirmation to evaluate.")
        (perl . t)
        (python . t))))
 
-  (add-hook 'org-mode-hook (lambda () (setq mode-name "📓")))
-  (add-hook 'org-mode-hook 'auto-fill-mode)
-
-  (mini-eval org-indent
-    (setcdr (assoc 'org-indent-mode minor-mode-alist) '("" nil))))
+  (add-hook 'org-mode-hook 'auto-fill-mode))
 
 
 ;;; Org-agenda (built-in)
 
-(add-hook 'org-agenda-mode-hook
-	  (defun my-org-agenda-mode-name () (setcar mode-name "📅")))
+
 
 
 ;;; Org-modern
@@ -1927,8 +1914,7 @@ confirmation to evaluate.")
 
 ;;; Outline (built-in)
 
-(mini-eval outline
-  (setcdr (assoc 'outline-minor-mode minor-mode-alist) '(" ➤" nil)))
+
 
 
 ;;; Paragraphs (built-in)
@@ -2012,8 +1998,6 @@ confirmation to evaluate.")
 	      ;; (whitespace-mode)
 	      ))
   (add-hook 'python-mode-hook 'subword-mode)
-  (add-hook 'python-mode-hook (lambda ()
-				(setq mode-name "🐍")))
   (mini-eval python
     (mini-set python-shell-completion-native-disabled-interpreters
       '("jupyter" "pypy")) ; try to autoload python
@@ -2071,8 +2055,6 @@ confirmation to evaluate.")
 ;;; Simple (built-in)
 
 (mini-bltin simple
-  (setcdr (assoc 'visual-line-mode minor-mode-alist) '(" VL" nil))
-  (setcdr (assoc 'auto-fill-function minor-mode-alist) '(" ¶" nil))
   (mini-set completion-show-help nil)
   (mini-set kill-whole-line t)
   (mini-set set-mark-command-repeat-pop t)
@@ -2263,9 +2245,7 @@ Optional argument ARG is the same as for `mark-word'." t))
 
 (mini-bltin view
   (unless (memq 'vundo package-selected-packages)
-    (mini-defk ?v 'view-mode mode-specific-map))
-  (mini-eval view
-    (setcdr (assoc 'view-mode minor-mode-alist) '(" [VIEW]" nil))))
+    (mini-defk ?v 'view-mode mode-specific-map)))
 
 
 ;;; Vundo
@@ -2513,8 +2493,9 @@ Optional argument ARG is the same as for `mark-word'." t))
 
 (mini-pkgif yasnippet
   (add-hook 'after-init-hook 'yas-global-mode)
+  (mini-mode-rename 'yas-minor-mode " 📎" 'minor)
+  ;; (setcdr (assoc 'yas-minor-mode minor-mode-alist) '(" 📎" nil))
   (mini-eval yasnippet
-    (setcdr (assoc 'yas-minor-mode minor-mode-alist) '(" 📎" nil))
     (mini-eval which-key
       (which-key-add-keymap-based-replacements
 	yas-minor-mode-map
