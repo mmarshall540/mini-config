@@ -385,10 +385,13 @@ WKSTRINGK."
 				      (symbol-name cmd-original)
 				    (error nil))))))
      ;; Bind the key.
-     (define-key kmap (mini-kbd ,key)
-		 (if ,wkstringk
-		     (cons ,wkstringk ,cmd)
-		   ,cmd))
+     (define-key kmap (mini-kbd ,key) ,cmd)
+     ;; Add which-key string replacement if given.
+     (when ,wkstringk
+	 (require 'which-key)
+	 (which-key-add-keymap-based-replacements
+	   kmap
+	   ,key (cons ,wkstringk ,cmd)))
      ;; Add a row to mini-defk-list for the mini-show-defk-list command.
      (let ((newrow (list (key-description (mini-kbd ,key)) cmd-name cmd-original-name))
 	   (kmapelt (cond
