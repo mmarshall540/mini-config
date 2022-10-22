@@ -2199,8 +2199,7 @@ Optional argument ARG is the same as for `mark-word'." t))
 (mini-bltin time
   (mini-set display-time-default-load-average nil)
   (mini-set display-time-format "%l:%M%#p ")
-  ;; (add-hook 'after-init-hook 'display-time-mode)
-  )
+  (mini-set display-time-mode t))
 
 
 ;;; Vertico
