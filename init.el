@@ -242,7 +242,8 @@
 ;; have to add them ourselves...  And vice-versa if we've installed
 ;; Emacs through the package manager but have installed something like
 ;; mu4e from source to /usr/local.
-(dolist (default-directory '("/usr/share/emacs/site-lisp/" "/usr/local/share/emacs/site-lisp/"))
+(dolist (default-directory
+	 '("/usr/share/emacs/site-lisp/" "/usr/local/share/emacs/site-lisp/"))
   (when (file-exists-p default-directory)
     (normal-top-level-add-subdirs-to-load-path)))
 
@@ -262,6 +263,12 @@
 	 (expand-file-name "mini-config/mini-menus" user-emacs-directory))
 
 
+;;; Mode-line customization
+
+(require 'mini-mode-line
+	 (expand-file-name "mini-config/mini-mode-line" user-emacs-directory))
+
+
 ;;; Configure selected and built-in packages.
 
 (require 'mini-packages
@@ -271,30 +278,6 @@
 ;;; Load the handcrafted settings file, if it exists.
 
 (load (expand-file-name "my-settings" user-emacs-directory) 'noerror)
-
-
-;;; Mode-line mode-name dimming and replacing for built-in modes
-
-;; Major-mode replacements
-(mini-mode-rename 'cperl-mode	      "🐪")
-(mini-mode-rename 'emacs-lisp-mode    "𝝠")
-(mini-mode-rename 'help-mode	      "❓")
-(mini-mode-rename 'electric-help-mode "🔌❓")
-(mini-mode-rename 'Info-mode	      "📖")
-(mini-mode-rename 'java-mode	      "☕")
-(mini-mode-rename 'org-mode	      "📓")
-(mini-mode-rename 'org-agenda-mode    "📅")
-(mini-mode-rename 'python-mode	      "🐍")
-
-;; Minor-mode replacements
-(mini-mode-rename 'isearch-mode
-		  (propertize " 🔎" 'face '(:foreground "firebrick")) 'minor)
-(mini-mode-rename 'visual-line-mode   " VL"     'minor)
-(mini-mode-rename 'auto-fill-function " ¶"      'minor)
-(mini-mode-rename 'view-mode
-		  (propertize " [VIEW]" 'face '(:foreground "cyan")) 'minor)
-(mini-mode-rename 'outline-minor-mode " ➤"      'minor)
-(mini-mode-rename 'org-indent-mode    ""       'minor)
 
 
 
