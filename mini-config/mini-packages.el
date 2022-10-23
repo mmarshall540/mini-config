@@ -731,8 +731,9 @@ mouse-1: Display Line and Column Mode Menu")))
   (add-hook 'darkroom-mode-hook 'mini-darkroom-tab-bar-check)
   (add-hook 'darkroom-tentative-mode-hook 'mini-darkroom-tab-bar-check)
   (mini-defk "<f7>" 'darkroom-mode)
-  (mini-addmenu "options"
-    '(["Darkroom-Mode" darkroom-mode])))
+  (mini-eval menu-bar
+    (mini-addmenu "options"
+      '(["Darkroom-Mode" darkroom-mode]))))
 
 
 ;;; Delsel (built-in)
@@ -948,9 +949,10 @@ https://karthinks.com/software/avy-can-do-anything/."
 (mini-pkgif free-keys
   ;; Shows keys available binding to commands.
   ;; (mini-defk ?f 'free-keys-shift mini-prefix-key-map)
-  (mini-addmenu "tools"
-    '(["Free Keys (w/shift/nonshift)" free-keys-shift])
-    '("Other Apps"))
+  (mini-eval menu-bar
+    (mini-addmenu "tools"
+      '(["Free Keys (w/shift/nonshift)" free-keys-shift])
+      '("Other Apps")))
   (defun free-keys-shift (&optional prefix buffer free-keys-nonshifted-keys)
     "Call the `free-keys' command with shifted/non-shifted-keys added.
 On the second run, insert only non-shifted keys (or those passed
@@ -1202,8 +1204,9 @@ Use in `isearch-mode-end-hook'."
     (defvar ibuffer-mode-map)
     (mini-defk ?\M-g nil ibuffer-mode-map)
     (mini-defk [?\M-g ?o] 'link-hint-open-link ibuffer-mode-map))
-  (mini-addmenu "tools"
-    '(["Link Hint" link-hint-open-link]))
+  (mini-eval menu-bar
+    (mini-addmenu "tools"
+      '(["Link Hint" link-hint-open-link])))
   ;; (mini-eval meow
   ;;   (mini-defk "o" 'link-hint-open-link mode-specific-map "Open Link"))
   )
@@ -1262,123 +1265,6 @@ Use in `isearch-mode-end-hook'."
 
 (mini-pkgif markdown-mode
   (mini-mode-rename 'markdown-mode " M🡓")) ;; placeholder
-
-
-;;; Menu-bar (built-in)
-
-(mini-bltin menu-bar
-  
-  (defun mini-addmenu-divider ()
-    "Return a pretty divider to set apart user-added items."
-    (require 'tmm)
-    (defvar tmm-mid-prompt)
-    (vector
-     (concat
-      (make-string (length tmm-mid-prompt) ?\-)
-      (make-string (length tmm-mid-prompt) ?\*)
-      (make-string (length tmm-mid-prompt) ?\-))
-     'mini-menu-ignore))
-
-;;; Menus for built-in packages
-
-  ;; File menu
-  (mini-addmenu "file"
-    `(,(mini-addmenu-divider)
-      ["HTML-Fontify Buffer" htmlfontify-buffer]
-      ["Open Init File" mini-find-init-file]
-      ["Config Files" (dired (expand-file-name "*.el" user-emacs-directory))]
-      ["Org Directory" (progn (require 'org) (dired (expand-file-name org-directory)))]
-      ,(let ((dirmenu nil)
-	     (source-dirs-menu-name "Emacs Elisp sources"))
-	 (cons (format "%s" source-dirs-menu-name)
-	       (nreverse
-		(dolist (dir load-path dirmenu)
-		  (when (string-match-p (regexp-quote "lisp") dir)
-		    (setq dirmenu
-			  (cons (vector
-				 (format "%s" (expand-file-name dir))
-				 `(dired (format "%s"
-						 ,(expand-file-name dir))))
-				dirmenu)))))))
-      ["Autorevert-Mode" auto-revert-mode]
-      ,(when (version< "29" emacs-version)
-	 ["Restart Emacs" restart-emacs])))
-
-  ;; Edit menu
-  (mini-addmenu "edit"
-    `(,(mini-addmenu-divider)
-      ["Abbrev-Mode" abbrev-mode]
-      ["Align-Regexp" align-regexp]
-      ["Auto-Fill mode" auto-fill-mode]
-      ["Subword mode" subword-mode]
-      ["Superword mode" superword-mode]
-      ;; For vcursor, we open the library, since it appears to be the
-      ;; only documentation available.
-      ["Vcursor (Load and Find vcursor.el)" (mini-menu-load-and-read 'vcursor)]
-      ["DelSel-Mode" delete-selection-mod]
-      ;; ["Kill Commands" mini-kill-prefix-command]
-      ;; ["Marking Commands" mini-mark-prefix-command]
-      ;; ["Transpose Cmds" mini-transpose-prefix-command]
-      ))
-  
-  ;; Options menu
-  (mini-addmenu "options"
-    `(,(mini-addmenu-divider)
-      ("View Enhancements"
-       ["Fill-Column-Indicator" display-fill-column-indicator-mode]
-       ["Hideshow mode" hs-minor-mode]
-       ["Highlight-Changes" highlight-changes-mode]
-       ["Highlight Current Line" hl-line-mode]
-       ["Horizontal Ruler" ruler-mode]
-       ["Scroll Lock Mode" scroll-lock-mode]
-       ["Hide lines indented past..."
-	,(lambda () (interactive)
-	   (if (y-or-n-p "Use selective-display to hide indented lines? ")
-	       (set-selective-display
-		(read-number "Enter the minimum indentation of lines to hide: " 4))
-	     (set-selective-display nil)))]
-       ["Show Trailing Whitespace"
-	,(lambda () (interactive)
-	   (setq show-trailing-whitespace (not show-trailing-whitespace)))]
-       ["Show All Whitespace" whitespace-mode]
-       ["View-Mode" view-mode])
-      ["Eldoc-Mode" eldoc-mode]
-      ["Winner Mode (undo window arrangements)" winner-mode]))
-
-  ;; Buffers menu
-  (mini-addmenu 'global-buffers-menu-map
-    `(,(mini-addmenu-divider)
-      ["Ibuffer" ibuffer]
-      ["MSB-Mode" msb-mode]
-      ["Org-Switchb" org-switchb]))
-
-  ;; Tools menu
-  (mini-addmenu "tools"
-    `(,(mini-addmenu-divider)
-      ("Other Apps"
-       ("Organizing"
-	["Diary" (progn (diary) (switch-to-buffer "diary"))]
-	["Org-Agenda" org-agenda]
-	["ToDo-mode" todo-show]
-	["SES: Simple Emacs Spreadsheet" ses-mode])
-       ("Communication"
-	["ERC: IRC client" erc]
-	["Gnus: Usenet, Email, and RSS client" gnus]
-	["rcirc: IRC client" rcirc])
-       ("Media"
-	["MPC: Music Player Daemon client" mpc]
-	["Newsticker: RSS feed reader" newsticker-show-news])
-       ("Utilities"
-	["Dig" dig]
-	["Proced: System process viewer" proced]
-	("Command Lines"
-	 ["Ansi-Term" ansi-term]
-	 ["Term" term]
-	 ["Eshell" eshell]
-	 ["IELM" ielm]))
-       ("Reference"
-	["Dictionary" dictionary]))
-      ["Web Jump" webjump])))
 
 
 ;;; Meow
@@ -1792,27 +1678,29 @@ Use in `isearch-mode-end-hook'."
 ;; This can only be installed via the operating system.
 
 ;; :system-deps ("mu" "mbsync") ;; packages are "maildir-utils" and "isync"
-(mini-addmenu "tools"
-  '(["Mu4e: Email client" mu4e])
-  '("Other Apps" "Communication"))
-;; (mini-set mu4e-get-mail-command "mbsync -c ~/.config/mbsync/mbsyncrc gmail")
-(autoload 'mu4e "mu4e" "Mu4e" 'interactive)
+(mini-eval menu-bar
+  (when (locate-library "mu4e")
+    (mini-addmenu "tools"
+      '(["Mu4e: Email client" mu4e])
+      '("Other Apps" "Communication")))
+  ;; (mini-set mu4e-get-mail-command "mbsync -c ~/.config/mbsync/mbsyncrc gmail")
+  (autoload 'mu4e "mu4e" "Mu4e" 'interactive)
 
-(mini-eval mu4e
-  (mini-set mu4e-headers-draft-mark     '("D" . "💈"))
-  (mini-set mu4e-headers-flagged-mark   '("F" . "📍"))
-  (mini-set mu4e-headers-new-mark       '("N" . "🔥"))
-  (mini-set mu4e-headers-passed-mark    '("P" . "❯"))
-  (mini-set mu4e-headers-replied-mark   '("R" . "❮"))
-  (mini-set mu4e-headers-seen-mark      '("S" . "☑"))
-  (mini-set mu4e-headers-trashed-mark   '("T" . "💀"))
-  (mini-set mu4e-headers-attach-mark    '("a" . "📎"))
-  (mini-set mu4e-headers-encrypted-mark '("x" . "🔒"))
-  (mini-set mu4e-headers-signed-mark    '("s" . "🔑"))
-  (mini-set mu4e-headers-unread-mark    '("u" . "⎕"))
-  (mini-set mu4e-headers-list-mark      '("s" . "🔈"))
-  (mini-set mu4e-headers-personal-mark  '("p" . "👨"))
-  (mini-set mu4e-headers-calendar-mark  '("c" . "📅"))) ;; This may need to be customized.
+  (mini-eval mu4e
+    (mini-set mu4e-headers-draft-mark     '("D" . "💈"))
+    (mini-set mu4e-headers-flagged-mark   '("F" . "📍"))
+    (mini-set mu4e-headers-new-mark       '("N" . "🔥"))
+    (mini-set mu4e-headers-passed-mark    '("P" . "❯"))
+    (mini-set mu4e-headers-replied-mark   '("R" . "❮"))
+    (mini-set mu4e-headers-seen-mark      '("S" . "☑"))
+    (mini-set mu4e-headers-trashed-mark   '("T" . "💀"))
+    (mini-set mu4e-headers-attach-mark    '("a" . "📎"))
+    (mini-set mu4e-headers-encrypted-mark '("x" . "🔒"))
+    (mini-set mu4e-headers-signed-mark    '("s" . "🔑"))
+    (mini-set mu4e-headers-unread-mark    '("u" . "⎕"))
+    (mini-set mu4e-headers-list-mark      '("s" . "🔈"))
+    (mini-set mu4e-headers-personal-mark  '("p" . "👨"))
+    (mini-set mu4e-headers-calendar-mark  '("c" . "📅")))) ;; This may need to be customized.
 
 
 ;;; Mwim
@@ -1975,8 +1863,9 @@ confirmation to evaluate.")
 ;;; Pulsar
 
 (mini-pkgif pulsar
-  (mini-addmenu "options"
-    '(["Pulsar (cursor pulse on big moves)" pulsar-mode]))
+  (mini-eval menu-bar
+    (mini-addmenu "options"
+      '(["Pulsar (cursor pulse on big moves)" pulsar-mode])))
   (add-hook 'after-init-hook 'pulsar-global-mode)
   (mini-set pulsar-face 'pulsar-generic)
   (mini-set pulsar-iterations 20)
@@ -2251,8 +2140,9 @@ Optional argument ARG is the same as for `mark-word'." t))
 ;;; Vundo
 
 (mini-pkgif vundo
-  (mini-addmenu "tools"
-    '(["Visualize Undos" vundo])))
+  (mini-eval menu-bar
+    (mini-addmenu "tools"
+      '(["Visualize Undos" vundo]))))
 
 
 ;;; Warnings (built-in)
@@ -2271,9 +2161,11 @@ Optional argument ARG is the same as for `mark-word'." t))
 ;;; Which-key
 
 (mini-pkgif which-key
-  (mini-addmenu "options"
-    '(["Which-Key (pop-up keybindings)" which-key-mode])
-    '("Show/Hide"))
+  (mini-eval menu-bar
+    ;; TODO How to add checkbox in regular menu-bar for this?
+    (mini-addmenu "options"
+      '(["Which-Key (pop-up keybindings)" which-key-mode])
+      '("Show/Hide")))
   (add-hook 'window-setup-hook
             'which-key-setup-side-window-right-bottom)
   (mini-eval which-key

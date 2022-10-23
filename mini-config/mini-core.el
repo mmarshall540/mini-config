@@ -346,6 +346,17 @@ on the home-row, even if the layout is Programmer Dvorak." nil)
      item
      before)))
 
+  (defun mini-addmenu-divider ()
+    "Return a pretty divider to set apart user-added items."
+    (require 'tmm)
+    (defvar tmm-mid-prompt)
+    (vector
+     (concat
+      (make-string (length tmm-mid-prompt) ?\-)
+      (make-string (length tmm-mid-prompt) ?\*)
+      (make-string (length tmm-mid-prompt) ?\-))
+     'mini-menu-ignore))
+
 (defun mini-menu-toggler (sym)
   "Return a command to toggle the boolean value of variable SYM."
   (lambda () (interactive) (setq sym (not sym))))

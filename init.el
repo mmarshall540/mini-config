@@ -256,6 +256,12 @@
    (set-frame-position (selected-frame) 0 0)))
 
 
+;;; Add menu entries for more built-in packages
+
+(require 'mini-menus
+	 (expand-file-name "mini-config/mini-menus" user-emacs-directory))
+
+
 ;;; Configure selected and built-in packages.
 
 (require 'mini-packages
