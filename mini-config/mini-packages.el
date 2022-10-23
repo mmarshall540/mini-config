@@ -825,12 +825,6 @@ mouse-1: Display Line and Column Mode Menu")))
     (require 'dired-x)))
 
 
-;;; Display-line-numbers (built-in)
-
-(mini-bltin display-line-numbers
-  )
-
-
 ;;; Eglot
 
 (mini-bltin eglot
@@ -880,10 +874,6 @@ mouse-1: Display Line and Column Mode Menu")))
     '((34 . 34) (8216 . 8217) (8220 . 8221) (42 . 42)))
   (run-at-time 2 nil
 	       'electric-pair-mode))
-
-
-;;; Elisp-mode (built-in)
-
 
 
 ;;; Embark
@@ -1139,10 +1129,6 @@ the number row are un-shifted.)\n\n")
        `("Headings" ,(concat "\\(" (string 12 10) ";;; \\)\\(.*\\)$") 2)
        imenu-generic-expression))
     (add-hook 'emacs-lisp-mode-hook 'mini-add-imenu-package-headings)))
-
-
-;;; Info (built-in)
-
 
 
 ;;; Isearch (built-in)
@@ -1983,22 +1969,12 @@ confirmation to evaluate.")
   (add-hook 'org-mode-hook 'auto-fill-mode))
 
 
-;;; Org-agenda (built-in)
-
-
-
-
 ;;; Org-modern
 
 (mini-pkgif org-modern
   (add-hook 'org-mode-hook 'org-modern-mode)
   (add-hook 'org-agenda-finalize-hook 'org-modern-agenda)
   (mini-set org-modern-hide-stars nil))
-
-
-;;; Outline (built-in)
-
-
 
 
 ;;; Paragraphs (built-in)
@@ -2038,21 +2014,6 @@ confirmation to evaluate.")
   (when (version< "29" emacs-version)
     (declare-function pixel-scroll-precision-mode nil)
     (pixel-scroll-precision-mode)))
-
-
-;;; Prog-mode (built-in)
-
-;; (mini-bltin prog-mode
-;;   (mini-eval prog-mode
-;;     (global-prettify-symbols-mode))
-;;   ;; Show line-numbers on the side and column-numbers on the mode-line
-;;   ;; when in programming modes.
-;;   (add-hook 'prog-mode-hook
-;; 	    (mini-make-caller
-;; 	     'eval
-;; 	     '(list (display-line-numbers-mode)
-;; 		    (setq-local line-number-mode nil)
-;; 		    (setq-local column-number-mode t)))))
 
 
 ;;; Pulsar
@@ -2527,33 +2488,6 @@ Optional argument ARG is the same as for `mark-word'." t))
   ;;                    1.0)))
   ;;                which-key-unicode-correction))))
   )
-
-
-;;; Whitespace (built-in)
-
-;; (mini-bltin whitespace
-;;   (mini-set show-trailing-whitespace t)
-;;   (mini-set whitespace-style
-;;     '(face trailing lines-tail empty indentation::tab big-indent
-;; 	   space-after-tab::tab space-before-tab::tab)))
-
-
-;;; Windmove (built-in)
-
-;; (mini-bltin windmove
-;;   (mini-windmove-defk
-;;    ;; (left right up down)
-;;    (AudioPrev AudioNext AudioStop AudioPlay)
-;;    (("windmove"             nil     control)
-;;     ("windmove-display"     nil     meta)
-;;     ("windmove-delete"      (?\C-x) control)
-;;     ("windmove-swap-states" nil     control meta)))
-
-;;   ;; Additional commands for creating a frame, creating a tab, or
-;;   ;; ensuring the next buffer appears in the current window.
-;;   (mini-defk ?\M-N 'windmove-display-new-frame) ;; M-F interferes with shift-selection
-;;   (mini-defk ?\M-T 'windmove-display-new-tab)
-;;   (mini-defk ?\M-S 'windmove-display-same-window))
 
 
 ;;; Winner (built-in)
