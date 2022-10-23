@@ -400,59 +400,19 @@ mouse-1: Display Line and Column Mode Menu")))
 	'(vc-mode vc-mode)
 	"  " 'mode-line-modes 'mode-line-misc-info 'mode-line-end-spaces))
 
-
-;; leader key map
+;; C-c map
 ;; Keep descriptions to 25 chars or less.
 (dolist (submap
-	 `(
-	   ;; (("/" mini-snippets-map "Snippets")
-	   ;;  ("a" "C-x a" "Abbrev"))
-	   ;; ((")" "C-x C-k" "Keyboard Macros: C-x C-k"))
-	   ;; (("a" mini-appearance-map "Appearance")
-	   ;;  ("e" "C-x RET" "Encoding: C-x RET")
-	   ;;  ("n" "C-x n" "Narrowing: C-x n")
-	   ;;  ("p" 'pulsar-pulse-line)
-	   ;;  ("t" 'consult-theme))
-	   ;; (("b" "C-x b" "Change Buffer"))
-	   ;; (("b" mini-buffer-map "Buffers")
-	   ;;  ("b" 'consult-buffer)
-	   ;;  ("i" 'ibuffer "IBuffer")
-	   ;;  ("x" "C-x x" "Buffer Cmds: C-x x"))
-	   ;; (("d" mini-code/lsp-map "Code/Debugging")
-	   ;;  ("a" "C-x C-a" "Edebug Pt.1: C-x C-a")
-	   ;;  ("X" "C-x X" "Edebug Pt.2: C-x X"))
-	   ;; (("i" mini-leader-insert-map "Insert")
-	   ;;  ("f" 'insert-file "Insert File")
-	   ;;  ("$" "C-x 8" "group:C-x 8"))
-	   ;; (("k" "C-x k" "Kill Buffer"))
-	   ;; (("j" mini-get-around-map "Jump Around")
-	   ;;  ("l" recenter-top-bottom "Recenter-Top-Bottom")
-	   ;;  ("m" back-to-indentation "Back-to-Indentation")
-	   ;;  ("r" move-to-window-line-top-bottom "Move-to-Top-Bottom"))
-   	   ;; (("o" "C-x o" "Other Window"))
-	   (("n" mini-notes-map "Notes & Org-Mode")
+	 `((("n" mini-notes-map "Notes & Org-Mode")
 	    ("c" org-capture)
 	    ("l" org-store-link)
 	    ("d" denote)
 	    ("a" org-agenda))
-	   ;; (("o" mini-open-map "Open")
-	   ;;  ("v" 'vundo))
 	   (("o" ,(mini-simk "C-x o") "Other Window"))
-	   ;; (("p" "C-x p" "Project Cmds: C-x p"))
-	   ;; (("n" "C-x n" "group:Narrowing"))
 	   (("p" project-prefix-map "group:Project Cmds")) ;; ,(mini-simk "C-x p")
-	   ;; (("q" "C-q" "Quoted Insert"))
-	   ;; (("q" mini-quit/restart-map "Quit/Restart")
-	   ;;  ("r" 'restart-emacs))
 	   (("r" ,(mini-simk "C-x r") "group:Rect/Reg/Bkmrks")) ;; ctl-x-r-map
-	   ;; (("r" "C-x r" "Rectangles & Reg'rs: C-x r"))
-	   ;; (("s" "M-s" "Search: M-s"))
 	   (("s" ,(mini-simk "C-x C-s") "Save File"))
 	   (("t" ,(mini-simk "M-`") "group:TMM Menu-Bar")) ;; not really a prefix, but acts similarly
-	   ;; (("t" mini-toggle/features-map "Features/Toggle")
-	   ;;  ("r" "C-x C-q" "Read-Only: C-x C-q")
-	   ;;  ("v" 'view-mode "View Mode"))
-	   ;; (("u" "C-u" "Universal Argument"))
 	   (("v" vc-prefix-map "Version Control")) ;; ,(mini-simk "C-x v")
 	   (("w" mini-leader-windows-map "Windows/Tabs/Frames")
 	    ("c" ,(mini-simk "C-x 6") "group:2-Columns - C-x 6") ; *
@@ -483,7 +443,6 @@ mouse-1: Display Line and Column Mode Menu")))
 		   ("t" windmove-right)
 		   ("p" windmove-up)
 		   ("n" windmove-down))
-		  ;; "c" as in "choose".
  		  (("d" mini-leader-windmove-display-map "Windmove-Display")
 		   ("h" windmove-display-left)
 		   ("t" windmove-display-right)
@@ -754,10 +713,7 @@ mouse-1: Display Line and Column Mode Menu")))
       " by " user-full-name "\n#\n"
       "# Author: " user-full-name "\n#\n"
       "# Description:\n\n"
-      "use warnings;\nuse strict;\n"))
-  ;; (mini-eval cperl-mode
-  ;;   (mini-defk [?\C-c ?\C-c] 'quickrun-shell cperl-mode-map))
-  )
+      "use warnings;\nuse strict;\n")))
 
 
 ;;; Darkroom
@@ -851,7 +807,7 @@ mouse-1: Display Line and Column Mode Menu")))
 	(mini-defk "h"   'ehelp-command mode-specific-map "Help")
       (mini-defk "C-h" 'ehelp-command))  ;; electric-help
     (mini-defk "<f1>"   'ehelp-command)  ;; electric-help
-    (mini-defk "<help>" 'ehelp-command) ;; electric-help
+    (mini-defk "<help>" 'ehelp-command)  ;; electric-help
     (defvar ehelp-map)
     (mini-eval ehelp
       ;; was `view-emacs-faq', removing because it blocks electric-describe-function in
