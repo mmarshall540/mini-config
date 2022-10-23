@@ -2444,50 +2444,7 @@ Optional argument ARG is the same as for `mark-word'." t))
       ;; "m s" "search-map"
       ;; "m s h" "highlighting"
       ;; "h 4" "other-window-help"
-      ))
-  
-  ;; TEMP Remove the following if and when PR #333 is
-  ;; accepted.  The rest of this block is a fix for
-  ;; side-window-right popup, which without this allows the
-  ;; list of bindings to overlap the bottom of the screen
-  ;; when `line-spacing' is non-nil.
-  ;; (defvar which-key-side-window-location)
-  ;; (declare-function
-  ;;  which-key--height-or-percentage-to-height "which-key")
-  ;; (defvar which-key-side-window-max-height)
-  ;; (declare-function
-  ;;  which-key--total-width-to-text "which-key")
-  ;; (declare-function
-  ;;  which-key--width-or-percentage-to-width "which-key")
-  ;; (defvar which-key-side-window-max-width)
-  ;; (defvar which-key-unicode-correction)
-  ;;     (defun which-key--side-window-max-dimensions ()
-  ;;       "Return max-dimensions of the side-window popup (height . width)
-  ;; in lines and characters respectively."
-  ;;       (cons
-  ;;        ;; height
-  ;;        (if (member which-key-side-window-location
-  ;;                    '(left right))
-  ;;            ;; 1 is a kludge to make sure there is no overlap
-  ;;            (- (/ (- (frame-inner-height)
-  ;;                     (window-pixel-height
-  ;;                      (minibuffer-window)))
-  ;; 		 (default-line-height))
-  ;;               1)
-  ;; 	 (which-key--height-or-percentage-to-height
-  ;;           which-key-side-window-max-height))
-  ;;        ;; width
-  ;;        (max 0
-  ;;             (- (if (member which-key-side-window-location
-  ;;                            '(left right))
-  ;;                    (which-key--total-width-to-text
-  ;;                     (which-key--width-or-percentage-to-width
-  ;;                      which-key-side-window-max-width))
-  ;; 		 (which-key--total-width-to-text
-  ;;                   (which-key--width-or-percentage-to-width
-  ;;                    1.0)))
-  ;;                which-key-unicode-correction))))
-  )
+      )))
 
 
 ;;; Winner (built-in)
