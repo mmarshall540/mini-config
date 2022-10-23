@@ -25,11 +25,7 @@
 ;; skipped, unless the package is a member of
 ;; `package-selected-packages'.
 ;; ---
-;; Press "C-c @ C-t" to fold all package configs, leaving a list of package names visible.
-;; Press "C-c @ C-e" on a package name to make that package config visible.
-;; Or press "C-c @ C-a" to make everything visible again.
-;;
-;; Alternatively, you can press "M-i" to select a package config using `consult-imenu'.
+;; Press "M-i" to select a package config using `consult-imenu'.
 ;; ---
 ;; Package types:
 ;; + built-in
