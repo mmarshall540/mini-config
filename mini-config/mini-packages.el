@@ -1799,6 +1799,18 @@ confirmation to evaluate.")
   (add-hook 'after-init-hook 'save-place-mode))
 
 
+;;; Sdcv-Mode
+;; from https://github.com/gucong/emacs-sdcv
+;; as recommended at http://mbork.pl/2017-01-14_I'm_now_using_the_right_dictionary
+;; for use with Webster's Revised Unabridged Dictionary (1913), as described here:
+;; http://jsomers.net/blog/dictionary
+
+(add-to-list 'load-path (expand-file-name "lisp/emacs-sdcv" user-emacs-directory))
+(autoload 'sdcv-search "sdcv-mode"
+  "Search WORD through the command-line tool sdcv." 'interactive)
+(mini-defk "s" 'sdcv-search mode-specific-map "Search Word")
+
+
 ;;; Sh-mode (built-in)
 
 (mini-bltin sh-mode
