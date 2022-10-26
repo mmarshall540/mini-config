@@ -1804,6 +1804,7 @@ confirmation to evaluate.")
 ;; as recommended at http://mbork.pl/2017-01-14_I'm_now_using_the_right_dictionary
 ;; for use with Webster's Revised Unabridged Dictionary (1913), as described here:
 ;; http://jsomers.net/blog/dictionary
+;; (Requires the "sdcv" command-line tool, found in most Linux distro repositories.)
 
 (add-to-list 'load-path (expand-file-name "lisp/emacs-sdcv" user-emacs-directory))
 (autoload 'sdcv-search "sdcv-mode"
