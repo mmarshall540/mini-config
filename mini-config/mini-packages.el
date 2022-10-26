@@ -261,17 +261,24 @@ initially found within the current line."
 ;; C-c map
 ;; Keep descriptions to 25 chars or less.
 (dolist (submap
-	 `((("n" mini-notes-map "Notes & Org-Mode")
-	    ("c" org-capture)
-	    ("l" org-store-link)
-	    ("d" denote)
-	    ("a" org-agenda))
-	   (("o" ,(mini-simk "C-x o") "Other Window"))
-	   (("p" project-prefix-map "group:Project Cmds")) ;; ,(mini-simk "C-x p")
-	   (("r" ,(mini-simk "C-x r") "group:Rect/Reg/Bkmrks")) ;; ctl-x-r-map
-	   (("s" ,(mini-simk "C-x C-s") "Save File"))
-	   (("t" ,(mini-simk "M-`") "group:TMM Menu-Bar")) ;; not really a prefix, but acts similarly
-	   (("v" vc-prefix-map "Version Control")) ;; ,(mini-simk "C-x v")
+	 `((("a" org-agenda "Org Agenda"))
+	   (("c" org-capture "Org Capture"))
+	   (("d" denote "Denote"))
+	    (("e" delete-pair "Erase Pairs"))
+	   ;; (("e" mini-leader-editing-map "Editing")
+	    ;; ("c" 'cape-prefix)
+	    ;; ("k" 'mini-kill-prefix-command "Kill Commands")
+	    ;; ("m" 'mini-mark-prefix-command "Marking Commands")
+	    ;; ("t" 'mini-transpose-prefix-command "Transpose Cmds"))
+	   (("l" org-store-link "Org Store Link"))
+	   (("n" next-buffer "Next Buffer"))
+	   (("p" previous-buffer "Previous Buffer"))
+	   ;; (("o" ,(mini-simk "C-x o") "Other Window"))
+	   ;; (("p" project-prefix-map "group:Project Cmds")) ;; ,(mini-simk "C-x p")
+	   ;; (("r" ,(mini-simk "C-x r") "group:Rect/Reg/Bkmrks")) ;; ctl-x-r-map
+	   ;; (("s" ,(mini-simk "C-x C-s") "Save File"))
+	   ;; (("t" ,(mini-simk "M-`") "group:TMM Menu-Bar")) ;; not really a prefix, but acts similarly
+	   ;; (("v" vc-prefix-map "Version Control")) ;; ,(mini-simk "C-x v")
 	   (("w" mini-leader-windows-map "Windows/Tabs/Frames")
 	    ("c" ,(mini-simk "C-x 6") "group:2-Columns - C-x 6") ; *
 	    ("f" ,(mini-simk "C-x 5") "group:Other Frame - C-x 5") ; *
@@ -650,9 +657,8 @@ initially found within the current line."
 ;;; Eglot-java
 
 (mini-pkgif eglot-java
-  (run-at-time
-   1.5 nil
-   'eglot-java-init))
+  (mini-eval eglot
+    (eglot-java-init)))
 
 
 ;;; Ehelp (built-in)
