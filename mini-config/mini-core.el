@@ -384,6 +384,7 @@ variable holding a keymap as its car.  The cdr of each alist is a
 list of bindings.  Each binding is a list containing 3 strings, the
 key, the command, and the which-key-string (if any).")
 
+(declare-function which-key-add-keymap-based-replacements nil)
 (defmacro mini-defk (key cmd &optional map wkstringk)
   "Bind KEY to CMD in MAP or `global-map'.
 If which-key is installed, it can use the string provided as
@@ -1211,6 +1212,7 @@ Otherwise, call `isearch-repeat-backward' and then
   (mini-defk "M-t"    'transpose-lines          ctl-x-map)
   (mini-defk "C-t"    'transpose-chars          isearch-mode-map))
 
+(defvar mini-transpose-prefix)
 (when mini-transpose-bindings
   (define-prefix-command 'mini-transpose-prefix nil "mini-transpose-prefix-menu")
   (mini-defk "t" 'mini-transpose-prefix mode-specific-map "Transpose Cmds")
@@ -1223,7 +1225,7 @@ Otherwise, call `isearch-repeat-backward' and then
 		("p" . transpose-paragraphs)))
     (mini-defk (car kb) (cdr kb) mini-transpose-prefix)))
 
-
+(defvar mini-kill-prefix)
 (when mini-kill-bindings
   (define-prefix-command 'mini-kill-prefix nil "mini-kill-prefix-menu")
   (mini-defk "k" 'mini-kill-prefix mode-specific-map "Kill Cmds")
@@ -1244,6 +1246,7 @@ Otherwise, call `isearch-repeat-backward' and then
 		("Z" . zap-to-char)))
     (mini-defk (car kb) (cdr kb) mini-kill-prefix)))
 
+(defvar mini-mark-prefix)
 (when mini-mark-bindings
   (define-prefix-command 'mini-mark-prefix nil "mini-mark-prefix-menu")
   (mini-defk "m" 'mini-mark-prefix mode-specific-map "Mark Cmds")
