@@ -218,10 +218,10 @@ navigation block and the `avy-keys' variable."
 
 (defcustom mini-simulate-C-x-at-C-t-in-Dvorak nil
   "This affects only the Dvorak and Programmer Dvorak layouts.
-If non-nil (the default), and either of those layouts is
-selected as `mini-keyboard-layout', then certain keybindings will
-be altered to compensate for the inconvenience of pressing the
-`C-x' key in those layouts.
+If non-nil, and either of those layouts is selected as
+`mini-keyboard-layout', then certain keybindings will be altered
+to compensate for the inconvenience of pressing the `C-x' key in
+those layouts.
 
 In that case, `C-t' will *simulate* `C-x'.  Because it's a
 simulation of the `C-x' keypress, all bindings that are available
@@ -1208,61 +1208,62 @@ Otherwise, call `isearch-repeat-backward' and then
   ;; Make "C-t C-t" work like "C-x C-x".
   (mini-defk "C-t"    'exchange-point-and-mark  ctl-x-map)
   ;; Make "C-t M-t" work like "C-x C-t" did before.
-  (mini-defk "M-t"    'transpose-lines          ctl-x-map))
+  (mini-defk "M-t"    'transpose-lines          ctl-x-map)
+  (mini-defk "C-t"    'transpose-chars          isearch-mode-map))
 
 (when mini-transpose-bindings
-  (defvar mini-transpose-prefix-map (make-sparse-keymap))
-  (define-prefix-command 'mini-transpose-prefix-command 'mini-transpose-prefix-map)
-  (dolist (kb '((?c . transpose-chars)
-		(?l . transpose-lines)
-		(?s . transpose-sexps)
-		(?w . transpose-words)
-		(?r . transpose-regions)
-		(?e . transpose-sentences)
-		(?p . transpose-paragraphs)))
-    (mini-defk (car kb) (cdr kb) mini-transpose-prefix-map)))
+  (define-prefix-command 'mini-transpose-prefix nil "mini-transpose-prefix-menu")
+  (mini-defk "t" 'mini-transpose-prefix mode-specific-map "Transpose Cmds")
+  (dolist (kb '(("c" . transpose-chars)
+		("l" . transpose-lines)
+		("s" . transpose-sexps)
+		("w" . transpose-words)
+		("r" . transpose-regions)
+		("e" . transpose-sentences)
+		("p" . transpose-paragraphs)))
+    (mini-defk (car kb) (cdr kb) mini-transpose-prefix)))
 
 
 (when mini-kill-bindings
-  (defvar mini-kill-prefix-map (make-sparse-keymap))
-  (define-prefix-command 'mini-kill-prefix-command 'mini-kill-prefix-map)
-  (dolist (kb '((?K . kill-whole-line)
-		(?s . kill-sexp)
-		(?w . kill-word)
-		(?m . kill-region)
-		(?c . kill-comment)
-		(?e . kill-sentence)
-		(?E . backward-kill-sentence)
-		(?p . kill-paragraph)
-		(?P . backward-kill-paragraph)
-		(?r . kill-rectangle)
-		(?v . kill-visual-line)
-		(?o . kill-matching-lines)
-		(?u . kill-backward-up-list)
-		(?z . zap-up-to-char)
-		(?Z . zap-to-char)))
-    (mini-defk (car kb) (cdr kb) mini-kill-prefix-map)))
+  (define-prefix-command 'mini-kill-prefix nil "mini-kill-prefix-menu")
+  (mini-defk "k" 'mini-kill-prefix mode-specific-map "Kill Cmds")
+  (dolist (kb '(("K" . kill-whole-line)
+		("s" . kill-sexp)
+		("w" . kill-word)
+		("m" . kill-region)
+		("c" . kill-comment)
+		("e" . kill-sentence)
+		("E" . backward-kill-sentence)
+		("p" . kill-paragraph)
+		("P" . backward-kill-paragraph)
+		("r" . kill-rectangle)
+		("v" . kill-visual-line)
+		("o" . kill-matching-lines)
+		("u" . kill-backward-up-list)
+		("z" . zap-up-to-char)
+		("Z" . zap-to-char)))
+    (mini-defk (car kb) (cdr kb) mini-kill-prefix)))
 
 (when mini-mark-bindings
-  (defvar mini-mark-prefix-map (make-sparse-keymap))
-  (define-prefix-command 'mini-mark-prefix-command 'mini-mark-prefix-map)
-  (dolist (kb '((?s . mark-sexp)
-              (?, . mark-beginning-of-buffer)
-              (?. . mark-end-of-buffer)
-              (?  . consult-mark)
-              (?e . mark-end-of-sentence)
-              (?w . mark-word)
-              (?W . subword-mark)
-              (?d . mark-defun)
-              (?p . mark-page)
-              (?h . mark-paragraph)
-              (?b . mark-whole-buffer)
-              (?m . set-mark-command)
-              (?M . pop-to-mark-command)
-              (?g . pop-to-global-mark)
-              (?x . exchange-point-and-mark)
-              (?r . rectangle-mark-mode)))
-  (mini-defk (car kb) (cdr kb) mini-mark-prefix-map)))
+  (define-prefix-command 'mini-mark-prefix nil "mini-mark-prefix-menu")
+  (mini-defk "m" 'mini-mark-prefix mode-specific-map "Mark Cmds")
+  (dolist (kb '(("s" . mark-sexp)
+		("," . mark-beginning-of-buffer)
+		("." . mark-end-of-buffer)
+		(" " . consult-mark)
+		("e" . mark-end-of-sentence)
+		("w" . mark-word)
+		("W" . subword-mark)
+		("d" . mark-defun)
+		("p" . mark-page)
+		("h" . mark-paragraph)
+		("b" . mark-whole-buffer)
+		("m" . set-mark-command)
+		("M" . pop-to-mark-command)
+		("g" . pop-to-global-mark)
+		("x" . exchange-point-and-mark)
+		("r" . rectangle-mark-mode)))
+    (mini-defk (car kb) (cdr kb) mini-mark-prefix)))
 
 ;;; Mode-line mode-name renaming
 
