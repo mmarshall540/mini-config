@@ -264,12 +264,12 @@ initially found within the current line."
 	 `((("a" org-agenda "Org Agenda"))
 	   (("c" org-capture "Org Capture"))
 	   (("d" denote "Denote"))
-	    (("e" delete-pair "Erase Pairs"))
+	   (("e" delete-pair "Erase Pairs"))
 	   ;; (("e" mini-leader-editing-map "Editing")
-	    ;; ("c" 'cape-prefix)
-	    ;; ("k" 'mini-kill-prefix-command "Kill Commands")
-	    ;; ("m" 'mini-mark-prefix-command "Marking Commands")
-	    ;; ("t" 'mini-transpose-prefix-command "Transpose Cmds"))
+	   ;; ("c" 'cape-prefix)
+	   ;; ("k" 'mini-kill-prefix-command "Kill Commands")
+	   ;; ("m" 'mini-mark-prefix-command "Marking Commands")
+	   ;; ("t" 'mini-transpose-prefix-command "Transpose Cmds"))
 	   (("l" org-store-link "Org Store Link"))
 	   (("n" next-buffer "Next Buffer"))
 	   (("p" previous-buffer "Previous Buffer"))
@@ -292,7 +292,7 @@ initially found within the current line."
   (unless (= 1 (length submap))
     ;; Make a prefix-map out of the first item in the list.
     (define-prefix-command (cadar submap)))
-  ;; Bind it in mode-specific-map, which Meow uses by default with its leader key.
+  ;; Bind it in mode-specific-map ("C-c" prefix).
   (mini-defk (caar submap)
 	     (cadar submap)
 	     mode-specific-map (caddar submap))
@@ -329,7 +329,7 @@ initially found within the current line."
   ;; Create prefix map and command.
   ;; Make a prefix-map out of the first item in the list.
   (define-prefix-command (cadar submap))
-  ;; Bind it in mini-leader-windows-map which Meow uses by default with its leader key.
+  ;; Bind it in mini-leader-windows-map.
   (mini-defk (caar submap)
 	     (cadar submap)
 	     mini-leader-windows-map (caddar submap))
@@ -623,6 +623,15 @@ initially found within the current line."
                    :jump-to-captured t))))
 
 
+;;; Diff-Mode (built-in)
+
+(mini-bltin diff-mode
+  (mini-eval diff-mode
+    (defvar diff-mode-map)
+    ;; Conflicts with the "M-o" `other-window' binding.
+    (mini-defk "ESC o" nil diff-mode-map)))
+
+
 ;;; Dired (built-in)
 
 (mini-bltin dired
@@ -650,7 +659,7 @@ initially found within the current line."
 ;;; Eglot (built-in, if version > 29)
 
 (when
-    (or (version< 29 emacs-version)
+    (or (version< "29" emacs-version)
 	(memq 'eglot package-selected-packages))
   (add-hook 'python-mode-hook 'eglot-ensure)
   (add-hook 'java-mode-hook 'eglot-ensure))
@@ -675,11 +684,7 @@ initially found within the current line."
       (mini-defk "C-h" 'ehelp-command))  ;; electric-help
     (mini-defk "<f1>"   'ehelp-command)  ;; electric-help
     (mini-defk "<help>" 'ehelp-command)  ;; electric-help
-    (defvar ehelp-map)
-    (mini-eval ehelp
-      ;; was `view-emacs-faq', removing because it blocks electric-describe-function in
-      ;; meow-leader-map
-      (mini-defk "C-f" nil ehelp-map))))
+    (defvar ehelp-map)))
 
 
 ;;; Eldoc (built-in)
@@ -875,7 +880,6 @@ the number row are un-shifted.)\n\n")
                   (?d     . nil) ;; (apropos-documentation)
                   ;; (?A     . apropos-documentation) ;; Re-binding
                   (?\C-e  . nil) ;; (available in the Info manual) (view-external-packages)
-		  (?\C-f  . nil) ;; (blocks describe-function in meow-leader-map) (view-emacs-faq)
                   (?h     . nil) ;; (view-hello-file)
                   (?H     . view-hello-file) ;; Re-bound to prevent accidental invocation
 		  (?L     . find-library) ;; from find-func.el (original binding is available in the Info manual)
@@ -1066,16 +1070,13 @@ Use in `isearch-mode-end-hook'."
 
 (mini-pkgif link-hint
   (mini-defk [?\M-g ?o] 'link-hint-open-link)
-  (mini-eval ibuffer
-    (defvar ibuffer-mode-map)
-    (mini-defk ?\M-g nil ibuffer-mode-map)
-    (mini-defk [?\M-g ?o] 'link-hint-open-link ibuffer-mode-map))
+  ;; (mini-eval ibuffer
+  ;;   (defvar ibuffer-mode-map)
+  ;;   (mini-defk ?\M-g nil ibuffer-mode-map)
+  ;;   (mini-defk [?\M-g ?o] 'link-hint-open-link ibuffer-mode-map))
   (mini-eval menu-bar
     (mini-addmenu "tools"
-      '(["Link Hint" link-hint-open-link])))
-  ;; (mini-eval meow
-  ;;   (mini-defk "o" 'link-hint-open-link mode-specific-map "Open Link"))
-  )
+      '(["Link Hint" link-hint-open-link]))))
 
 
 ;;; "Lisp" (built-in)
@@ -1463,7 +1464,15 @@ Use in `isearch-mode-end-hook'."
   ;; C-o (splits line at point, which is different from I; but "RET p e g" is good enough for me.)
   ;; C-t (but alternative is "S-h k h y", which isn't bad if you don't use it a lot... better alternative?)
   ;; C-v (but PgDn key is an alternative)
-  )
+
+  (mini-eval ehelp
+    ;; was `view-emacs-faq', removing because it blocks
+    ;; `electric-describe-function' in `meow-leader-map'.
+    (mini-defk "C-f" nil ehelp-map))
+  (mini-eval help
+    ;; was `view-emacs-faq', removing because it blocks
+    ;; `describe-function' in `meow-leader-map'.
+    (mini-defk "C-f" nil help-map)))
 
 
 ;;; Minibuffer (built-in)
@@ -1810,7 +1819,7 @@ confirmation to evaluate.")
 (add-to-list 'load-path (expand-file-name "lisp/emacs-sdcv" user-emacs-directory))
 (autoload 'sdcv-search "sdcv-mode"
   "Search WORD through the command-line tool sdcv." 'interactive)
-(mini-defk "s" 'sdcv-search mode-specific-map "Search Word")
+(mini-defk "s" 'sdcv-search mode-specific-map "Search Dictionary")
 
 
 ;;; Sh-mode (built-in)
