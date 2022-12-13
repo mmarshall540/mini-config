@@ -30,26 +30,29 @@
 
 ;; File menu
 (mini-addmenu "file"
-  `(,(mini-addmenu-divider)
-    ["HTML-Fontify Buffer" htmlfontify-buffer]
-    ["Open Init File" mini-find-init-file]
-    ["Config Files" (dired (expand-file-name "*.el" user-emacs-directory))]
-    ["Org Directory" (progn (require 'org) (dired (expand-file-name org-directory)))]
-    ,(let ((dirmenu nil)
-	   (source-dirs-menu-name "Emacs Elisp sources"))
-       (cons (format "%s" source-dirs-menu-name)
-	     (nreverse
-	      (dolist (dir load-path dirmenu)
-		(when (string-match-p (regexp-quote "lisp") dir)
-		  (setq dirmenu
-			(cons (vector
-			       (format "%s" (expand-file-name dir))
-			       `(dired (format "%s"
-					       ,(expand-file-name dir))))
-			      dirmenu)))))))
-    ["Autorevert-Mode" auto-revert-mode]
-    ,(when (version< "29" emacs-version)
-       ["Restart Emacs" restart-emacs])))
+  (let ((menuaddons `(,(mini-addmenu-divider)
+		      ["HTML-Fontify Buffer" htmlfontify-buffer]
+		      ["Open Init File" mini-find-init-file]
+		      ["Config Files" (dired (expand-file-name "*.el" user-emacs-directory))]
+		      ["Org Directory" (progn (require 'org) (dired (expand-file-name org-directory)))]
+		      ,(let ((dirmenu nil)
+			     (source-dirs-menu-name "Emacs Elisp sources"))
+			 (cons (format "%s" source-dirs-menu-name)
+			       (nreverse
+				(dolist (dir load-path dirmenu)
+				  (when (string-match-p (regexp-quote "lisp") dir)
+				    (setq dirmenu
+					  (cons (vector
+						 (format "%s" (expand-file-name dir))
+						 `(dired (format "%s"
+								 ,(expand-file-name dir))))
+						dirmenu)))))))
+		      ["Autorevert-Mode" auto-revert-mode])))
+    (if (version< "29" emacs-version)
+	(append menuaddons '(["Restart Emacs" restart-emacs]))
+      menuaddons)))
+	
+      
 
 ;; Edit menu
 (mini-addmenu "edit"
